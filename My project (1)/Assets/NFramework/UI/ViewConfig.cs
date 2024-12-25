@@ -25,5 +25,5 @@ public class ViewConfig
     /// Layer
     /// </summary>
     /// <returns></returns>
-    public Byte 
+    public Byte Layer;
 }
