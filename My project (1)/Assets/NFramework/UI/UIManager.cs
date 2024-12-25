@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Proto.Promises;
 
 namespace NFramework.UI
@@ -9,5 +10,13 @@ namespace NFramework.UI
             var result = Promise<T>.NewDeferred();
             return result.Promise;
         }
+
+
+        // private Dictionary<string, ViewConfig> ;
+        // private Dictionary<>
+        // public ViewConfig GetConfig<T>() where T : View
+        // {
+        //     
+        // }
     }
 }
