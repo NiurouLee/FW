@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-public struct StructHashSet<T> : IDisposable, ISet<T>
+public struct StructHashSet<T> : IDisposable //, ISet<T>
 {
     private HashSet<T> _set;
 
