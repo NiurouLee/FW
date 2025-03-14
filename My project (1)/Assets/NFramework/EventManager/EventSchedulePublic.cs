@@ -33,6 +33,7 @@ namespace NFramework.Event
             var register = ObjectPool.Alloc<ConditionRegister>();
             register.EventType = type;
             register.CallBack = callback;
+            register.EventSchedule = this;
             register.Condition = condition;
             return this._Subscribe(register);
         }
@@ -45,6 +46,7 @@ namespace NFramework.Event
             subscribe.EventType = type;
             subscribe.CallBack = callback;
             subscribe.Channel = channel;
+            subscribe.EventSchedule = this;
             return this._Subscribe(subscribe);
         }
 
@@ -65,6 +67,7 @@ namespace NFramework.Event
             register.EventType = type;
             register.CallBack = callback;
             register.Condition = condition;
+            register.EventSchedule = this;
             this._Unsubscribe(register);
         }
 
@@ -76,6 +79,7 @@ namespace NFramework.Event
             subscribe.EventType = type;
             subscribe.CallBack = callback;
             subscribe.Channel = channel;
+            subscribe.EventSchedule = this;
             this._Unsubscribe(subscribe);
         }
 
@@ -105,6 +109,7 @@ namespace NFramework.Event
             register.EventType = type;
             register.CallBack = callback;
             register.Condition = condition;
+            register.EventSchedule = this;
             return this.Check(register);
         }
 
@@ -115,6 +120,7 @@ namespace NFramework.Event
             subscribe.EventType = type;
             subscribe.CallBack = callback;
             subscribe.Channel = channel;
+            subscribe.EventSchedule = this;
             return this.Check(subscribe);
         }
     }

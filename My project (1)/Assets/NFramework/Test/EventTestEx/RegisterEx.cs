@@ -1,3 +1,4 @@
+using System;
 using System.Reflection.Emit;
 using NFramework.Event;
 using UnityEngine;
@@ -6,14 +7,22 @@ namespace NFramework.Test.EventTestEx
 {
     public class RegisterEx
     {
-        public void TestRegister()
+        private EventRecords records;
+        public RegisterEx()
         {
-            EventManager.D.Subscribe<NormalEvent>(this.OnNormalEvent);
+            records = new EventRecords();
+            records.Awake();
+            records.SetSchedule(EventManager.D);
         }
 
+        #region  normal
         private void OnNormalEvent(ref NormalEvent normalEvent)
         {
             UnityEngine.Debug.Log("OnNormalEvent");
+        }
+        public void TestRegister()
+        {
+            EventManager.D.Subscribe<NormalEvent>(this.OnNormalEvent);
         }
 
         public void TestUnRegister()
@@ -21,24 +30,38 @@ namespace NFramework.Test.EventTestEx
             EventManager.D.UnSubscribe<NormalEvent>(this.OnNormalEvent);
         }
 
-        public void TestRegister2()
+        public void TestRegisterRecords()
         {
-            var register = EventManager.D.Subscribe<NormalEvent>(this.OnNormalEvent);
+            records.Subscribe<NormalEvent>(this.OnNormalEvent);
         }
 
-        public void TestRegisterChannel()
+        public void TestUnRegisterRecords()
         {
-            EventManager.D.Subscribe<ChannelEvent>(this.OnChannelEvent, "111");
+            records.UnSubscribe<NormalEvent>(this.OnNormalEvent);
         }
 
+        #endregion
         private void OnChannelEvent(ref ChannelEvent initem)
         {
             UnityEngine.Debug.Log($"OnChannelEvent=>{initem.Channel}");
         }
-
+        public void TestRegisterChannel()
+        {
+            EventManager.D.Subscribe<ChannelEvent>(this.OnChannelEvent, "111");
+        }
         public void TestUnRegisterChannel()
         {
             EventManager.D.UnSubscribe<ChannelEvent>(this.OnChannelEvent, "111");
+        }
+
+        public void TestRegisterRecordsChannel()
+        {
+            records.Subscribe<ChannelEvent>(this.OnChannelEvent, "111");
+        }
+
+        public void TestUnRegisterRecordsChannel()
+        {
+            records.UnSubscribe<ChannelEvent>(this.OnChannelEvent, "111");
         }
 
         public void TestRegisterFilter()
@@ -56,6 +79,16 @@ namespace NFramework.Test.EventTestEx
             EventManager.D.UnSubscribe<NormalEvent>(this.OnFilterEvent, this.Filter);
         }
 
+        public void TestRegisterRecordsFilter()
+        {
+            records.Subscribe<NormalEvent>(this.OnFilterEvent, this.Filter);
+        }
+
+        public void TestUnRegisterRecordsFilter()
+        {
+            records.UnSubscribe<NormalEvent>(this.OnFilterEvent, this.Filter);
+        }
+
         private bool Filter(ref NormalEvent initem)
         {
             if (initem.ID == 1)
@@ -69,6 +102,11 @@ namespace NFramework.Test.EventTestEx
             Debug.Log($"normalCount:{normalCount}");
             var channelCount = EventManager.D.GetCount<ChannelEvent>();
             Debug.Log($"channelCount:{channelCount}");
+        }
+
+        internal void TestUnRegisterAllRecords()
+        {
+            records.Destroy();
         }
     }
 }

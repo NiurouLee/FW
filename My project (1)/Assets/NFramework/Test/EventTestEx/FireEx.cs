@@ -8,7 +8,7 @@ namespace NFramework.Test.EventTestEx
         {
             var normalEvent2 = new NormalEvent();
             normalEvent2.ID = 2;
-            EventManager.D.Fire(ref normalEvent2);
+            EventManager.D.Publish(ref normalEvent2);
 
             var normalEvent1 = new NormalEvent();
             normalEvent1.ID = 1;

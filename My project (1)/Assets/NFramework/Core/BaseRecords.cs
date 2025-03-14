@@ -63,8 +63,10 @@ public abstract class BaseRecords<T> : IRecords<T> where T : class
 
     public void Destroy()
     {
+        this.OnDestroy();
         if (this.records != null)
         {
+            this.records.Clear();
             HashSetPool.Free(this.records);
             this.records = null;
         }

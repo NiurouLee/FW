@@ -9,19 +9,32 @@ namespace NFramework.Test.EventTestEx
         private void Start()
         {
             var register = new RegisterEx();
-            register.TestRegister();
-            register.TestRegisterChannel();
-            register.TestRegisterFilter();
+            // register.TestRegister();
+            // register.TestRegisterChannel();
+            // register.TestRegisterFilter();
+            // var fire = new FireEx();
+            // fire.FireNormal();
+            // fire.FireChannel();
+            // register.TestUnRegister();
+            // register.TestUnRegisterChannel();
+            // register.TestUnRegisterFilter();
 
-            var fire = new FireEx();
-            fire.FireNormal();
-            fire.FireChannel();
-
+            register.TestRegisterRecords();
+            register.TestRegisterRecordsChannel();
+            register.TestRegisterRecordsFilter();
             register.LogCount();
 
-            register.TestUnRegister();
-            register.TestUnRegisterChannel();
-            register.TestUnRegisterFilter();
+            // register.TestUnRegisterRecords();
+            // register.LogCount();
+
+            // register.TestUnRegisterRecordsChannel();
+            register.TestUnRegisterAllRecords();
+            register.LogCount();
+
+            // register.TestUnRegisterRecordsFilter();
+            register.LogCount();
+
+
         }
     }
 }

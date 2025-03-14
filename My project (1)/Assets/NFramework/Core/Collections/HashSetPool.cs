@@ -40,7 +40,7 @@ public static class HashSetPool
             var type = typeof(T);
             if (!_cache.TryGetValue(type, out var cacheList))
             {
-                cacheList = new List<IList>();
+                cacheList = new List<object>();
                 _cache.Add(type, cacheList);
             }
 

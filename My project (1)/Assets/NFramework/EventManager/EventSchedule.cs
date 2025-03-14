@@ -4,7 +4,7 @@ using UnityEditor;
 
 namespace NFramework.Event
 {
-    public partial class EventSchedule : IEventSchedule
+    public partial class EventSchedule : IEventRegister
     {
         private readonly MultiDictionary<System.Type, BaseRegister> m_EventHandler;
 

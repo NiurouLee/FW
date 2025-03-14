@@ -1,6 +1,6 @@
 namespace NFramework.Event
 {
-    public interface IEventSchedule
+    public interface IEventRegister
     {
         public BaseRegister Subscribe<T>(RefAction<T> callback) where T : IEvent;
 
