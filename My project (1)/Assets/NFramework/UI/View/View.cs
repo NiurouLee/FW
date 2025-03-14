@@ -1,147 +1,129 @@
-using System.Collections.Generic;
-using System.Net;
 using Proto.Promises;
-using Unity.VisualScripting;
-using Unity.VisualScripting.Antlr3.Runtime.Tree;
+using NFramework.Core;
 
-public partial class View
+namespace NFramework.UI
 {
-    public UIFacade Facade { get; private set; }
-    protected View Parent { get; private set; }
-    private void SetParent(View inParent)
+    public partial class View
     {
-        this.Parent = inParent;
-    }
+        public UIFacade Facade { get; private set; }
+        protected View Parent { get; private set; }
 
-    private void RemoveParent()
-    {
-        this.Parent = null;
-    }
+        private SubViewRecords m_viewRecords;
 
-
-    private HashSet<View> _child;
-
-    protected HashSet<View> Child
-    {
-        get
+        private SubViewRecords ViewRecords
         {
-            if (_child == null)
+            get
             {
-                _child = new HashSet<View>();
+                if (m_viewRecords == null)
+                {
+                    m_viewRecords = ObjectPool.Alloc<SubViewRecords>();
+                }
+
+                return m_viewRecords;
             }
-
-            return _child;
         }
-    }
 
-
-    public virtual void Awake(UIFacade inFacade)
-    {
-        if (inFacade == null)
+        private void SetParent(View inParent)
         {
-            this.Facade = inFacade;
-            OnBindFacade();
-            OnAwake();
+            this.Parent = inParent;
         }
-    }
 
-    protected virtual void OnBindFacade()
-    {
-    }
-
-    protected virtual void OnAwake()
-    {
-    }
-
-    public virtual void Show()
-    {
-        OnShow();
-        Enable();
-    }
-
-    public virtual void OnShow()
-    {
-    }
-
-    public virtual void Enable()
-    {
-        this.Facade?.Enable();
-        OnEnable();
-    }
-
-    public virtual void OnEnable()
-    {
-    }
-
-    public virtual void Hide()
-    {
-        Disable();
-        OnHide();
-    }
-
-    public virtual void OnHide()
-    {
-    }
-
-    public virtual void Disable()
-    {
-        this.Facade?.Disable();
-        OnDisable();
-    }
-
-    public virtual void OnDisable()
-    {
-    }
-
-    public virtual void Focus()
-    {
-        OnFocus();
-    }
-
-    public virtual void OnFocus()
-    {
-    }
-
-    public virtual void DeFocus()
-    {
-        OnDeFocus();
-    }
-
-    public virtual void OnDeFocus()
-    {
-    }
-
-    public virtual void Destroy()
-    {
-        OnDestroy();
-    }
-
-    public virtual void OnDestroy()
-    {
-    }
+        private void RemoveParent()
+        {
+            this.Parent = null;
+        }
 
 
-    public T AddSubViewSync<T>(IUIFacadeProvider inProvider = null) where T : View, new()
-    {
-        var facade = inProvider.Alloc<T>();
-        return _AddSubViewByFacade<T>(facade);
-    }
+        public virtual void Show()
+        {
+            OnShow();
+            Enable();
+        }
 
-    public async Promise<T> AddSubViewASync<T>(IUIFacadeProvider inProvider = null) where T : View, new()
-    {
-        var facade = await inProvider.AllocAsync<T>();
-        return _AddSubViewByFacade<T>(facade);
-    }
+        public virtual void OnShow()
+        {
+        }
 
-    public T AddSubViewByFacade<T>(UIFacade inFacade) where T : View, new()
-    {
-        return _AddSubViewByFacade<T>(inFacade);
-    }
+        public virtual void Enable()
+        {
+            this.Facade?.Enable();
+            OnEnable();
+        }
 
-    public T AddSubViewByFacadeShow<T>(UIFacade inFacade) where T : View, new()
-    {
-        var result = _AddSubViewByFacade<T>(inFacade);
-        result.Show();
-        return result;
+        public virtual void OnEnable()
+        {
+        }
+
+        public virtual void Hide()
+        {
+            Disable();
+            OnHide();
+        }
+
+        public virtual void OnHide()
+        {
+        }
+
+        public virtual void Disable()
+        {
+            this.Facade?.Disable();
+            OnDisable();
+        }
+
+        public virtual void OnDisable()
+        {
+        }
+
+        public virtual void Focus()
+        {
+            OnFocus();
+        }
+
+        public virtual void OnFocus()
+        {
+        }
+
+        public virtual void DeFocus()
+        {
+            OnDeFocus();
+        }
+
+        public virtual void OnDeFocus()
+        {
+        }
+
+        public virtual void Destroy()
+        {
+            OnDestroy();
+        }
+
+        protected virtual void OnDestroy()
+        {
+        }
+
+
+        public T AddSubViewSync<T>(IUIFacadeProvider inProvider = null) where T : View, new()
+        {
+            var facade = inProvider.Alloc<T>();
+            return _AddSubViewByFacade<T>(facade);
+        }
+
+        public async Promise<T> AddSubViewASync<T>(IUIFacadeProvider inProvider = null) where T : View, new()
+        {
+            var facade = await inProvider.AllocAsync<T>();
+            return _AddSubViewByFacade<T>(facade);
+        }
+
+        public T AddSubViewByFacade<T>(UIFacade inFacade) where T : View, new()
+        {
+            return _AddSubViewByFacade<T>(inFacade);
+        }
+
+        public T AddSubViewByFacadeShow<T>(UIFacade inFacade) where T : View, new()
+        {
+            var result = _AddSubViewByFacade<T>(inFacade);
+            result.Show();
+            return result;
+        }
     }
 }

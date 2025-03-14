@@ -1,6 +1,7 @@
 namespace NFramework.UI
 {
-    public class Window : View
+    public class ViewDestroy
     {
+        
     }
 }

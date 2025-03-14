@@ -14,7 +14,8 @@ using System.Runtime.InteropServices;
 /// </summary>
 /// <typeparam name="TKey">指定多值字典的主键类型。</typeparam>
 /// <typeparam name="TValue">指定多值字典的值类型。</typeparam>
-public sealed class MultiDictionary<TKey, TValue> : IEnumerable<KeyValuePair<TKey, LinkedListRange<TValue>>>, IEnumerable
+public sealed class MultiDictionary<TKey, TValue> : IEnumerable<KeyValuePair<TKey, LinkedListRange<TValue>>>,
+    IEnumerable
 {
     private readonly LinkedList<TValue> m_LinkedList;
     private readonly Dictionary<TKey, LinkedListRange<TValue>> m_Dictionary;
@@ -33,10 +34,7 @@ public sealed class MultiDictionary<TKey, TValue> : IEnumerable<KeyValuePair<TKe
     /// </summary>
     public int Count
     {
-        get
-        {
-            return m_Dictionary.Count;
-        }
+        get { return m_Dictionary.Count; }
     }
 
     /// <summary>
@@ -132,7 +130,9 @@ public sealed class MultiDictionary<TKey, TValue> : IEnumerable<KeyValuePair<TKe
         LinkedListRange<TValue> range = default(LinkedListRange<TValue>);
         if (m_Dictionary.TryGetValue(key, out range))
         {
-            for (LinkedListNode<TValue> current = range.First; current != null && current != range.Terminal; current = current.Next)
+            for (LinkedListNode<TValue> current = range.First;
+                 current != null && current != range.Terminal;
+                 current = current.Next)
             {
                 if (current.Value.Equals(value))
                 {
@@ -150,6 +150,48 @@ public sealed class MultiDictionary<TKey, TValue> : IEnumerable<KeyValuePair<TKe
                         }
                     }
 
+                    m_LinkedList.Remove(current);
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 从指定的主键中移除指定的值。
+    /// </summary>
+    /// <param name="key">指定的主键。</param>
+    /// <param name="value">指定的值。</param>
+    /// <returns>是否移除成功。</returns>
+    public bool TryRemove(TKey key, TValue value, out TValue outValue)
+    {
+        outValue = default;
+        LinkedListRange<TValue> range = default(LinkedListRange<TValue>);
+        if (m_Dictionary.TryGetValue(key, out range))
+        {
+            for (LinkedListNode<TValue> current = range.First;
+                 current != null && current != range.Terminal;
+                 current = current.Next)
+            {
+                if (current.Value.Equals(value))
+                {
+                    if (current == range.First)
+                    {
+                        LinkedListNode<TValue> next = current.Next;
+                        if (next == range.Terminal)
+                        {
+                            m_LinkedList.Remove(next);
+                            m_Dictionary.Remove(key);
+                        }
+                        else
+                        {
+                            m_Dictionary[key] = new LinkedListRange<TValue>(next, range.Terminal);
+                        }
+                    }
+
+                    outValue = current.Value;
                     m_LinkedList.Remove(current);
                     return true;
                 }
@@ -198,7 +240,8 @@ public sealed class MultiDictionary<TKey, TValue> : IEnumerable<KeyValuePair<TKe
     /// 返回循环访问集合的枚举数。
     /// </summary>
     /// <returns>循环访问集合的枚举数。</returns>
-    IEnumerator<KeyValuePair<TKey, LinkedListRange<TValue>>> IEnumerable<KeyValuePair<TKey, LinkedListRange<TValue>>>.GetEnumerator()
+    IEnumerator<KeyValuePair<TKey, LinkedListRange<TValue>>> IEnumerable<KeyValuePair<TKey, LinkedListRange<TValue>>>.
+        GetEnumerator()
     {
         return GetEnumerator();
     }
@@ -235,10 +278,7 @@ public sealed class MultiDictionary<TKey, TValue> : IEnumerable<KeyValuePair<TKe
         /// </summary>
         public KeyValuePair<TKey, LinkedListRange<TValue>> Current
         {
-            get
-            {
-                return m_Enumerator.Current;
-            }
+            get { return m_Enumerator.Current; }
         }
 
         /// <summary>
@@ -246,10 +286,7 @@ public sealed class MultiDictionary<TKey, TValue> : IEnumerable<KeyValuePair<TKe
         /// </summary>
         object IEnumerator.Current
         {
-            get
-            {
-                return m_Enumerator.Current;
-            }
+            get { return m_Enumerator.Current; }
         }
 
         /// <summary>

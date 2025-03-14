@@ -2,77 +2,80 @@ using System;
 using System.Collections.Generic;
 
 
-public partial class View
+namespace NFramework.UI
 {
-    protected delegate bool UI2ParentEvent<T>(ref T view2ParentEvent);
-
-    private Dictionary<Type, System.Delegate> _delegates;
-
-    private Dictionary<Type, System.Delegate> Delegates
+    public partial class View
     {
-        get
+        protected delegate bool UI2ParentEvent<T>(ref T view2ParentEvent);
+
+        private Dictionary<Type, System.Delegate> _delegates;
+
+        private Dictionary<Type, System.Delegate> Delegates
         {
-            if (_delegates == null)
+            get
             {
-                _delegates = new Dictionary<Type, Delegate>();
+                if (_delegates == null)
+                {
+                    _delegates = new Dictionary<Type, Delegate>();
+                }
+
+                return _delegates;
             }
-
-            return _delegates;
         }
-    }
 
 
-    protected bool RegisterSubEvent<T>(UI2ParentEvent<T> inHandle) where T : IView2ParentEvent
-    {
-        return _RegisterSubEvent(inHandle);
-    }
-
-    protected void PopEvent2Parent<T>(ref T inEvent) where T : IView2ParentEvent
-    {
-        _PopEvent2Parent(inEvent);
-    }
-
-    private bool _RegisterSubEvent<T>(UI2ParentEvent<T> inHandle) where T : IView2ParentEvent
-    {
-        var eventType = typeof(T);
-        if (Delegates.TryGetValue(eventType, out var @delegate))
+        protected bool RegisterSubEvent<T>(UI2ParentEvent<T> inHandle) where T : IView2ParentEvent
         {
-            return false;
+            return _RegisterSubEvent(inHandle);
         }
-        else
-        {
-            Delegates.Add(eventType, inHandle);
-            return true;
-        }
-    }
 
-    private void _PopEvent2Parent<T>(T inEvent) where T : IView2ParentEvent
-    {
-        if (Parent == null || Parent == this)
+        protected void PopEvent2Parent<T>(ref T inEvent) where T : IView2ParentEvent
         {
-            return;
+            _PopEvent2Parent(inEvent);
         }
-        else
-        {
-            Parent._OnChildPopEvent(inEvent);
-        }
-    }
 
-    private void _OnChildPopEvent<T>(T inEvent) where T : IView2ParentEvent
-    {
-        if (this._delegates == null)
-        {
-            this.Parent._PopEvent2Parent(inEvent);
-        }
-        else
+        private bool _RegisterSubEvent<T>(UI2ParentEvent<T> inHandle) where T : IView2ParentEvent
         {
             var eventType = typeof(T);
-            if (this.Delegates.TryGetValue(eventType, out var @delegate) &&
-                @delegate is UI2ParentEvent<T> func)
+            if (Delegates.TryGetValue(eventType, out var @delegate))
             {
-                if (func.Invoke(ref inEvent))
+                return false;
+            }
+            else
+            {
+                Delegates.Add(eventType, inHandle);
+                return true;
+            }
+        }
+
+        private void _PopEvent2Parent<T>(T inEvent) where T : IView2ParentEvent
+        {
+            if (Parent == null || Parent == this)
+            {
+                return;
+            }
+            else
+            {
+                Parent._OnChildPopEvent(inEvent);
+            }
+        }
+
+        private void _OnChildPopEvent<T>(T inEvent) where T : IView2ParentEvent
+        {
+            if (this._delegates == null)
+            {
+                this.Parent._PopEvent2Parent(inEvent);
+            }
+            else
+            {
+                var eventType = typeof(T);
+                if (this.Delegates.TryGetValue(eventType, out var @delegate) &&
+                    @delegate is UI2ParentEvent<T> func)
                 {
-                    Parent._PopEvent2Parent(inEvent);
+                    if (func.Invoke(ref inEvent))
+                    {
+                        Parent._PopEvent2Parent(inEvent);
+                    }
                 }
             }
         }

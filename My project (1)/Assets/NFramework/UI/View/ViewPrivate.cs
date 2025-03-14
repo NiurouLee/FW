@@ -1,34 +1,40 @@
-public partial class View
+using Unity.VisualScripting;
+
+namespace NFramework.UI
 {
-    private bool _AddChild(View inView)
+    public partial class View
     {
-        if (inView == null)
+        private bool _AddChild(View inView)
         {
-            return false;
+            if (inView == null)
+            {
+                return false;
+            }
+
+            return this.ViewRecords.TryAdd(inView);
         }
 
-        return Child.Add(inView);
-    }
+        private bool _RemoveChild(View inView)
+        {
+            return ViewRecords.TryRemove(inView);
+        }
 
-    public bool _RemoveChild(View inView)
-    {
-        return Child.Remove(inView);
-    }
+        private T _AddSubViewByFacade<T>(UIFacade inFacade) where T : View, new()
+        {
+            var result = new T();
+            result.SetParent(this);
+            this._AddChild(result);
+            result.SetUIFacade(inFacade);
+            result.Awake();
+            return result;
+        }
 
-    private T _AddSubViewByFacade<T>(UIFacade inFacade) where T : View, new()
-    {
-        var result = new T();
-        result.SetParent(this);
-        this._AddChild(result);
-        result.Awake(inFacade);
-        return result;
-    }
-
-    private T _RemoveSubView<T>(T inView) where T : View
-    {
-        inView.Destroy();
-        inView.RemoveParent();
-        this._RemoveChild(inView);
-        return inView;
+        private T _RemoveSubView<T>(T inView) where T : View
+        {
+            inView.Destroy();
+            inView.RemoveParent();
+            this._RemoveChild(inView);
+            return inView;
+        }
     }
 }

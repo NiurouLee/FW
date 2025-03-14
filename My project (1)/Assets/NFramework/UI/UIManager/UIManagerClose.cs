@@ -4,7 +4,7 @@ namespace NFramework.UI
 {
     public partial class UIManager
     {
-        public void Close<T>(T inWindow) where T : Window
+        public void Close<T>(T inWindow) where T : View
         {
             var vc = GetViewConfig<T>();
             var name = vc.Name;
@@ -21,7 +21,7 @@ namespace NFramework.UI
                 {
                     var layerID = vc.Layer;
                     var layerService = this.layerServices[(UIlayer)layerID];
-                    layerService.CloseWindow(outWindowRequest);
+                    // layerService.CloseWindow(outWindowRequest);
                 }
             }
         }

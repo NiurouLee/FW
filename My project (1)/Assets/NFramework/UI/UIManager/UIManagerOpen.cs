@@ -33,28 +33,20 @@ namespace NFramework.UI
         }
 
 
-        private async AsyncOpenWindow(WindowRequest outWindowRequest, Promise<Window> deferred)
+        private async void AsyncOpenWindow(WindowRequest outWindowRequest, Promise<Window>.Deferred deferred)
         {
             var layerID = outWindowRequest.Config.Layer;
-            
-            this.layerServices[(UIlayer)layerID].OpenWindow();
+            // this.layerServices[(UIlayer)layerID].OpenWindow();
         }
-        
-        
-
 
         public Promise<Window> OpenOrUpdateData(string inWindowName, IViewData inViewData = null)
         {
             var vc = this.GetViewConfig(inWindowName);
             WindowRequest request = new WindowRequest(vc);
             request.SetStage(WindowRequestStage.Construct);
-            
-            return null;
+            return new Promise<Window>();
         }
-        
 
-        
-        
         private bool CheckWindowReq(WindowRequest inWindowRequest, out WindowRequest outWindowRequest)
         {
             var layer = inWindowRequest.Config.Layer;
