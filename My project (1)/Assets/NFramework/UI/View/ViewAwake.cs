@@ -23,5 +23,10 @@ namespace NFramework.UI
         protected virtual void OnAwake()
         {
         }
+
+        private void DestroyAwake()
+        {
+            this.
+        }
     }
 }

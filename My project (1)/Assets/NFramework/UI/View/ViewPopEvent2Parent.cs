@@ -16,7 +16,7 @@ namespace NFramework.UI
             {
                 if (_delegates == null)
                 {
-                    _delegates = new Dictionary<Type, Delegate>();
+                    _delegates = DictionaryPool.Alloc<Type, Delegate>();
                 }
 
                 return _delegates;
@@ -77,6 +77,16 @@ namespace NFramework.UI
                         Parent._PopEvent2Parent(inEvent);
                     }
                 }
+            }
+        }
+
+        private void DestroyPopEvent2Parent()
+        {
+            if (_delegates != null)
+            {
+                _delegates.Clear();
+                DictionaryPool.Free(_delegates);
+                _delegates = null;
             }
         }
     }

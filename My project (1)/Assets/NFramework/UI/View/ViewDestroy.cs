@@ -1,7 +1,16 @@
 namespace NFramework.UI
 {
-    public class ViewDestroy
+    public partial class View
     {
-        
+        public virtual void Destroy()
+        {
+            OnDestroy();
+            DestroyEventRecords();
+            DestroyPopEvent2Parent();
+        }
+
+        protected virtual void OnDestroy()
+        {
+        }
     }
 }

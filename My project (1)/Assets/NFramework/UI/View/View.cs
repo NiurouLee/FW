@@ -17,6 +17,8 @@ namespace NFramework.UI
                 if (m_viewRecords == null)
                 {
                     m_viewRecords = ObjectPool.Alloc<SubViewRecords>();
+                    m_viewRecords.Awake();
+                    m_viewRecords.SetView(this);
                 }
 
                 return m_viewRecords;
@@ -92,14 +94,7 @@ namespace NFramework.UI
         {
         }
 
-        public virtual void Destroy()
-        {
-            OnDestroy();
-        }
-
-        protected virtual void OnDestroy()
-        {
-        }
+     
 
 
         public T AddSubViewSync<T>(IUIFacadeProvider inProvider = null) where T : View, new()
