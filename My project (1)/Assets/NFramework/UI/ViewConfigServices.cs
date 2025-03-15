@@ -1,7 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace NFramework.UI
 {
@@ -10,14 +7,43 @@ namespace NFramework.UI
     /// </summary>
     public class ViewConfigServices
     {
+        private Dictionary<System.Type, string> type2ConfigIDDic = new Dictionary<System.Type, string>();
+        private Dictionary<string, System.Type> viewConfigName2TypeDic = new Dictionary<string, System.Type>();
+        private Dictionary<string, ViewConfig> cfgID2ConfigDic = new Dictionary<string, ViewConfig>();
         public ViewConfigServices()
         {
-
         }
-        public ViewConfig GetViewConfig(string name)
+
+        private ViewConfig GetViewConfigByCfgID(string inCfgID)
         {
+            if (this.cfgID2ConfigDic.TryGetValue(inCfgID, out var config))
+            {
+                return config;
+            }
             return new ViewConfig();
         }
 
+        public ViewConfig GetViewConfig<T>()
+        {
+            var type = typeof(T);
+            return this.GetViewConfigByType(type);
+        }
+        private ViewConfig GetViewConfigByType(System.Type inType)
+        {
+            if (this.type2ConfigIDDic.TryGetValue(inType, out var configName))
+            {
+                return this.GetViewConfigByCfgID(configName);
+            }
+            return null;
+        }
+
+        public ViewConfig GetViewConfig(string inViewName)
+        {
+            if (this.viewConfigName2TypeDic.TryGetValue(inViewName, out var type))
+            {
+                return this.GetViewConfigByType(type);
+            }
+            return null;
+        }
     }
 }

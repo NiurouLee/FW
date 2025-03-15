@@ -7,9 +7,8 @@ namespace NFramework.UI
 {
     public partial class UIManager
     {
-
-        public Dictionary<System.Type, string> type2ConfigNameDic = new Dictionary<System.Type, string>();
-        public Dictionary<string, System.Type> configName2TypeDic = new Dictionary<string, System.Type>();
+        public static UIManager Instance { get; private set; }
+      
         public ViewConfigServices ConfigServices { get; private set; }
 
         public void Awake()
@@ -41,11 +40,17 @@ namespace NFramework.UI
         }
 
 
-        
+
 
         public void AwakeRoot()
         {
 
+        }
+
+
+        public T CreateView<T>() where T : View, new()
+        {
+            return new T();
         }
 
         // private Dictionary<string, ViewConfig> ;

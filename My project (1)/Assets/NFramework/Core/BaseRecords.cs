@@ -6,7 +6,7 @@ public interface IRecords
     public void Destroy();
 }
 
-public interface IRecords<T> : IRecords where T : class
+public interface IRecords<T> : IRecords 
 {
     public HashSet<T> records { get; set; }
 }
@@ -16,7 +16,7 @@ public interface IRecords<T> : IRecords where T : class
 /// 只记录
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public abstract class BaseRecords<T> : IRecords<T> where T : class
+public abstract class BaseRecords<T> : IRecords<T> 
 {
     public HashSet<T> records { get; set; }
 

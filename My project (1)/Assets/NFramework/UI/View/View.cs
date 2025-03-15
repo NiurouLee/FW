@@ -5,74 +5,43 @@ namespace NFramework.UI
 {
     public partial class View
     {
-        public UIFacade Facade { get; private set; }
-        protected View Parent { get; private set; }
-
-        private SubViewRecords m_viewRecords;
-
-        private SubViewRecords ViewRecords
-        {
-            get
-            {
-                if (m_viewRecords == null)
-                {
-                    m_viewRecords = ObjectPool.Alloc<SubViewRecords>();
-                    m_viewRecords.Awake();
-                    m_viewRecords.SetView(this);
-                }
-
-                return m_viewRecords;
-            }
-        }
-
-        private void SetParent(View inParent)
-        {
-            this.Parent = inParent;
-        }
-
-        private void RemoveParent()
-        {
-            this.Parent = null;
-        }
-
-
         public virtual void Show()
         {
             OnShow();
-            Enable();
+            Visible();
         }
 
-        public virtual void OnShow()
+        protected virtual void OnShow()
         {
         }
 
-        public virtual void Enable()
+        public virtual void Visible()
         {
-            this.Facade?.Enable();
-            OnEnable();
+            this.Facade?.Visible();
+            OnVisible();
         }
 
-        public virtual void OnEnable()
+        protected virtual void OnVisible()
         {
         }
 
         public virtual void Hide()
         {
-            Disable();
+            NotVisible();
             OnHide();
         }
 
-        public virtual void OnHide()
+        protected virtual void OnHide()
         {
         }
 
-        public virtual void Disable()
+        public virtual void NotVisible()
         {
-            this.Facade?.Disable();
-            OnDisable();
+            this.Facade?.NotVisible();
+            OnNotVisible();
         }
 
-        public virtual void OnDisable()
+        protected virtual void OnNotVisible()
         {
         }
 
@@ -81,44 +50,18 @@ namespace NFramework.UI
             OnFocus();
         }
 
-        public virtual void OnFocus()
+        protected virtual void OnFocus()
         {
         }
 
-        public virtual void DeFocus()
+        public virtual void NotFocus()
         {
-            OnDeFocus();
+            OnNotFocus();
         }
 
-        public virtual void OnDeFocus()
+        protected virtual void OnNotFocus()
         {
         }
 
-     
-
-
-        public T AddSubViewSync<T>(IUIFacadeProvider inProvider = null) where T : View, new()
-        {
-            var facade = inProvider.Alloc<T>();
-            return _AddSubViewByFacade<T>(facade);
-        }
-
-        public async Promise<T> AddSubViewASync<T>(IUIFacadeProvider inProvider = null) where T : View, new()
-        {
-            var facade = await inProvider.AllocAsync<T>();
-            return _AddSubViewByFacade<T>(facade);
-        }
-
-        public T AddSubViewByFacade<T>(UIFacade inFacade) where T : View, new()
-        {
-            return _AddSubViewByFacade<T>(inFacade);
-        }
-
-        public T AddSubViewByFacadeShow<T>(UIFacade inFacade) where T : View, new()
-        {
-            var result = _AddSubViewByFacade<T>(inFacade);
-            result.Show();
-            return result;
-        }
     }
 }

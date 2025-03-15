@@ -5,8 +5,11 @@ namespace NFramework.UI
         public virtual void Destroy()
         {
             OnDestroy();
+            DestroySubView();
             DestroyEventRecords();
             DestroyPopEvent2Parent();
+            DestroyPromise();
+            DestroyFacade();
         }
 
         protected virtual void OnDestroy()

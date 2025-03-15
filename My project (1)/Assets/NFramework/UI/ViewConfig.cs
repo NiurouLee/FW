@@ -6,7 +6,7 @@ using Unity.VisualScripting.Antlr3.Runtime;
 public class ViewConfig
 {
     public string Name;
-    public string AssetPath;
+    public string AssetID;
 
     /// <summary>
     /// 31位 0 view 1 window

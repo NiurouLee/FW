@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Resources;
 using Proto.Promises;
-using UnityEngine.PlayerLoop;
+using UnityEngine;
 
 namespace NFramework.UI
 {
@@ -30,6 +31,22 @@ namespace NFramework.UI
             }
 
             return deferred.Promise;
+        }
+
+        public Window Open<T>(string inWindowName, IViewData inViewData = null) where T : Window, new()
+        {
+            var windowType = typeof(T);
+            var window = new T();
+            var cfg = this.GetViewConfig<T>();
+            var resId = cfg.AssetID;
+            var gameObject = ResourceManager.Instance.Load<GameObject>(resId);
+            var go = GameObject.Instantiate(gameObject);
+            var uiFacade = go.GetComponent<UIFacade>();
+            var provider = new UIFacadeProvider();
+            window.SetUIFacade(uiFacade, provider);
+            window.Awake();
+            window.Show();
+            return window;
         }
 
 

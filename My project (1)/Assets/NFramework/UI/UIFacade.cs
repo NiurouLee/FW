@@ -15,12 +15,12 @@ public class UIFacade : MonoBehaviour
         return null;
     }
 
-    public void Enable()
+    public void Visible()
     {
         this.gameObject?.SetActive(true);
     }
 
-    public void Disable()
+    public void NotVisible()
     {
         this.gameObject?.SetActive(false);
     }
