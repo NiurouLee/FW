@@ -24,12 +24,13 @@ namespace NFramework.UI
 
         public void AwakeRoot(GameObject inRoot)
         {
+            
             uiRoot = inRoot;
             uiRoot.transform.localPosition = new Vector3(0, 1000, 0);
             uiRoot.name = "[UIROOT]";
             GameObject.DontDestroyOnLoad(uiRoot);
             uiCamera = uiRoot.GetComponent<Camera>();
-            uiCamera.tag = "UICamera";
+            // uiCamera.tag = "UICamera";
             uiCanvasTrf = uiRoot.transform.Find("Canvas");
             uiCanvas = uiCanvasTrf.GetComponent<Canvas>();
             eventSystem = uiRoot.GetComponentInChildren<EventSystem>();

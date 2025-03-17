@@ -33,17 +33,21 @@ namespace NFramework.UI
             return deferred.Promise;
         }
 
-        public Window Open<T>(string inWindowName, IViewData inViewData = null) where T : Window, new()
+        public Window Open<T, I>(I inViewData) where T : Window, IViewSetData<I>, new() where I : IViewData
         {
             var windowType = typeof(T);
-            var window = new T();
+            var window = this.CreateView<T>();
             var cfg = this.GetViewConfig<T>();
             var resId = cfg.AssetID;
             var gameObject = ResourceManager.Instance.Load<GameObject>(resId);
             var go = GameObject.Instantiate(gameObject);
+            var layer = cfg.Layer;
+            var layerServices = this.layerServices[(UIlayer)layer];
             var uiFacade = go.GetComponent<UIFacade>();
+            go.transform.SetParent(layerServices.Go.transform, false);
             var provider = new UIFacadeProvider();
             window.SetUIFacade(uiFacade, provider);
+            window.SetData(inViewData);
             window.Awake();
             window.Show();
             return window;

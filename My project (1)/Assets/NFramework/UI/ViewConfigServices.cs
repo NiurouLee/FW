@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace NFramework.UI
@@ -44,6 +45,13 @@ namespace NFramework.UI
                 return this.GetViewConfigByType(type);
             }
             return null;
+        }
+
+        internal void AddViewConfig(Type item1, string item2, ViewConfig item3)
+        {
+            this.type2ConfigIDDic.Add(item1, item2);
+            this.viewConfigName2TypeDic.Add(item2, item1);
+            this.cfgID2ConfigDic.Add(item2, item3);
         }
     }
 }

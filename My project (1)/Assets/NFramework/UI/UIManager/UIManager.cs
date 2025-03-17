@@ -7,13 +7,20 @@ namespace NFramework.UI
 {
     public partial class UIManager
     {
-        public static UIManager Instance { get; private set; }
-      
+        public static UIManager Instance { get; private set; } = new();
         public ViewConfigServices ConfigServices { get; private set; }
 
         public void Awake()
         {
+        }
+
+        public void AwakeTypeCfg(List<Tuple<Type, string, ViewConfig>> inCfgList)
+        {
             this.ConfigServices = new ViewConfigServices();
+            foreach (var item in inCfgList)
+            {
+                this.ConfigServices.AddViewConfig(item.Item1, item.Item2, item.Item3);
+            }
         }
 
         public Promise<T> Open<T>()
@@ -25,28 +32,18 @@ namespace NFramework.UI
 
         public ViewConfig GetViewConfig<T>() where T : View
         {
-            var type = typeof(T);
-            if (this.type2ConfigNameDic.TryGetValue(type, out var configName))
-            {
-                return this.GetViewConfig(configName);
-            }
-            return null;
+            return this.ConfigServices.GetViewConfig<T>();
         }
-
 
         public ViewConfig GetViewConfig(string inName)
         {
             return this.ConfigServices.GetViewConfig(inName);
         }
 
-
-
-
         public void AwakeRoot()
         {
 
         }
-
 
         public T CreateView<T>() where T : View, new()
         {

@@ -1,9 +1,13 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Proto.Promises;
+using Proto.Promises.Threading;
 using UnityEngine;
 using UnityEngine.Networking;
 public class ProtoPromiseEx
@@ -44,8 +48,19 @@ public class ProtoPromiseEx
         }
     }
 
-    
+    #region  异步锁
+    private readonly AsyncLock _mutex = new AsyncLock();
+    public async Promise DoStuffAsync()
+    {
+        using (await _mutex.LockAsync())
+        {
+            await Task.Delay(TimeSpan.FromSeconds(1));
+        }
+    }
 
+    #endregion
+
+    
 
 
 }

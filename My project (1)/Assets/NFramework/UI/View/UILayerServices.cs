@@ -8,6 +8,7 @@ namespace NFramework.UI
         public static short OneUiSortOder = 50;
         private UIlayer layer;
         private GameObject go;
+        public GameObject Go => go;
         public int BaseOrder { get; private set; }
         private List<Window> stack;
         private Stack<Window> exclusionStack;

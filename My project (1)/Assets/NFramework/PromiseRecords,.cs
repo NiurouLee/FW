@@ -9,7 +9,6 @@ namespace NFramework
         {
             foreach (var promise in records)
             {
-                promise.Cancel();
             }
         }
     }
