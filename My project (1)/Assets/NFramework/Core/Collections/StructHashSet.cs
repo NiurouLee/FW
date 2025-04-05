@@ -1,43 +1,46 @@
 using System;
 using System.Collections.Generic;
 
-public struct StructHashSet<T> : IDisposable //, ISet<T>
+namespace NFramework.Core.Collections
 {
-    private HashSet<T> _set;
-
-    public StructHashSet(T item)
+    public struct StructHashSet<T> : IDisposable //, ISet<T>
     {
-        _set = HashSetPool.Alloc<T>();
-        _set.Add(item);
-    }
+        private HashSet<T> _set;
 
-    public void Dispose()
-    {
-        if (_set != null)
+        public StructHashSet(T item)
         {
-            _set.Dispose();
-            _set = null;
-        }
-    }
-
-    public bool Add(T item) => _set.Add(item);
-    public void Clear() => _set.Clear();
-    public bool Contains(T item) => _set.Contains(item);
-    public void CopyTo(T[] array, int arrayIndex) => _set.CopyTo(array, arrayIndex);
-    public bool Remove(T item) => _set.Remove(item);
-    public int Count => _set.Count;
-    public bool IsReadOnly => ((ISet<T>)_set).IsReadOnly;
-}
-
-public static class HashSetExtensions
-{
-    public static void Dispose<T>(this HashSet<T> inSet)
-    {
-        if (inSet == null)
-        {
-            return;
+            _set = HashSetPool.Alloc<T>();
+            _set.Add(item);
         }
 
-        HashSetPool.Free(inSet);
+        public void Dispose()
+        {
+            if (_set != null)
+            {
+                _set.Dispose();
+                _set = null;
+            }
+        }
+
+        public bool Add(T item) => _set.Add(item);
+        public void Clear() => _set.Clear();
+        public bool Contains(T item) => _set.Contains(item);
+        public void CopyTo(T[] array, int arrayIndex) => _set.CopyTo(array, arrayIndex);
+        public bool Remove(T item) => _set.Remove(item);
+        public int Count => _set.Count;
+        public bool IsReadOnly => ((ISet<T>)_set).IsReadOnly;
+    }
+
+    public static class HashSetExtensions
+    {
+        public static void Dispose<T>(this HashSet<T> inSet)
+        {
+            if (inSet == null)
+            {
+                return;
+            }
+
+            HashSetPool.Free(inSet);
+        }
     }
 }

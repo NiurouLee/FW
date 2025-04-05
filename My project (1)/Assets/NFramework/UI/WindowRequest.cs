@@ -1,4 +1,5 @@
 ﻿using System;
+using Proto.Promises;
 
 namespace NFramework.UI
 {
@@ -10,12 +11,13 @@ namespace NFramework.UI
     {
         Construct = 0,
         Checking = 1,
-        ConstructWindow = 2,
-        ConstructWindowDone = 3,
-        GameObjectLoading = 4,
-        GameObjectLoaded = 5,
-        LayerServicesChecking = 6,
-        WindowAwake = 7,
+        SetInitData = 2,
+        ConstructWindow = 3,
+        ConstructWindowDone = 4,
+        GameObjectLoading = 5,
+        GameObjectLoaded = 6,
+        LayerServicesChecking = 7,
+        WindowAwake = 8,
         WindowOpen = 8,
         WindowClose = 9,
         GameObjectUnloading = 10,
@@ -31,9 +33,10 @@ namespace NFramework.UI
         public ViewConfig Config { get; private set; }
         public WindowRequestStage Stage { get; private set; }
         public Window Window { get; private set; }
-        
         public IViewData ViewData { get; private set; }
-        
+        public IResLoader ResLoader { get; private set; }
+        public UIFacadeProviderAssetLoader UIFacadeProvider { get; private set; }
+
         public WindowRequest(ViewConfig inConfig)
         {
             if (inConfig == null)
@@ -76,6 +79,21 @@ namespace NFramework.UI
             this.Window = inWindow;
         }
 
+        public void SetInitData(IViewData inViewData)
+        {
+            this.ViewData = inViewData;
+        }
+
+        public void SetResLoader(IResLoader inResLoader)
+        {
+            this.ResLoader = inResLoader;
+        }
+
+        public void SetUIFacadeProvider(UIFacadeProviderAssetLoader inUIFacadeProvider)
+        {
+            this.UIFacadeProvider = inUIFacadeProvider;
+        }
+
         public bool Equals(WindowRequest other)
         {
             if (other is null) return false;
@@ -95,5 +113,21 @@ namespace NFramework.UI
         {
             return (Name != null ? Name.GetHashCode() : 0);
         }
+
+
+        /// <summary>
+        /// 返回给业务的Promise
+        /// </summary>
+        public Promise<Window>.Deferred Deferred;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="promise"></param>
+        internal void SetPromiseDeferred(Promise<Window>.Deferred deferred)
+        {
+            this.Deferred = deferred;
+        }
+
     }
 }

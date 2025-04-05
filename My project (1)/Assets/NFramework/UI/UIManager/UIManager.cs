@@ -1,5 +1,4 @@
 using System;
-using System.Reflection;
 using System.Collections.Generic;
 using Proto.Promises;
 
@@ -49,6 +48,18 @@ namespace NFramework.UI
         {
             return new T();
         }
+
+        public View CreateView(ViewConfig inViewConfig)
+        {
+            var type = this.ConfigServices.GetViewType(inViewConfig.Name);
+            if (type == null)
+            {
+                throw new Exception($"ViewConfig {inViewConfig.Name} not found");
+            }
+            return Activator.CreateInstance(type) as View;
+        }
+
+
 
         // private Dictionary<string, ViewConfig> ;
         // private Dictionary<>

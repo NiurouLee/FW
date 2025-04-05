@@ -2,135 +2,137 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// Least Recently Used
-/// </summary>
-public class LRU<TKey, TValue>
+namespace NFramework.Core.Collections
 {
-    public delegate bool OnRemoveEntry(TKey key, TValue value);
-
-    private readonly Dictionary<TKey, Node> entries;
-    private readonly int capacity;
-    private Node head;
-    private Node tail;
-    public OnRemoveEntry onRemoveEntry;
-
-    private class Node
+    /// <summary>
+    /// Least Recently Used
+    /// </summary>
+    public class LRU<TKey, TValue>
     {
-        public Node Next { get; set; }
-        public Node Previous { get; set; }
-        public TKey Key { get; set; }
-        public TValue Value { get; set; }
-    }
+        public delegate bool OnRemoveEntry(TKey key, TValue value);
 
-    public LRU(int capacity = 16)
-    {
-        if (capacity <= 0)
-            throw new ArgumentOutOfRangeException(
-                "capacity",
-                "Capacity should be greater than zero");
-        this.capacity = capacity;
-        entries = new Dictionary<TKey, Node>();
-        head = null;
-    }
+        private readonly Dictionary<TKey, Node> entries;
+        private readonly int capacity;
+        private Node head;
+        private Node tail;
+        public OnRemoveEntry onRemoveEntry;
 
-    public void Set(TKey key, TValue value)
-    {
-        Node entry;
-        if (!entries.TryGetValue(key, out entry))
+        private class Node
         {
-            entry = new Node { Key = key, Value = value };
-            entries.Add(key, entry);
-        }
-        else
-        {
-            entry.Value = value;
+            public Node Next { get; set; }
+            public Node Previous { get; set; }
+            public TKey Key { get; set; }
+            public TValue Value { get; set; }
         }
 
-        MoveToHead(entry);
-
-        if (tail == null)
+        public LRU(int capacity = 16)
         {
-            tail = head;
-            return;
+            if (capacity <= 0)
+                throw new ArgumentOutOfRangeException(
+                    "capacity",
+                    "Capacity should be greater than zero");
+            this.capacity = capacity;
+            entries = DictionaryPool.Alloc<TKey, Node>();
+            head = null;
         }
 
-        Node node = tail;
-        int exceedNum = entries.Count - capacity;
-        while ((exceedNum--) > 0 && (node != null))
+        public void Set(TKey key, TValue value)
         {
-            if (onRemoveEntry != null)
+            Node entry;
+            if (!entries.TryGetValue(key, out entry))
             {
-                try
-                {
-                    if (onRemoveEntry(node.Key, node.Value))
-                    {
-                        entries.Remove(node.Key);
-
-                        Node prev = node.Previous;
-                        if (prev != null)
-                        {
-                            prev.Next = node.Next;
-                        }
-
-                        if (node.Next != null)
-                        {
-                            node.Next.Previous = prev;
-                        }
-
-                        node.Previous = null;
-                        node.Next = null;
-                        if (node == tail)
-                        {
-                            tail = prev;
-                        }
-
-                        node = prev;
-                    }
-                    else
-                    {
-                        node = node.Previous;
-                    }
-                }
-                catch (Exception e)
-                {
-                    Debug.LogException(e);
-                }
+                entry = new Node { Key = key, Value = value };
+                entries.Add(key, entry);
             }
             else
             {
-                entries.Remove(tail.Key);
-                tail = tail.Previous;
-                if (tail != null) tail.Next = null;
+                entry.Value = value;
+            }
+
+            MoveToHead(entry);
+
+            if (tail == null)
+            {
+                tail = head;
+                return;
+            }
+
+            Node node = tail;
+            int exceedNum = entries.Count - capacity;
+            while ((exceedNum--) > 0 && (node != null))
+            {
+                if (onRemoveEntry != null)
+                {
+                    try
+                    {
+                        if (onRemoveEntry(node.Key, node.Value))
+                        {
+                            entries.Remove(node.Key);
+
+                            Node prev = node.Previous;
+                            if (prev != null)
+                            {
+                                prev.Next = node.Next;
+                            }
+
+                            if (node.Next != null)
+                            {
+                                node.Next.Previous = prev;
+                            }
+
+                            node.Previous = null;
+                            node.Next = null;
+                            if (node == tail)
+                            {
+                                tail = prev;
+                            }
+
+                            node = prev;
+                        }
+                        else
+                        {
+                            node = node.Previous;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogException(e);
+                    }
+                }
+                else
+                {
+                    entries.Remove(tail.Key);
+                    tail = tail.Previous;
+                    if (tail != null) tail.Next = null;
+                }
             }
         }
-    }
 
-    public bool TryGetValue(TKey key, out TValue value)
-    {
-        value = default(TValue);
-        Node entry;
-        if (!entries.TryGetValue(key, out entry)) return false;
-        MoveToHead(entry);
-        value = entry.Value;
-        return true;
-    }
-
-    public bool ContainsValue(TKey key)
-    {
-        return entries.ContainsKey(key);
-    }
-
-    public List<TValue> GetValues()
-    {
-        List<TValue> values = new List<TValue>(entries.Count);
-        foreach (Node node in entries.Values)
+        public bool TryGetValue(TKey key, out TValue value)
         {
-            values.Add(node.Value);
+            value = default(TValue);
+            Node entry;
+            if (!entries.TryGetValue(key, out entry)) return false;
+            MoveToHead(entry);
+            value = entry.Value;
+            return true;
         }
 
-        return values;
-    }
+        public bool ContainsValue(TKey key)
+        {
+            return entries.ContainsKey(key);
+        }
+
+        public List<TValue> GetValues()
+        {
+            List<TValue> values = new List<TValue>(entries.Count);
+            foreach (Node node in entries.Values)
+            {
+                values.Add(node.Value);
+            }
+
+            return values;
+        }
 
 #if DEBUG_UIMANAGER
     public void Print ()
@@ -148,72 +150,74 @@ public class LRU<TKey, TValue>
     }
 #endif
 
-    public bool Remove(TKey key)
-    {
-        Node node;
-        if (!entries.TryGetValue(key, out node))
-            return false;
-
-        entries.Remove(key);
-
-        Node prev = node.Previous;
-        Node next = node.Next;
-        if (prev != null)
+        public bool Remove(TKey key)
         {
-            prev.Next = next;
+            Node node;
+            if (!entries.TryGetValue(key, out node))
+                return false;
+
+            entries.Remove(key);
+
+            Node prev = node.Previous;
+            Node next = node.Next;
+            if (prev != null)
+            {
+                prev.Next = next;
+            }
+            else
+            {
+                head = next;
+            }
+
+            if (next != null)
+            {
+                next.Previous = prev;
+            }
+            else
+            {
+                tail = next;
+            }
+
+            if (tail == null)
+            {
+                tail = head;
+            }
+
+            node.Previous = null;
+            node.Next = null;
+            return true;
         }
-        else
+
+        public void Clear()
         {
-            head = next;
+            Node entry = head;
+            while (entry != null)
+            {
+                entry.Value = default(TValue);
+                entry = entry.Next;
+            }
+            entries.Clear();
+            DictionaryPool.Free(entries);
+            head = tail = null;
         }
 
-        if (next != null)
+        private void MoveToHead(Node entry)
         {
-            next.Previous = prev;
+            if (entry == head || entry == null) return;
+
+            var next = entry.Next;
+            var previous = entry.Previous;
+
+            if (next != null) next.Previous = entry.Previous;
+            if (previous != null) previous.Next = entry.Next;
+
+            entry.Previous = null;
+            entry.Next = head;
+
+            if (head != null) head.Previous = entry;
+            head = entry;
+
+            if (tail == entry) tail = previous;
         }
-        else
-        {
-            tail = next;
-        }
-
-        if (tail == null)
-        {
-            tail = head;
-        }
-
-        node.Previous = null;
-        node.Next = null;
-        return true;
-    }
-
-    public void Clear()
-    {
-        Node entry = head;
-        while (entry != null)
-        {
-            entry.Value = default(TValue);
-            entry = entry.Next;
-        }
-        entries.Clear();
-        head = tail = null;
-    }
-
-    private void MoveToHead(Node entry)
-    {
-        if (entry == head || entry == null) return;
-
-        var next = entry.Next;
-        var previous = entry.Previous;
-
-        if (next != null) next.Previous = entry.Previous;
-        if (previous != null) previous.Next = entry.Next;
-
-        entry.Previous = null;
-        entry.Next = head;
-
-        if (head != null) head.Previous = entry;
-        head = entry;
-
-        if (tail == entry) tail = previous;
     }
 }

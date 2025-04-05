@@ -2,84 +2,88 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-public struct StructList<T> : IDisposable, IList<T>
+namespace NFramework.Core.Collections
 {
-    private List<T> _list;
 
-    public StructList(T item1)
+    public struct StructList<T> : IDisposable, IList<T>
     {
-        _list = ListPool.Alloc<T>();
-        _list.Add(item1);
-    }
+        private List<T> _list;
 
-    public StructList(T item1, T item2)
-    {
-        _list = ListPool.Alloc<T>();
-        _list.Add(item1);
-        _list.Add(item2);
-    }
+        public StructList(T item1)
+        {
+            _list = ListPool.Alloc<T>();
+            _list.Add(item1);
+        }
 
-    public void Dispose()
-    {
-        _list.Dispose();
-    }
+        public StructList(T item1, T item2)
+        {
+            _list = ListPool.Alloc<T>();
+            _list.Add(item1);
+            _list.Add(item2);
+        }
 
-    public IEnumerator<T> GetEnumerator()
-    {
-        return _list.GetEnumerator();
-    }
+        public void Dispose()
+        {
+            _list.Dispose();
+        }
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return _list.GetEnumerator();
-    }
+        public IEnumerator<T> GetEnumerator()
+        {
+            return _list.GetEnumerator();
+        }
 
-    public void Add(T item)
-    {
-        _list.Add(item);
-    }
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _list.GetEnumerator();
+        }
 
-    public void Clear()
-    {
-        _list.Clear();
-    }
+        public void Add(T item)
+        {
+            _list.Add(item);
+        }
 
-    public bool Contains(T item)
-    {
-        return _list.Contains(item);
-    }
+        public void Clear()
+        {
+            _list.Clear();
+        }
 
-    public void CopyTo(T[] array, int arrayIndex)
-    {
-        _list.CopyTo(array, arrayIndex);
-    }
+        public bool Contains(T item)
+        {
+            return _list.Contains(item);
+        }
 
-    public bool Remove(T item)
-    {
-        return _list.Remove(item);
-    }
+        public void CopyTo(T[] array, int arrayIndex)
+        {
+            _list.CopyTo(array, arrayIndex);
+        }
 
-    public int Count => _list.Count;
-    public bool IsReadOnly => ((IList)_list).IsReadOnly;
+        public bool Remove(T item)
+        {
+            return _list.Remove(item);
+        }
 
-    public int IndexOf(T item)
-    {
-        return _list.IndexOf(item);
-    }
+        public int Count => _list.Count;
+        public bool IsReadOnly => ((IList)_list).IsReadOnly;
 
-    public void Insert(int index, T item)
-    {
-        _list.Insert(index, item);
-    }
+        public int IndexOf(T item)
+        {
+            return _list.IndexOf(item);
+        }
 
-    public void RemoveAt(int index)
-    {
-        _list.RemoveAt(index);
-    }
+        public void Insert(int index, T item)
+        {
+            _list.Insert(index, item);
+        }
 
-    public T this[int index]
-    {
-        get => _list[index];
-        set => _list[index] = value;
+        public void RemoveAt(int index)
+        {
+            _list.RemoveAt(index);
+        }
+
+        public T this[int index]
+        {
+            get => _list[index];
+            set => _list[index] = value;
+        }
     }
 }

@@ -13,7 +13,5 @@ namespace NFramework.UI
         {
             this.Parent = null;
         }
-
-
     }
 }

@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-
-namespace client
+namespace NFramework.Core.Collections
 {
     /// <summary>
     /// 优先队列

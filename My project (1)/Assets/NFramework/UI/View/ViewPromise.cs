@@ -1,12 +1,11 @@
-
-using NFramework.Core;
+using NFramework.Core.ObjectPool;
 
 namespace NFramework.UI
 {
     public partial class View
     {
         private PromiseRecords m_promiseRecords;
-        public PromiseRecords PromiseRecords
+        protected PromiseRecords PromiseRecords
         {
             get
             {

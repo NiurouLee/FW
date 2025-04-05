@@ -2,60 +2,63 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-public static class HashSetPool
+namespace NFramework.Core.Collections
 {
-    private static readonly Dictionary<Type, IList> _cache = new();
-    private static readonly HashSet<int> _hash = new();
-    private static readonly object _lock = new();
-
-    public static HashSet<T> Alloc<T>()
+    public static class HashSetPool
     {
-        lock (_lock)
+        private static readonly Dictionary<Type, IList> _cache = new();
+        private static readonly HashSet<int> _hash = new();
+        private static readonly object _lock = new();
+
+        public static HashSet<T> Alloc<T>()
         {
-            var type = typeof(T);
-            if (_cache.TryGetValue(type, out var list) && list.Count > 0)
+            lock (_lock)
             {
-                var result = list[^1];
-                list.RemoveAt(list.Count - 1);
-                var hash = result.GetHashCode();
-                _hash.Remove(hash);
-                return result as HashSet<T>;
+                var type = typeof(T);
+                if (_cache.TryGetValue(type, out var list) && list.Count > 0)
+                {
+                    var result = list[^1];
+                    list.RemoveAt(list.Count - 1);
+                    var hash = result.GetHashCode();
+                    _hash.Remove(hash);
+                    return result as HashSet<T>;
+                }
+
+                return new HashSet<T>();
             }
-
-            return new HashSet<T>();
         }
-    }
 
-    public static bool Free<T>(HashSet<T> set)
-    {
-        if (set == null) return false;
-
-        lock (_lock)
+        public static bool Free<T>(HashSet<T> set)
         {
-            var hash = set.GetHashCode();
-            if (_hash.Contains(hash)) return false;
+            if (set == null) return false;
 
-            set.Clear();
-
-            var type = typeof(T);
-            if (!_cache.TryGetValue(type, out var cacheList))
+            lock (_lock)
             {
-                cacheList = new List<object>();
-                _cache.Add(type, cacheList);
+                var hash = set.GetHashCode();
+                if (_hash.Contains(hash)) return false;
+
+                set.Clear();
+
+                var type = typeof(T);
+                if (!_cache.TryGetValue(type, out var cacheList))
+                {
+                    cacheList = new List<object>();
+                    _cache.Add(type, cacheList);
+                }
+
+                cacheList.Add(set);
+                _hash.Add(hash);
+                return true;
             }
-
-            cacheList.Add(set);
-            _hash.Add(hash);
-            return true;
         }
-    }
 
-    public static void ClearPool()
-    {
-        lock (_lock)
+        public static void ClearPool()
         {
-            _cache.Clear();
-            _hash.Clear();
+            lock (_lock)
+            {
+                _cache.Clear();
+                _hash.Clear();
+            }
         }
     }
 }

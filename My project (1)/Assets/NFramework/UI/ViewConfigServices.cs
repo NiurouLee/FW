@@ -47,6 +47,15 @@ namespace NFramework.UI
             return null;
         }
 
+        public Type GetViewType(string inCfgID)
+        {
+            if (this.viewConfigName2TypeDic.TryGetValue(inCfgID, out var type))
+            {
+                return type;
+            }
+            return null;
+        }
+
         internal void AddViewConfig(Type item1, string item2, ViewConfig item3)
         {
             this.type2ConfigIDDic.Add(item1, item2);

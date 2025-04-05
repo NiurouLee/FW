@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-
+using NFramework.Core.Collections;
 
 namespace NFramework.UI
 {
@@ -8,18 +8,18 @@ namespace NFramework.UI
     {
         protected delegate bool UI2ParentEvent<T>(ref T view2ParentEvent);
 
-        private Dictionary<Type, System.Delegate> _delegates;
+        private Dictionary<Type, System.Delegate> m_ViewDelegates;
 
         private Dictionary<Type, System.Delegate> Delegates
         {
             get
             {
-                if (_delegates == null)
+                if (m_ViewDelegates == null)
                 {
-                    _delegates = DictionaryPool.Alloc<Type, Delegate>();
+                    m_ViewDelegates = DictionaryPool.Alloc<Type, Delegate>();
                 }
 
-                return _delegates;
+                return m_ViewDelegates;
             }
         }
 
@@ -62,7 +62,7 @@ namespace NFramework.UI
 
         private void _OnChildPopEvent<T>(T inEvent) where T : IView2ParentEvent
         {
-            if (this._delegates == null)
+            if (this.m_ViewDelegates == null)
             {
                 this.Parent._PopEvent2Parent(inEvent);
             }
@@ -82,11 +82,11 @@ namespace NFramework.UI
 
         private void DestroyPopEvent2Parent()
         {
-            if (_delegates != null)
+            if (m_ViewDelegates != null)
             {
-                _delegates.Clear();
-                DictionaryPool.Free(_delegates);
-                _delegates = null;
+                m_ViewDelegates.Clear();
+                DictionaryPool.Free(m_ViewDelegates);
+                m_ViewDelegates = null;
             }
         }
     }

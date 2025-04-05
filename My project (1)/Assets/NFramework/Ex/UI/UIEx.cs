@@ -25,7 +25,7 @@ namespace NFramework.UI
             viewConfig.AssetID = "DemoWindow";
             list.Add(new Tuple<Type, string, ViewConfig>(typeof(DemoWindow), "DemoWindow", viewConfig));
             UIManager.Instance.AwakeTypeCfg(list);
-            UIManager.Instance.Open<DemoWindow, DemoWindowData>(new DemoWindowData() { Name = "DemoWindowEx" });
+            // UIManager.Instance.OpenSync<DemoWindow, DemoWindowData>(new DemoWindowData() { Name = "DemoWindowEx" });
         }
     }
 }

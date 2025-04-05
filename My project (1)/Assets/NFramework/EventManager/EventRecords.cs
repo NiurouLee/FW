@@ -1,8 +1,9 @@
-using NFramework.Core;
+using NFramework.Core.Collections;
+using NFramework.Core.ObjectPool;
 
 namespace NFramework.Event
 {
-    public class EventRecords : BaseRecords<BaseRegister>, IEventRegister
+    public class EventRecords : BaseRecords<BaseRegister>, IEventRegister, IFreeToPool
     {
         private IEventRegister EventSchedule { get; set; }
         public void SetSchedule(IEventRegister inEventSchedule)
@@ -91,6 +92,10 @@ namespace NFramework.Event
                 this.EventSchedule.UnSubscribe(register);
             }
             this.EventSchedule = null;
+        }
+
+        public void FreeToPool()
+        {
         }
     }
 }

@@ -1,4 +1,4 @@
-using NFramework.Core;
+using NFramework.Core.ObjectPool;
 using NFramework.Event;
 
 namespace NFramework.UI
@@ -26,6 +26,8 @@ namespace NFramework.UI
             if (m_viewEventRecords != null)
             {
                 m_viewEventRecords.Destroy();
+                ObjectPool.Free(m_viewEventRecords);
+                m_viewEventRecords = null;
             }
         }
     }

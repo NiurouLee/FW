@@ -1,3 +1,5 @@
+using NFramework.Core.Collections;
+
 namespace NFramework.UI
 {
     public class SubViewRecords : BaseRecords<View>

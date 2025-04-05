@@ -1,5 +1,6 @@
-using NFramework.Core;
 using Proto.Promises;
+using NFramework.Core.ObjectPool;
+
 namespace NFramework.UI
 {
     public partial class View

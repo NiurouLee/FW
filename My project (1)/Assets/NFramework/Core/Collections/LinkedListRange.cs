@@ -1,9 +1,3 @@
-//------------------------------------------------------------
-// Game Framework
-// Copyright © 2013-2021 Jiang Yin. All rights reserved.
-// Homepage: https:// .cn/
-// Feedback: mailto:ellan@ .cn
-//------------------------------------------------------------
 
 using System.Collections;
 using System.Collections.Generic;

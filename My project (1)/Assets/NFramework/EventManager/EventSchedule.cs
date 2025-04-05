@@ -1,6 +1,5 @@
-using System;
 using System.Collections.Generic;
-using UnityEditor;
+using NFramework.Core.Collections;
 
 namespace NFramework.Event
 {

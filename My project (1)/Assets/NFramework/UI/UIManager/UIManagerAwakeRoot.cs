@@ -1,8 +1,6 @@
 using System.Numerics;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using GameObject = UnityEngine.GameObject;
 using Vector3 = UnityEngine.Vector3;
 using UnityEngine;
@@ -16,7 +14,7 @@ namespace NFramework.UI
     public partial class UIManager
     {
         private GameObject uiRoot;
-        private Camera uiCamera;
+        public Camera UICamera { get; private set; }
         private Canvas uiCanvas;
         private Transform uiCanvasTrf;
         private EventSystem eventSystem;
@@ -24,12 +22,12 @@ namespace NFramework.UI
 
         public void AwakeRoot(GameObject inRoot)
         {
-            
+
             uiRoot = inRoot;
             uiRoot.transform.localPosition = new Vector3(0, 1000, 0);
             uiRoot.name = "[UIROOT]";
             GameObject.DontDestroyOnLoad(uiRoot);
-            uiCamera = uiRoot.GetComponent<Camera>();
+            UICamera = uiRoot.GetComponent<Camera>();
             // uiCamera.tag = "UICamera";
             uiCanvasTrf = uiRoot.transform.Find("Canvas");
             uiCanvas = uiCanvasTrf.GetComponent<Canvas>();

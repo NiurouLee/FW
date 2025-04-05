@@ -2,8 +2,15 @@ using Proto.Promises;
 
 namespace NFramework.UI
 {
-    public class UIFacadeProvider : IUIFacadeProvider
+    public class UIFacadeProviderAssetLoader : IUIFacadeProvider
     {
+        private IResLoader _resLoader;
+
+        public UIFacadeProviderAssetLoader(IResLoader inResLoader)
+        {
+            _resLoader = inResLoader;
+        }
+
         public UIFacade Alloc<T>() where T : View
         {
             return null;

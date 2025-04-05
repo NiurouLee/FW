@@ -1,46 +1,49 @@
 using System;
 using System.Collections.Generic;
 
-public struct StructDictionary<TKey, TValue> : IDisposable
+namespace NFramework.Core.Collections
 {
-    private Dictionary<TKey, TValue> _dict;
-
-    public StructDictionary(int capacity = 0)
+    public struct StructDictionary<TKey, TValue> : IDisposable
     {
-        _dict = DictionaryPool.Alloc<TKey, TValue>();
-    }
+        private Dictionary<TKey, TValue> _dict;
 
-    public void Dispose()
-    {
-        if (_dict != null)
+        public StructDictionary(int capacity = 0)
         {
-            _dict.Dispose();
-            _dict = null;
+            _dict = DictionaryPool.Alloc<TKey, TValue>();
+        }
+
+        public void Dispose()
+        {
+            if (_dict != null)
+            {
+                _dict.Dispose();
+                _dict = null;
+            }
+        }
+
+        public void Add(TKey key, TValue value) => _dict.Add(key, value);
+        public bool ContainsKey(TKey key) => _dict.ContainsKey(key);
+        public bool Remove(TKey key) => _dict.Remove(key);
+        public void Clear() => _dict.Clear();
+        public int Count => _dict.Count;
+
+        public TValue this[TKey key]
+        {
+            get => _dict[key];
+            set => _dict[key] = value;
         }
     }
 
-    public void Add(TKey key, TValue value) => _dict.Add(key, value);
-    public bool ContainsKey(TKey key) => _dict.ContainsKey(key);
-    public bool Remove(TKey key) => _dict.Remove(key);
-    public void Clear() => _dict.Clear();
-    public int Count => _dict.Count;
-
-    public TValue this[TKey key]
+    public static class DicExtensions
     {
-        get => _dict[key];
-        set => _dict[key] = value;
-    }
-}
-
-public static class DicExtensions
-{
-    public static void Dispose<K, V>(this Dictionary<K, V> inDic)
-    {
-        if (inDic == null)
+        public static void Dispose<K, V>(this Dictionary<K, V> inDic)
         {
-            return;
-        }
+            if (inDic == null)
+            {
+                return;
+            }
 
-        DictionaryPool.Free(inDic);
+            DictionaryPool.Free(inDic);
+        }
     }
 }
