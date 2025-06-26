@@ -9,8 +9,6 @@ namespace NFramework.UI
         {
             ResLoadRecords = new ResLoadRecords();
         }
-        
-
     }
 }
 

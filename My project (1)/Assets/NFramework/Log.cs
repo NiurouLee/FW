@@ -5,8 +5,11 @@ using UnityEditor.PackageManager;
 
 namespace NFramework
 {
+
+
     public static class Log
     {
+        [Conditional("UNITY_EDITOR")]
         public static void ErrStack(string inMsg)
         {
             UnityEngine.Debug.LogError(Environment.StackTrace);

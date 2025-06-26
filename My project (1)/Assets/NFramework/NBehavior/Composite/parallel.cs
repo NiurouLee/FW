@@ -5,6 +5,9 @@ using UnityEngine.Assertions;
 
 namespace NFramework.NBehavior
 {
+    /// <summary>
+    /// 并行复合节点
+    /// </summary>
     public class Parallel : Composite
     {
         public enum Policy
@@ -127,10 +130,6 @@ namespace NFramework.NBehavior
                     }
                 }
             }
-        }
-
-        protected override void StopLowerPriorityChildrenForChild(Node inAbortForChild, bool immediateRestart)
-        {
         }
 
         public override void StopLowePriorityChildrenForChild(Node inChild, bool inImmediateRestart)

@@ -4,8 +4,10 @@ namespace NFramework.NBehavior
 {
     public class Sequence : Composite
     {
-        private int currentIndex = -1;
-
+        /// <summary>
+        /// 顺序节点，可以动态添加子节点
+        /// </summary>
+        protected int currentIndex { get; set; }
         public Sequence() : base("Sequence")
         {
 
@@ -19,6 +21,7 @@ namespace NFramework.NBehavior
             }
             this.currentIndex = -1;
             ProcessChildren();
+            base.DoStart();
         }
 
         protected override void DoStop()
@@ -90,7 +93,4 @@ namespace NFramework.NBehavior
             }
         }
     }
-
-
-
 }

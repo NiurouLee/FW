@@ -34,11 +34,11 @@ namespace NFramework.NBehavior
         {
             this.mainNode = mainNode;
             this.clock = null;
-            this.blackboard = new Blackboard(this.clock);
+            // this.blackboard = new Blackboard(this.clock);
             this.SetRoot(this);
         }
 
-        public Root(Blackboard inBlackboard, Node inMainNode) : base("Root", mainNode)
+        public Root(Blackboard inBlackboard, Node inMainNode) : base("Root", inMainNode)
         {
             this.blackboard = inBlackboard;
             this.mainNode = inMainNode;
@@ -64,34 +64,34 @@ namespace NFramework.NBehavior
 
         protected override void DoStart()
         {
-            this.blackboard.Enable();
+            // this.blackboard.Enable();
             this.mainNode.Start();
         }
 
         protected override void DoStop()
         {
-            if (this.mainNode.IsActive)
-            {
-                this.mainNode.Stop();
-            }
-            else
-            {
-                this.clock.RemoveTimer(this.mainNode.Start);
-            }
+            // if (this.mainNode.IsActive)
+            // {
+            //     this.mainNode.Stop();
+            // }
+            // else
+            // {
+            //     this.clock.RemoveTimer(this.mainNode.Start);
+            // }
         }
 
 
         protected override void DoChildStopped(Node inNode, bool isSuccess)
         {
-            if (!IsStopRequested)
-            {
-                this.clock.AddTimer(0, 0, this.mainNode.Start);
-            }
-            else
-            {
-                this.blackboard.Disable();
-                Stopped(isSuccess);
-            }
+            // if (!IsStopRequested)
+            // {
+            //     this.clock.AddTimer(0, 0, this.mainNode.Start);
+            // }
+            // else
+            // {
+            //     this.blackboard.Disable();
+            //     Stopped(isSuccess);
+            // }
         }
 
     }

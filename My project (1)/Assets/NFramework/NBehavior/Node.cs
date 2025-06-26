@@ -2,7 +2,7 @@ using UnityEngine.Assertions;
 
 namespace NFramework.NBehavior
 {
-    public abstract class Node
+    public abstract class Node 
     {
 
         public enum State

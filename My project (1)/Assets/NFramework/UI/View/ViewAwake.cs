@@ -1,6 +1,6 @@
 namespace NFramework.UI
 {
-    public partial class View
+    public partial class View : IAwakeSystem, IDestroySystem
     {
         public void Awake()
         {
