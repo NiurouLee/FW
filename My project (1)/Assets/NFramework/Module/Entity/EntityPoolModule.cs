@@ -1,6 +1,6 @@
 using System;
 
-namespace NFramework.Module.Entity
+namespace NFramework.Module.EntityModule
 {
     public class EntityPoolModule : IFrameWorkModule
     {

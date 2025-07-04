@@ -1,4 +1,4 @@
-﻿namespace NFramework.Module.Entity
+﻿namespace NFramework.Module.EntityModule
 {
     /// <summary>
     /// entity的引用

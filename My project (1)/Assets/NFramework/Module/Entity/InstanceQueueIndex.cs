@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using NFramework.Core.ILiveing;
 
-namespace NFramework.Module.Entity
+namespace NFramework.Module.EntityModule
 {
     public enum InstanceQueueIndex
     {

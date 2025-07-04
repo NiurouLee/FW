@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using NFramework.Core.Collections;
-using Object = System.Object;
 using NFramework.Core.ILiveing;
 using NFramework.Module.Log;
 using NFramework.Module.IDGenerator;
 
 
-namespace NFramework.Module.Entity
+namespace NFramework.Module.EntityModule
 {
     [Flags]
     public enum EntityStatus : byte

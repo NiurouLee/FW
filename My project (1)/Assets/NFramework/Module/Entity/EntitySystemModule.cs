@@ -6,7 +6,7 @@ using NFramework.Core.Collections;
 using NFramework.Core.ILiveing;
 using NFramework.Module.Log;
 
-namespace NFramework.Module.Entity
+namespace NFramework.Module.EntityModule
 {
     public class EntitySystemModule : IFrameWorkModule
     {

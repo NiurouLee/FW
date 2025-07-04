@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using NFramework.Module.IDGenerator;
 
-namespace NFramework.Module.Entity
+namespace NFramework.Module.EntityModule
 {
     public class World : Entity
     {
