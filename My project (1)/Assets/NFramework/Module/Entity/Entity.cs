@@ -683,6 +683,7 @@ namespace NFramework.Module.EntityModule
             return component as K;
         }
 
+
         public Entity AddChild(Type entityType, bool isFromPool = false)
         {
             Entity child = Create(entityType, isFromPool);
@@ -716,6 +717,14 @@ namespace NFramework.Module.EntityModule
             return child;
         }
 
+        public T AddChild<T, A>(T inT, A inA) where T : Entity, IAwakeSystem<A>
+        {
+            inT.Id = Framework.Instance.GetModule<IDGeneratorModule>().GenerateId();
+            inT.Parent = this;
+            Framework.Instance.GetModule<EntitySystemModule>().Awake(inT, inA);
+            Framework.Instance.GetModule<EntitySystemModule>().Start(inT);
+            return inT;
+        }
 
         public T AddChild<T>(bool isFromPool = false) where T : Entity
         {
