@@ -1,5 +1,6 @@
 
 using NFramework.Core.ILiveing;
+
 namespace NFramework.Module.Combat
 {
     public class AbilityEffectAddStatusComponent : Entity
@@ -8,7 +9,7 @@ namespace NFramework.Module.Combat
 
         public void OnAssignEffect(EffectAssignAction effectAssignAction)
         {
-            if (Owner.addStatusActionAbility.TryMakeAction(out var action))
+            if (this.Owner.addStatusActionAbility.TryMakeAction(out var action))
             {
                 effectAssignAction.FillDataToAction(action);
                 action.sourceAbility = effectAssignAction.sourceAbility;

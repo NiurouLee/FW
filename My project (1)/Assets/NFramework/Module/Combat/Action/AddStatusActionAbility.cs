@@ -1,0 +1,79 @@
+using System.Threading;
+using NFramework.Module.EntityModule;
+
+namespace NFramework.Module.Combat
+{
+    public class AddStatusActionAbility : Entity, IActionAbility
+    {
+        public bool Enable { get; set; }
+        public Combat Owner => GetParent<Combat>();
+        public bool TryMakeAction(out AddStatusAction action)
+        {
+            if (!Enable)
+            {
+                action = null;
+            }
+            else
+            {
+                action = Owner.AddChild<AddStatusAction>();
+                action.ActionAbility = this;
+                action.Creator = Owner;
+            }
+            return Enable;
+        }
+    }
+
+    public class AddStatusAction : Entity, IActionExecution
+    {
+        public Entity SourceAbility { get; set; }
+        public Entity ActionAbility { get; set; }
+        public EffectAssignAction SourceAssignAction { get; set; }
+        public Combat Creator { get; set; }
+        public Combat Target { get; set; }
+        public void FinishAction()
+        {
+            Dispose();
+        }
+
+        public void PreProcess()
+        {
+
+        }
+
+        public void ApplyStatus()
+        {
+            AddStatusEffect addStatusEffect = (addStatusEffect)SourceAssignAction.AbilityEffect.effect;
+            statusConfigObject statusConfigObject = addStatusEffect.statusConfigObject;
+            StatusAbility status = null;
+            if (!statusConfigObject.CanStack)
+            {
+                if (Target.HasStatus(statusConfigObject.Id))
+                {
+                    status = Target.GetStatus(statusConfigObject.id);
+                    var statusLifeTimer = stackalloc.GetComponent<StatusLifeTimer>().LifeTimer;
+                    Framework.Instance.RestTimer(statusLifeTimer);
+                    return;
+                }
+            }
+            status = TargetAttachStatus(statusConfigObject.Id);
+            status.Creator = Creator;
+            status.GetComponent<AbilityLevelComponent>().Level = SourceAbility.GetComponent<AbilityLevelComponent>().Level;
+            status.Duration = (int)addStatusEffect.Duration;
+
+            status.SetParams(addStatusEffect.paramDict);
+            status.AddComponent<StatusLifeTimeComponent>();
+            status.ActivateAbility();
+            PostProcess();
+            FinishAction();
+
+        }
+
+        public void PostProcess()
+        {
+            Creator.TriggerActionPoint(ActionPointType.PostGiveStatus, this);
+            Target.TriggerActionPoint(ActionPointType.PostReceiveStatus, this);
+        }
+
+    }
+
+}
