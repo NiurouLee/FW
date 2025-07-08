@@ -18,7 +18,7 @@ namespace NFramework.Module.Combat
         {
             if (Owner.CureActionAbility.TryMakeAction(out var action))
             {
-                effectAssignAction.FillDataToAction(action)
+                effectAssignAction.FillDataToAction(action);
                 {
                     action.ApplyCure();
                 }
