@@ -1,19 +1,19 @@
 
 
 using NFramework.Core.ILiveing;
-using UnityEngine;
+using NFramework.Module.EntityModule;
 namespace NFramework.Module.Combat
 {
-    public class AbilityEffectConditionTriggerComponent : Entity, IAwake
+    public class AbilityEffectConditionTriggerComponent : Entity, IAwakeSystem
     {
         public Effect Effect => GetParent<AbilityEffect>().effect;
         public string ConditionValueFromula => ParseParams(Effect.ConditionValueFormula, GetParent<AbilityEffect>().GetparamsDict());
         public ConditionType ConditionType => Effect.ConditionType;
         public Combat Owner => GetParent<AbilityEffect>().Owner;
 
-        public override void Awake()
+        public void Awake()
         {
-            Owner.ListenerCondition(ConditionType, OnConditionTrigger, ConditionValueFormule);
+            Owner.ListenCondition(ConditionType, OnConditionTrigger, ConditionValueFormule);
         }
 
         public override void OnDestroy()
@@ -24,7 +24,7 @@ namespace NFramework.Module.Combat
         private string ParseParams(stringg origin, Dictionary<string, string> paramsDict)
         {
             string temp = origin;
-            for(var item in paramsDict)
+            foreach (var item in paramsDict)
             {
                 if (!string.IsNullOrEmpty(temp))
                 {
