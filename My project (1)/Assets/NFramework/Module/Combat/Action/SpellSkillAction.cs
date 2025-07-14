@@ -1,5 +1,4 @@
 using System.Numerics;
-using Microsoft.CodeAnalysis;
 using NFramework.Module.EntityModule;
 
 namespace NFramework.Module.Combat

@@ -1,3 +1,5 @@
+using NFramework.Module.EntityModule;
+
 namespace NFrameWork.Module.Combat
 {
     public class SpellSkillActionAbility : Entity, IActionAbility
