@@ -1,11 +1,12 @@
 using UnityEngine;
-using NFramework.Module.Entity;
+using NFramework.Module.EntityModule;
+using NFramework.Core.ILiveing;
 namespace NFramework.Module.Combat
 {
-    public class TransformComponent : Entity, IAwake
+    public class TransformComponent : Entity, IAwakeSystem
     {
         private Vector3 _position;
-        private Quaterion _rotation;
+        private Quaternion _rotation;
         private Vector3 _localScale;
 
         public Vector3 Position
@@ -48,7 +49,7 @@ namespace NFramework.Module.Combat
         public void Awake()
         {
             Position = Vector3.zero;
-            Rotation = Quternion.identity;
+            Rotation = Quaternion.identity;
             LocalScale = Vector3.one;
         }
 
@@ -68,7 +69,7 @@ namespace NFramework.Module.Combat
             }
             else
             {
-                Rotation = quaternion.Euler(0, 0, 0);
+                Rotation = Quaternion.Euler(0, 0, 0);
             }
         }
 
@@ -83,12 +84,12 @@ namespace NFramework.Module.Combat
             {
                 Rotation = Quaternion.Euler(0, 0, 0);
             }
-            GetParent<Combat>().OracComponent.Set2DTarget(target);
+            GetParent<Combat>().OrcaComponent.Set2DTarget(target);
         }
         public void SyncTransform()
         {
             Framework.Instance.GetModule<EventD>().D.Fire(ref new SyncTranform(GetParent<Combat>().id, _position, _rotation, _localScale));
-            
+
         }
 
 

@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Numerics;
-using JetBrains.Annotations;
 using NFramework.Core.ILiveing;
 using NFramework.Module.EntityModule;
 using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UIElements.Experimental;
+
+
 namespace NFramework.Module.Combat
 {
     public class SkillExecution : Entity, IAbilityExecution, IAwakeSystem<SkillAbility>

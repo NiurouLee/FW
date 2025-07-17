@@ -24,10 +24,10 @@ namespace NFramework.Module.Combat
         public AABBComponent AABBComponent => GetComponent<AABBComponent>();
         public TagComponent TagComponent => GetComponent<TagComponent>();
 
-
         public void Awake()
         {
-            Framework.Instance.GetModule<EventD>().D.Publish(ref new SyncCreateCombat(this.Id));
+            var @event = new SyncCreateCombat(Id);
+            Framework.Instance.GetModule<EventD>().D.Publish(ref @event);
             AddComponent<TransformComponent>();
             AddComponent<OrcaComponent>()
             AddComponent<AnimationComponent>();

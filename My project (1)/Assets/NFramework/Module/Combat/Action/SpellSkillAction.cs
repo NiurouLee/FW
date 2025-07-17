@@ -1,5 +1,6 @@
 using System.Numerics;
 using NFramework.Module.EntityModule;
+using NFramework.Core.ILiveing;
 
 namespace NFramework.Module.Combat
 {
@@ -24,7 +25,7 @@ namespace NFramework.Module.Combat
         }
     }
 
-    public class SpellSkillAction : Entity, IActionAbility, IUpdate
+    public class SpellSkillAction : Entity, IActionExecution, IUpdateSystem
     {
         public SkillAbility SkillAbility { get; set; }
         public SkillExecution SkillExecution { get; set; }
@@ -78,5 +79,9 @@ namespace NFramework.Module.Combat
             Creator.TriggerActionPoint(ActionPointType.PostSpell, this);
         }
 
+        public void Update(float deltaTime)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

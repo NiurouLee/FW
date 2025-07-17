@@ -30,6 +30,7 @@ namespace NFramework.Module.Combat
         public EffectAssignAction SourceAssignAction { get; set; }
         public Combat Creator { get; set; }
         public Combat Target { get; set; }
+
         public void FinishAction()
         {
             Dispose();
@@ -42,15 +43,15 @@ namespace NFramework.Module.Combat
 
         public void ApplyStatus()
         {
-            AddStatusEffect addStatusEffect = (addStatusEffect)SourceAssignAction.AbilityEffect.effect;
-            statusConfigObject statusConfigObject = addStatusEffect.statusConfigObject;
+            AddStatusEffect addStatusEffect = (AddStatusEffect)SourceAssignAction.AbilityEffect.effect;
+            StatusConfigObject statusConfigObject = addStatusEffect.StatusConfigObject;
             StatusAbility status = null;
             if (!statusConfigObject.CanStack)
             {
                 if (Target.HasStatus(statusConfigObject.Id))
                 {
-                    status = Target.GetStatus(statusConfigObject.id);
-                    var statusLifeTimer = stackalloc.GetComponent<StatusLifeTimer>().LifeTimer;
+                    status = Target.GetStatus(statusConfigObject.Id);
+                    var statusLifeTimer = status.GetComponent<StatusLifeTimeComponent>().LifeTimer;
                     Framework.Instance.RestTimer(statusLifeTimer);
                     return;
                 }

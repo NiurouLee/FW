@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Entitas;
 using NFramework.Core.ILiveing;
 using Sirenix.OdinInspector;

@@ -1,4 +1,5 @@
-using Entitas;
+
+using NFramework.Module.EntityModule;
 
 namespace NFramework.Module.Combat
 {
