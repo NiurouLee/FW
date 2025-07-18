@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace NFramework.Module.Res
 {
-    public class Res : IFrameWorkModule
+    public class ResModule : IFrameWorkModule
     {
         public Dictionary<string, string> AssetID2PathDic = new Dictionary<string, string>();
 

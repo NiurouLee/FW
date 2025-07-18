@@ -2,6 +2,7 @@ using System;
 using NFramework.Core.ILiveing;
 using NFramework.Module.EntityModule;
 using NFramework.Module.Event;
+using NFramework.Module.Math;
 using UnityEngine;
 
 namespace NFramework.Module.Combat
@@ -29,10 +30,10 @@ namespace NFramework.Module.Combat
             var @event = new SyncCreateCombat(Id);
             Framework.Instance.GetModule<EventD>().D.Publish(ref @event);
             AddComponent<TransformComponent>();
-            AddComponent<OrcaComponent>()
+            AddComponent<OrcaComponent>();
             AddComponent<AnimationComponent>();
             AABB aabb = new AABB(new Vector2(-1, -1), new Vector2(1, 1));
-            AddComponent<AABBComponent>(aabb);
+            AddComponent<AABBComponent, AABB>(aabb);
             AddComponent<AttributeComponent>();
             AddComponent<ConditionComponent>();
             AddComponent<MotionComponent>();

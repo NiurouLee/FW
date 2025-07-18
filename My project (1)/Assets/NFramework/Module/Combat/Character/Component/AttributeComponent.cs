@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using Entitas;
 using NFramework.Core.ILiveing;
+using NFramework.Module.EntityModule;
 using Sirenix.OdinInspector;
 
 namespace NFramework.Module.Combat

@@ -1,16 +1,17 @@
 
 
 using NFramework.Core.ILiveing;
+using NFramework.Module.EntityModule;
 using UnityEngine;
 namespace NFramework.Module.Combat
 {
-    public class AbilityEffectDamageReduceWithTargetCountComponent : Entity, IAwake
+    public class AbilityEffectDamageReduceWithTargetCountComponent : Entity, IAwakeSystem
     {
         public DamageEffect DamageEffect => (DamageEffect)GetParent<AbilityEffect>().effect;
         public float ReducePercent;
         public float minPercent;
 
-        public override void Awake()
+        public void Awake()
         {
             foreach (var item in DamageEffect.DecoratorList)
             {

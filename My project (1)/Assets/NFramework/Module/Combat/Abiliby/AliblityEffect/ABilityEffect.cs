@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using NFramework.Core.ILiveing;
 using NFramework.Module.EntityModule;
-using Unity.VisualScripting;
-using UnityEngine;
 
 
 namespace NFramework.Module.Combat
@@ -17,7 +15,7 @@ namespace NFramework.Module.Combat
         public void Awake(Effect a)
         {
             effect = a;
-            if (effect is AddStatusEffecct)
+            if (effect is AddStatusEffect)
             {
                 this.AddComponent<AbilityEffectAddStatusComponent>();
             }

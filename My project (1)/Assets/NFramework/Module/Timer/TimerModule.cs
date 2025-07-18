@@ -2,6 +2,9 @@ using System;
 
 namespace NFramework.Module.TimerModule
 {
+    /// <summary>
+    /// https://www.zhihu.com/question/52968810/answer/1929456142423163724
+    /// </summary>
     public class TimerModule : IFrameWorkModule
     {
 
