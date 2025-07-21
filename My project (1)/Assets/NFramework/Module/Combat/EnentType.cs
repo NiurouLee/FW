@@ -124,7 +124,7 @@ namespace NFramework.Module.Combat
         }
     }
 
-    public class SyncAttribute : IEvent
+    public struct SyncAttribute : IEvent
     {
         public long id;
         public AttributeType attributeType;

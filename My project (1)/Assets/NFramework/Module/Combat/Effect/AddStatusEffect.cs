@@ -25,5 +25,13 @@ namespace NFramework.Module.Combat
         [ToggleGroup("Enable")]
         [LabelText("状态配置")]
         public StatusConfigObject StatusConfigObject;
+
+        [ToggleGroup("Enable"), LabelText("持续时间"), SuffixLabel("毫秒", true)]
+        public uint Duration;
+
+        [HideReferenceObjectPicker]
+        [ToggleGroup("Enable")]
+        [LabelText("参数列表")]
+        public Dictionary<string, string> ParamsDict = new Dictionary<string, string>();
     }
 }

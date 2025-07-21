@@ -1,5 +1,5 @@
 
-using NFramework.Core.ILiveing;
+using NFramework.Module.EntityModule;
 
 namespace NFramework.Module.Combat
 {
@@ -9,11 +9,11 @@ namespace NFramework.Module.Combat
 
         public void OnAssignEffect(EffectAssignAction effectAssignAction)
         {
-            if (this.Owner.addStatusActionAbility.TryMakeAction(out var action))
+            if (this.Owner.AddStatusActionAbility.TryMakeAction(out var action))
             {
-                effectAssignAction.FillDataToAction(action);
-                action.sourceAbility = effectAssignAction.sourceAbility;
-                action.ApplyAddStatus();
+                effectAssignAction.FillDatasToAction(action);
+                action.SourceAssignAction = effectAssignAction;
+                action.ApplyStatus();
             }
         }
     }

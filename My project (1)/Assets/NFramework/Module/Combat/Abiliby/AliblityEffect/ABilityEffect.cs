@@ -94,14 +94,14 @@ namespace NFramework.Module.Combat
             return temp;
         }
 
-        public void TryAssinEffectToOwner()
+        public void TryAssignEffectToOwner()
         {
-            TryAssinEffectToOwner(Owner);
+            TryAssignEffectToOwner(Owner);
         }
 
-        public void TryAssingEffectToTarget(Combat target)
+        public void TryAssignEffectToTarget(Combat target)
         {
-            if (Owner.effectAssignActionAbility.TryMakeAction(out var action))
+            if (Owner.EffectAssignActionAbility.TryMakeAction(out var action))
             {
                 action.target = target;
                 action.sourceAbility = OwnerAbility;
@@ -110,7 +110,7 @@ namespace NFramework.Module.Combat
             }
         }
 
-        public void TryAssinEffectToTarget(Combat target, IActionExecution actionExecution)
+        public void TryAssignEffectToTarget(Combat target, IActionExecution actionExecution)
         {
             if (Owner.effectAssignActionAbility.TryMakeAction(out var action))
             {
@@ -122,7 +122,7 @@ namespace NFramework.Module.Combat
             }
         }
 
-        public void TryAssinEffectToTarget(Combat target, AbilityItem abilityItem)
+        public void TryAssignEffectToTarget(Combat target, AbilityItem abilityItem)
         {
             if (Owner.effectAssignActionAbility.TryMakeAction(out var action))
             {

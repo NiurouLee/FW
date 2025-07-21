@@ -69,7 +69,6 @@ namespace NFramework.Module.Combat
         [LabelText("子状态效果列表"), ShowIf("EnableChildStatus"), ListDrawerSettings(DraggableItems = false, ShowItemCount = false, CustomAddFunction = "AddChildStatus")]
         public List<ChildStatus> StatusList = new List<ChildStatus>();
 
-
         private void AddChildStatus()
         {
             StatusList.Add(new ChildStatus());

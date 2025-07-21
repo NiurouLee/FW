@@ -4,7 +4,7 @@ namespace NFramework.Module.Combat
 {
     public class EffectAssignActionAbility : Entity, IActionAbility
     {
-        public bool Enable { get; set; }
+        public new bool Enable { get; set; }
         public Combat Owner => GetParent<Combat>();
         public bool TryMakeAction(out EffectAssignAction action)
         {
@@ -25,7 +25,7 @@ namespace NFramework.Module.Combat
     public class EffectAssignAction : Entity, IActionExecution
     {
         public AbilityEffect AbilityEffect { get; set; }
-
+        //释放这个赋予效果行动的能力（skill能力，status能力，Item能力，Attack能力）
         public Entity SourceAbility;
         public IActionExecution ActionExecution;
         public IAbilityExecution AbilityExecution;

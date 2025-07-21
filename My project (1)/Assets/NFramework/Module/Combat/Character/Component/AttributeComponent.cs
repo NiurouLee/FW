@@ -1,7 +1,10 @@
+using System;
 using System.Collections.Generic;
 using NFramework.Core.ILiveing;
 using NFramework.Module.EntityModule;
+using NFramework.Module.Event;
 using Sirenix.OdinInspector;
+using Unity.VisualScripting.Antlr3.Runtime.Tree;
 
 namespace NFramework.Module.Combat
 {
@@ -53,6 +56,24 @@ namespace NFramework.Module.Combat
 
         public void Awake()
         {
+            AddNumeric(AttributeType.HealthPointMax, 1000);
+
+        }
+
+        public FloatNumeric AddNumeric(AttributeType attributeType, float baseValue)
+        {
+            NumericEntity numericEntity = parent.AddChild<NumericEntity>();
+            var numeric = Parent.AddChild<FloatNumeric, NumericEntity, AttributeType>(numericEntity);
+            _attributeDict.Add(attributeType, numeric);
+            var syncAttribute = new SyncAttribute(parent.Id, attributeType);
+            Framework.Instance.GetModule<EventD>().D.Publish(ref syncAttribute);
+            numeric.BaseValue = baseValue;
+            return numeric;
+        }
+
+        public FloatNumeric GetNumeric(AttributeType attributeType)
+        {
+            return _attributeDict[attributeType];
         }
     }
 }

@@ -3,28 +3,32 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using NFramework.Core.ILiveing;
-using NFramework.Module.Combat;
 using NFramework.Module.EntityModule;
-using UnityEditor;
 
 namespace NFramework.Module.Combat
 {
-    public partial class StatusAbility : Entity, IAbility, IAwakeSystem<StatusConfigObject>
+    public partial class StatusAbility : Entity, IAbility, IAwakeSystem<StatusConfigObject>, IAwakeSystem<System.Object>
     {
         public bool Enable { get; set; }
         public Combat Owner => GetParent<Combat>();
         public Combat Creator;
 
-        public StatusConfigObject statusConfigObject;
+        public StatusConfigObject StatusConfigObject;
         public Dictionary<string, string> paramsDict;
         public bool isChildStatus;
         public int duration;
         public ChildStatus childStatusData;
         public List<StatusAbility> _statusList = new List<StatusAbility>();
 
+        public void Awake(object obj)
+        {
+            this.StatusConfigObject = obj as StatusConfigObject;
+            this.Awake(StatusConfigObject);
+        }
+
         public void Awake(StatusConfigObject statusConfigObject)
         {
-            this.statusConfigObject = statusConfigObject;
+            this.StatusConfigObject = statusConfigObject;
             if (statusConfigObject.EffectList.Count > 0)
             {
                 AddComponent<AbilityEffectComponent, List<Effect>>(statusConfigObject.EffectList);
@@ -46,20 +50,20 @@ namespace NFramework.Module.Combat
             memoryStream.Position = 0;
             return formatter.Deserialize(memoryStream);
         }
-        public void ActivityAbility()
+        public void ActivateAbility()
         {
             Enable = true;
             GetComponent<AbilityEffectComponent>().EnableEffect();
-            if (statusConfigObject.EnableChildStatus)
+            if (StatusConfigObject.EnableChildStatus)
             {
-                foreach (var childStatus in statusConfigObject.ChildStatusList)
+                foreach (var childStatus in StatusConfigObject.StatusList)
                 {
-                    var status = Owner.AttachStatus(childStatus.statusConfigObject.id);
+                    var status = Owner.AttachStatus(childStatus.StatusConfigObject.Id);
                     status.Creator = Creator;
                     status.isChildStatus = true;
                     status.childStatusData = childStatus;
                     status.SetParams(childStatusData.ParamsDict);
-                    status.ActivityAbility();
+                    status.ActivateAbility();
                     _statusList.Add(status);
                 }
             }
@@ -68,7 +72,7 @@ namespace NFramework.Module.Combat
         public void EndAbility()
         {
             Enable = false;
-            if (statusConfigObject.EnableChildStatus)
+            if (StatusConfigObject.EnableChildStatus)
             {
                 foreach (var status in _statusList)
                 {
@@ -76,7 +80,7 @@ namespace NFramework.Module.Combat
                 }
                 _statusList.Clear();
             }
-            foreach (var effect in statusConfigObject.EffectList)
+            foreach (var effect in StatusConfigObject.EffectList)
             {
                 if (!effect.Enabled)
                 {
@@ -91,11 +95,6 @@ namespace NFramework.Module.Combat
         {
             return null;
         }
-
-
-
-
-
 
     }
 }

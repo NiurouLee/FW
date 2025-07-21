@@ -1,16 +1,18 @@
 
 using NFramework.Core.ILiveing;
+using NFramework.Module.EntityModule;
+
 namespace NFramework.Module.Combat
 {
-    public class AbilityEffectAttributeModifyComponent : Entity, IAwake
+    public class AbilityEffectAttributeModifyComponent : Entity, IAwakeSystem, IDestroySystem
     {
         public AttributeModifyEffect AttributeModifyEffect => (AttributeModifyEffect)GetParent<AbilityEffect>().effect;
-        public string NunericValueFormula => AttributeModifyEffect.NunericValueFormula;
+        public string NumericValueFormula => AttributeModifyEffect.NumericValueFormula;
         public AttributeType AttributeType => AttributeModifyEffect.AttributeType;
         public Combat Owner => GetParent<AbilityEffect>().Owner;
         public float value;
 
-        public override void Awake()
+        public void Awake()
         {
             value = ExpressionUtil.Evalue<float>(NumericValueFormula, GetParent<AbilityEffect>().GetParamsDict());
             if (AttributeModifyEffect.ModifyType == ModifyType.Add)
@@ -22,7 +24,7 @@ namespace NFramework.Module.Combat
                 Owner.GetComponent<AttributeComponent>().GetNumeric(AttribureType).FinalPctAdd += value;
             }
         }
-        override private void OnDestroy()
+        public void Destroy()
         {
             if (AttributeModifyEffect.ModifyType == ModifyType.Add)
             {

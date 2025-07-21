@@ -52,16 +52,16 @@ namespace NFramework.Module.Combat
                 {
                     status = Target.GetStatus(statusConfigObject.Id);
                     var statusLifeTimer = status.GetComponent<StatusLifeTimeComponent>().LifeTimer;
-                    Framework.Instance.RestTimer(statusLifeTimer);
+                    Framework.Instance.GetModule<TimerModule>().RestTimer(statusLifeTimer);
                     return;
                 }
             }
-            status = TargetAttachStatus(statusConfigObject.Id);
+            status = Target.AttachStatus(statusConfigObject.Id);
             status.Creator = Creator;
             status.GetComponent<AbilityLevelComponent>().Level = SourceAbility.GetComponent<AbilityLevelComponent>().Level;
-            status.Duration = (int)addStatusEffect.Duration;
+            status.duration = (int)addStatusEffect.Duration;
 
-            status.SetParams(addStatusEffect.paramDict);
+            status.SetParams(addStatusEffect.ParamsDict);
             status.AddComponent<StatusLifeTimeComponent>();
             status.ActivateAbility();
             PostProcess();

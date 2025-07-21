@@ -1,12 +1,12 @@
 
 using NFramework.Core.ILiveing;
-using UnityEngine;
+using NFramework.Module.EntityModule;
 namespace NFramework.Module.Combat
 {
-    public class AbilityEffectDecoratosComponent : Entity, IAwake
+    public class AbilityEffectDecoratosComponent : Entity, IAwakeSystem
     {
         public Effect Effect => GetParent<AbilityEffect>().effect;
-        public override void Awake()
+        public void Awake()
         {
             if (Effect.DecoratorList != null)
             {

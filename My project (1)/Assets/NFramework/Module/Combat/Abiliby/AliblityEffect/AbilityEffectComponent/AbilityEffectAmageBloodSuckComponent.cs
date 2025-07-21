@@ -1,17 +1,19 @@
-
+using NFramework.Module.EntityModule;
 using NFramework.Core.ILiveing;
+
 namespace NFramework.Module.Combat
 {
-    public class AbilityEffectDamageBooldSuckComponent : Entity, IAwake
+    public class AbilityEffectDamageBloodSuckComponent : Entity, IAwakeSystem, IDestroySystem
     {
         public Combat Owner => GetParent<AbilityEffect>().Owner;
-        public override void Awake()
+        public void Awake()
         {
-            Owner.DamageAbilityEffect.AddComponent<DamageBloodSuckComponent>();
+            Owner.DamageActionAbility.AddComponent<DamageBloodSuckComponent>();
         }
-        public override void OnDestroy()
+
+        public void Destroy()
         {
-            var component = Owner.damageActionAbility.GetComponent<DamageBloodSuckComponent>();
+            var component = Owner.DamageActionAbility.GetComponent<DamageBloodSuckComponent>();
             if (component != null)
             {
                 component.Dispose();
