@@ -1,6 +1,4 @@
-using NFramework.Module.EntityModule;
-using Unity.VisualScripting;
-
+using Sirenix.OdinInspector;
 namespace NFramework.Module.Combat
 {
     public class RemoveStatusEffect : Effect
@@ -11,15 +9,14 @@ namespace NFramework.Module.Combat
             {
                 if (this.statusConfigObject != null)
                 {
-                    return $"移除{statusConfigObject.Name}";
+                    return $"移除[{statusConfigObject.Name}] 状态效果";
                 }
-                return "移除状态";
+                return "移除状态效果";
             }
 
         }
-
+        [ToggleGroup("Enabled")]
+        [LabelText("状态配置")]
         public StatusConfigObject statusConfigObject;
-
-
     }
 }

@@ -1,11 +1,8 @@
 using System;
 using System.Collections.Generic;
-using NFramework.Module.Combat;
 using Sirenix.OdinInspector;
-using Spine;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.U2D;
+using NFramework.Core.Collections;
 
 namespace NFramework.Module.Combat
 {
@@ -224,7 +221,7 @@ namespace NFramework.Module.Combat
 
         public List<PathPoint> GetPointList()
         {
-            var list = ListPool<PathPoint>.New();
+            var list = ListPool.Alloc<PathPoint>();
             foreach (var item in PointList)
             {
                 var newPoint = new PathPoint();

@@ -5,6 +5,7 @@ namespace NFramework
 {
     public class Framework
     {
+        public static Framework I => Instance;
         public static Framework Instance { get; private set; }
 
         /// <summary>
@@ -19,8 +20,12 @@ namespace NFramework
         public void Awake()
         {
             Instance = this;
-
         }
+        public T G<T>() where T : IFrameWorkModule
+        {
+            return GetModule<T>();
+        }
+
         public T GetModule<T>() where T : IFrameWorkModule
         {
             if (m_modulesDict.TryGetValue(typeof(T), out var module))
