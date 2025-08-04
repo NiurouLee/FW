@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using NFramework.Core.ILiveing;
 using NFramework.Module.EntityModule;
-using UnityEngine;
 
 namespace NFramework.Module.Combat
 {
@@ -9,13 +8,9 @@ namespace NFramework.Module.Combat
     {
         public bool Spelling { get; set; }
         public Combat Owner => GetParent<Combat>();
-
         public SkillConfigObject SkillConfigObject;
         public ExecutionConfigObject ExecutionConfigObject;
-        public bool Spelling;
         private List<StatusAbility> m_StatusList = new List<StatusAbility>();
-
-
         public void Awake(SkillConfigObject a)
         {
             SkillConfigObject = a;

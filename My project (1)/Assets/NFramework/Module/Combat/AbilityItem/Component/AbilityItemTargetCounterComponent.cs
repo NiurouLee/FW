@@ -1,6 +1,6 @@
 using NFramework.Module.EntityModule;
 
-namespace NFrameWork.Module.Combat
+namespace NFramework.Module.Combat
 {
     public class AbilityItemTargetCounterComponent : Entity
     {

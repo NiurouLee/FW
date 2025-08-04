@@ -1,31 +1,56 @@
 
-using System;
+using System.Collections.Generic;
 using NFramework.Core.ILiveing;
 using NFramework.Module.EntityModule;
-using NFramework.Module.TimerModule;
+using NFramework.Module.Combat;
 
 namespace NFramework.Module.Combat
 {
-    public partial class ItemAbility : Entity, IAbility, IAwakeSystem<>
+    public partial class ItemAbility : Entity, IAbility, IAwakeSystem<ItemConfigObject>
     {
-        public bool Enable { get; set; }
         public Combat Owner => GetParent<Combat>();
         public ItemConfigObject itemConfigObject;
         private List<StatusAbility> _statusList = new List<StatusAbility>();
-
+        public void Awake(ItemConfigObject a)
+        {
+            AddComponent<AbilityEffectComponent, List<Effect>>(itemConfigObject.EffectList);
+        }
         public void ActivateAbility()
         {
-            throw new NotImplementedException();
+            this.Enable = true;
+            if (itemConfigObject.EnableChildStatus)
+            {
+                foreach (var item in itemConfigObject.StatusList)
+                {
+                    var status = Owner.AttachStatus(item.StatusConfigObject.Id);
+                    status.Creator = Owner;
+                    status.isChildStatus = true;
+                    status.childStatusData = item;
+                    status.SetParams(item.ParamsDict);
+                    status.ActivateAbility();
+                    _statusList.Add(status);
+                }
+            }
         }
 
         public void EndAbility()
         {
-            throw new NotImplementedException();
+            Enable = false;
+            if (itemConfigObject.EnableChildStatus)
+            {
+                foreach (var item in _statusList)
+                {
+                    item.EndAbility();
+                }
+                _statusList.Clear();
+            }
+            Dispose();
         }
 
         public Entity CreateExecution()
         {
-            throw new NotImplementedException();
+            return null;
         }
+
     }
 }

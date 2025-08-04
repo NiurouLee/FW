@@ -26,7 +26,7 @@ namespace NFramework.Module.Combat
 
         public void LoadExecutionEffect()
         {
-            AddComponent<ExectuonEffectComponent>();
+            AddComponent<ExecutionEffectComponent>();
             Framework.Instance.GetModule<TimeModule>().NewOnceTimer((long)executionConfigObject.TotalTime * 1000, this.EndExecute);
         }
 
