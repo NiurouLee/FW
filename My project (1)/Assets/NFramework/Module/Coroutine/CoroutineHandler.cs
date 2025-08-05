@@ -49,16 +49,16 @@ namespace NFramework.Module.Coroutine
         {
             if (Running)
             {
-                Framework.Instance.GetModule<LoggerModule>()?.Debug("当前协程未完成");
+                Framework.Instance.GetModule<LoggerM>()?.Debug("当前协程未完成");
                 return;
             }
             if (Coroutine == null)
             {
-                Framework.Instance.GetModule<LoggerModule>()?.Debug("协程未指定");
+                Framework.Instance.GetModule<LoggerM>()?.Debug("协程未指定");
                 return;
             }
             Running = true;
-            Framework.Instance.GetModule<EngineWrapperModule>().StartCoroutine(CallWrapper());
+            Framework.Instance.GetModule<EngineWrapperM>().StartCoroutine(CallWrapper());
         }
         public void Stop()
         {

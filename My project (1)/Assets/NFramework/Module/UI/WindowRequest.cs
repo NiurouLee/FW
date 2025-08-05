@@ -44,7 +44,7 @@ namespace NFramework.Module.UI
         {
             if (inConfig == null)
             {
-                Framework.Instance.GetModule<LoggerModule>()?.ErrStack(" WindowRequest inConfig is null");
+                Framework.Instance.GetModule<LoggerM>()?.ErrStack(" WindowRequest inConfig is null");
             }
 
             this.Config = inConfig;
@@ -56,13 +56,13 @@ namespace NFramework.Module.UI
         {
             if (inStage == this.Stage)
             {
-                Framework.Instance.GetModule<LoggerModule>()?.ErrStack($"WindowRequest Err:Stage Repeat,WindowName：{this.Name}");
+                Framework.Instance.GetModule<LoggerM>()?.ErrStack($"WindowRequest Err:Stage Repeat,WindowName：{this.Name}");
 
             }
 
             if (inStage < this.Stage)
             {
-                Framework.Instance.GetModule<LoggerModule>()?.ErrStack($"WindowRequest Err:Stage Inverse,WindowName：{this.Name}");
+                Framework.Instance.GetModule<LoggerM>()?.ErrStack($"WindowRequest Err:Stage Inverse,WindowName：{this.Name}");
             }
 
             this.Stage = inStage;
@@ -72,12 +72,12 @@ namespace NFramework.Module.UI
         {
             if (inWindow == null)
             {
-                Framework.Instance.GetModule<LoggerModule>()?.ErrStack($"WindowRequest set Window Err,inWindow is null:WindowName{this.Name}");
+                Framework.Instance.GetModule<LoggerM>()?.ErrStack($"WindowRequest set Window Err,inWindow is null:WindowName{this.Name}");
             }
 
             if (this.CacheWindowObj != null)
             {
-                Framework.Instance.GetModule<LoggerModule>()?.ErrStack($"WindowRequest set Window Err,Window dont is null:WindowName{this.Name}");
+                Framework.Instance.GetModule<LoggerM>()?.ErrStack($"WindowRequest set Window Err,Window dont is null:WindowName{this.Name}");
             }
 
             this.CacheWindowObj = inWindow;
@@ -88,12 +88,12 @@ namespace NFramework.Module.UI
         {
             if (inFacade == null)
             {
-                Framework.Instance.GetModule<LoggerModule>()?.ErrStack($"WindowRequest set Facade Err,inFacade is null:WindowName{this.Name}");
+                Framework.Instance.GetModule<LoggerM>()?.ErrStack($"WindowRequest set Facade Err,inFacade is null:WindowName{this.Name}");
             }
 
             if (this.CacheFacadeObj != null)
             {
-                Framework.Instance.GetModule<LoggerModule>()?.ErrStack($"WindowRequest set Facade Err,Facade dont is null:WindowName{this.Name}");
+                Framework.Instance.GetModule<LoggerM>()?.ErrStack($"WindowRequest set Facade Err,Facade dont is null:WindowName{this.Name}");
             }
 
             this.CacheFacadeObj = inFacade;
@@ -104,11 +104,11 @@ namespace NFramework.Module.UI
         {
             if (inViewData == null)
             {
-                Framework.Instance.GetModule<LoggerModule>()?.ErrStack($"WindowRequest set ViewData Err,inViewData is null:WindowName{this.Name}");
+                Framework.Instance.GetModule<LoggerM>()?.ErrStack($"WindowRequest set ViewData Err,inViewData is null:WindowName{this.Name}");
             }
             if (this.CacheViewDataObj != null)
             {
-                Framework.Instance.GetModule<LoggerModule>()?.ErrStack($"WindowRequest set ViewData Err,ViewData dont is null:WindowName{this.Name}");
+                Framework.Instance.GetModule<LoggerM>()?.ErrStack($"WindowRequest set ViewData Err,ViewData dont is null:WindowName{this.Name}");
             }
             this.CacheViewDataObj = inViewData;
         }

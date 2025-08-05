@@ -4,7 +4,7 @@ using Proto.Promises;
 
 namespace NFramework.Module.UI
 {
-    public partial class UI : IFrameWorkModule
+    public partial class UIM : IFrameWorkModule
     {
         public ViewConfigServices ConfigServices { get; private set; }
 

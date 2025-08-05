@@ -58,7 +58,7 @@ namespace NFramework.Module.UI
         }
         private T _AddSubViewByFacade<T>(UIFacade inFacade, IUIFacadeProvider inProvider) where T : View, new()
         {
-            var result = Framework.Instance.GetModule<UI>().CreateView<T>();
+            var result = Framework.Instance.GetModule<UIM>().CreateView<T>();
             return __addSubViewByFacade(result, inFacade, inProvider);
         }
 

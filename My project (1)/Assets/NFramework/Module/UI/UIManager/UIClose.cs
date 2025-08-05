@@ -1,7 +1,7 @@
 ﻿
 namespace NFramework.Module.UI
 {
-    public partial class UI
+    public partial class UIM
     {
         public void Close<T>(T inWindow) where T : View
         {

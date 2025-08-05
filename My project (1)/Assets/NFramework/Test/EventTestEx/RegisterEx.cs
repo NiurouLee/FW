@@ -9,7 +9,7 @@ namespace NFramework.Test.EventTestEx
         {
             records = new EventRecords();
             records.Awake();
-            records.SetSchedule(Framework.Instance.GetModule<EventD>().D);
+            records.SetSchedule(Framework.Instance.GetModule<EventM>().D);
         }
 
         #region  normal
@@ -19,12 +19,12 @@ namespace NFramework.Test.EventTestEx
         }
         public void TestRegister()
         {
-            Framework.Instance.GetModule<EventD>().D.Subscribe<NormalEvent>(this.OnNormalEvent);
+            Framework.Instance.GetModule<EventM>().D.Subscribe<NormalEvent>(this.OnNormalEvent);
         }
 
         public void TestUnRegister()
         {
-            Framework.Instance.GetModule<EventD>().D.UnSubscribe<NormalEvent>(this.OnNormalEvent);
+            Framework.Instance.GetModule<EventM>().D.UnSubscribe<NormalEvent>(this.OnNormalEvent);
         }
 
         public void TestRegisterRecords()
@@ -44,11 +44,11 @@ namespace NFramework.Test.EventTestEx
         }
         public void TestRegisterChannel()
         {
-            Framework.Instance.GetModule<EventD>().D.Subscribe<ChannelEvent>(this.OnChannelEvent, "111");
+            Framework.Instance.GetModule<EventM>().D.Subscribe<ChannelEvent>(this.OnChannelEvent, "111");
         }
         public void TestUnRegisterChannel()
         {
-            Framework.Instance.GetModule<EventD>().D.UnSubscribe<ChannelEvent>(this.OnChannelEvent, "111");
+            Framework.Instance.GetModule<EventM>().D.UnSubscribe<ChannelEvent>(this.OnChannelEvent, "111");
         }
 
         public void TestRegisterRecordsChannel()
@@ -63,7 +63,7 @@ namespace NFramework.Test.EventTestEx
 
         public void TestRegisterFilter()
         {
-            Framework.Instance.GetModule<EventD>().D.Subscribe<NormalEvent>(this.OnFilterEvent, this.Filter);
+            Framework.Instance.GetModule<EventM>().D.Subscribe<NormalEvent>(this.OnFilterEvent, this.Filter);
         }
 
         private void OnFilterEvent(ref NormalEvent initem)
@@ -73,7 +73,7 @@ namespace NFramework.Test.EventTestEx
 
         public void TestUnRegisterFilter()
         {
-            Framework.Instance.GetModule<EventD>().D.UnSubscribe<NormalEvent>(this.OnFilterEvent, this.Filter);
+            Framework.Instance.GetModule<EventM>().D.UnSubscribe<NormalEvent>(this.OnFilterEvent, this.Filter);
         }
 
         public void TestRegisterRecordsFilter()
@@ -95,9 +95,9 @@ namespace NFramework.Test.EventTestEx
 
         public void LogCount()
         {
-            var normalCount = Framework.Instance.GetModule<EventD>().D.GetCount<NormalEvent>();
+            var normalCount = Framework.Instance.GetModule<EventM>().D.GetCount<NormalEvent>();
             UnityEngine.Debug.Log($"normalCount:{normalCount}");
-            var channelCount = Framework.Instance.GetModule<EventD>().D.GetCount<ChannelEvent>();
+            var channelCount = Framework.Instance.GetModule<EventM>().D.GetCount<ChannelEvent>();
             UnityEngine.Debug.Log($"channelCount:{channelCount}");
         }
 

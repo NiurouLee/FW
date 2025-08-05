@@ -12,7 +12,7 @@ namespace NFramework.Module.EntityModule
         {
             IsCreated = true;
             IsNew = true;
-            Id = Framework.Instance.GetModule<IDGeneratorModule>().GenerateInstanceId();
+            Id = Framework.Instance.GetModule<IDGeneratorM>().GenerateInstanceId();
             this.IsRegister = true;
         }
     }

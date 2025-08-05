@@ -1,6 +1,6 @@
 namespace NFramework.Module.UI
 {
-    public partial class UI
+    public partial class UIM
     {
         public void Close(Window inWindow)
         {

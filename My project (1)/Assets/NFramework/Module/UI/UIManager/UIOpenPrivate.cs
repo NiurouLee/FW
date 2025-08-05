@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace NFramework.Module.UI
 {
-    public partial class UI
+    public partial class UIM
     {
         /// <summary>
         /// 缓存打开中、打开的windowReq

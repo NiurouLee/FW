@@ -56,7 +56,7 @@ namespace NFramework.Module.IDGenerator
         public InstanceIdStruct(long id)
         {
             ulong result = (ulong)id;
-            this.Value = (uint)(result & IDGeneratorModule.Mask18bit);
+            this.Value = (uint)(result & IDGeneratorM.Mask18bit);
             result >>= 18;
             this.Time = (uint)result;
         }
@@ -125,7 +125,7 @@ namespace NFramework.Module.IDGenerator
         }
     }
 
-    public class IDGeneratorModule : IFrameWorkModule
+    public class IDGeneratorM : IFrameWorkModule
     {
         public const int Mask18bit = 0x03ffff;
 
@@ -144,7 +144,7 @@ namespace NFramework.Module.IDGenerator
         private ushort unitIdValue;
         private uint lastUnitIdTime;
 
-        public IDGeneratorModule()
+        public IDGeneratorM()
         {
             long epoch1970tick = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).Ticks / 10000;
             this.epoch2020 = new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc).Ticks / 10000 - epoch1970tick;
@@ -154,34 +154,34 @@ namespace NFramework.Module.IDGenerator
             this.lastInstanceIdTime = TimeSinceThisYear();
             if (this.lastInstanceIdTime <= 0)
             {
-                GetFrameWorkModule<LoggerModule>()?.Warn($"lastInstanceIdTime less than 0: {this.lastInstanceIdTime}");
+                GetFrameWorkModule<LoggerM>()?.Warn($"lastInstanceIdTime less than 0: {this.lastInstanceIdTime}");
                 this.lastInstanceIdTime = 1;
             }
 
             this.lastIdTime = TimeSince2020();
             if (this.lastIdTime <= 0)
             {
-                GetFrameWorkModule<LoggerModule>()?.Warn($"lastIdTime less than 0: {this.lastIdTime}");
+                GetFrameWorkModule<LoggerM>()?.Warn($"lastIdTime less than 0: {this.lastIdTime}");
                 this.lastIdTime = 1;
             }
 
             this.lastUnitIdTime = TimeSince2020();
             if (this.lastUnitIdTime <= 0)
             {
-                GetFrameWorkModule<LoggerModule>()?.Warn($"lastUnitIdTime less than 0: {this.lastUnitIdTime}");
+                GetFrameWorkModule<LoggerM>()?.Warn($"lastUnitIdTime less than 0: {this.lastUnitIdTime}");
                 this.lastUnitIdTime = 1;
             }
         }
 
         private uint TimeSince2020()
         {
-            uint a = (uint)((GetFrameWorkModule<TimeInfoModule>().ClientNow() - this.epoch2020) / 1000);
+            uint a = (uint)((GetFrameWorkModule<TimeInfoM>().ClientNow() - this.epoch2020) / 1000);
             return a;
         }
 
         private uint TimeSinceThisYear()
         {
-            uint a = (uint)((GetFrameWorkModule<TimeInfoModule>().ClientNow() - this.epochThisYear) / 1000);
+            uint a = (uint)((GetFrameWorkModule<TimeInfoM>().ClientNow() - this.epochThisYear) / 1000);
             return a;
         }
 
@@ -198,12 +198,12 @@ namespace NFramework.Module.IDGenerator
             {
                 ++this.instanceIdValue;
 
-                if (this.instanceIdValue > IDGeneratorModule.Mask18bit - 1) // 18bit
+                if (this.instanceIdValue > IDGeneratorM.Mask18bit - 1) // 18bit
                 {
                     ++this.lastInstanceIdTime; // 借用下一秒
                     this.instanceIdValue = 0;
 
-                    GetFrameWorkModule<LoggerModule>()?.Err($"instanceid count per sec overflow: {time} {this.lastInstanceIdTime}");
+                    GetFrameWorkModule<LoggerM>()?.Err($"instanceid count per sec overflow: {time} {this.lastInstanceIdTime}");
                 }
             }
 
@@ -229,7 +229,7 @@ namespace NFramework.Module.IDGenerator
                 {
                     this.value = 0;
                     ++this.lastIdTime; // 借用下一秒
-                    GetFrameWorkModule<LoggerModule>()?.Err($"id count per sec overflow: {time} {this.lastIdTime}");
+                    GetFrameWorkModule<LoggerM>()?.Err($"id count per sec overflow: {time} {this.lastIdTime}");
                 }
             }
 
@@ -259,7 +259,7 @@ namespace NFramework.Module.IDGenerator
                 {
                     this.unitIdValue = 0;
                     ++this.lastUnitIdTime; // 借用下一秒
-                    GetFrameWorkModule<LoggerModule>()?.Err($"unitid count per sec overflow: {time} {this.lastUnitIdTime}");
+                    GetFrameWorkModule<LoggerM>()?.Err($"unitid count per sec overflow: {time} {this.lastUnitIdTime}");
                 }
             }
 

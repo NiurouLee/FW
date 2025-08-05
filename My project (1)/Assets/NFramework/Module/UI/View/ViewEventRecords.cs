@@ -15,7 +15,7 @@ namespace NFramework.Module.UI
                 {
                     m_viewEventRecords = ObjectPool.Alloc<EventRecords>();
                     m_viewEventRecords.Awake();
-                    m_viewEventRecords.SetSchedule(Framework.Instance.GetModule<EventD>().D);
+                    m_viewEventRecords.SetSchedule(Framework.Instance.GetModule<EventM>().D);
                 }
                 return m_viewEventRecords;
             }

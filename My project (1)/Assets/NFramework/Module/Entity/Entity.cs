@@ -86,7 +86,7 @@ namespace NFramework.Module.EntityModule
                     //     EntityRoot.Ins.Add(this);
                     // }
 
-                    Framework.Instance.GetModule<EntitySystemModule>().RegisterSystem(this);
+                    Framework.Instance.GetModule<EntitySystemM>().RegisterSystem(this);
                 }
 
 #if ENABLE_VIEW && UNITY_EDITOR
@@ -180,7 +180,7 @@ namespace NFramework.Module.EntityModule
                     // parent相同，不设置
                     if (this.parent == value)
                     {
-                        Framework.Instance.GetModule<LoggerModule>()?.Err($"重复设置了Parent: {this.GetType().Name} parent: {this.parent.GetType().Name}");
+                        Framework.Instance.GetModule<LoggerM>()?.Err($"重复设置了Parent: {this.GetType().Name} parent: {this.parent.GetType().Name}");
                         return;
                     }
 
@@ -220,7 +220,7 @@ namespace NFramework.Module.EntityModule
                     // parent相同，不设置
                     if (this.parent == value)
                     {
-                        Framework.Instance.GetModule<LoggerModule>().Err($"重复设置了Parent: {this.GetType().Name} parent: {this.parent.GetType().Name}");
+                        Framework.Instance.GetModule<LoggerM>().Err($"重复设置了Parent: {this.GetType().Name} parent: {this.parent.GetType().Name}");
                         return;
                     }
 
@@ -236,6 +236,15 @@ namespace NFramework.Module.EntityModule
         public T GetParent<T>() where T : Entity
         {
             return this.Parent as T;
+        }
+
+        public T GetRoot<T>() where T : Entity
+        {
+            if (this.Parent == null)
+            {
+                return this as T;
+            }
+            return this.Parent.GetRoot<T>();
         }
 
         private Dictionary<long, Entity> children;
@@ -341,7 +350,7 @@ namespace NFramework.Module.EntityModule
             // 触发Destroy事件
             if (this is IDestroySystem)
             {
-                Framework.Instance.GetModule<EntitySystemModule>().Destroy(this);
+                Framework.Instance.GetModule<EntitySystemM>().Destroy(this);
             }
 
 
@@ -545,7 +554,7 @@ namespace NFramework.Module.EntityModule
             Entity component;
             if (isFromPool)
             {
-                component = Framework.Instance.GetModule<EntityPoolModule>().Fetch(type) as Entity;
+                component = Framework.Instance.GetModule<EntityPoolM>().Fetch(type) as Entity;
             }
             else
             {
@@ -555,7 +564,7 @@ namespace NFramework.Module.EntityModule
             component.IsFromPool = isFromPool;
             component.IsCreated = true;
             component.IsNew = true;
-            component.Id = Framework.Instance.GetModule<IDGeneratorModule>().GenerateInstanceId();
+            component.Id = Framework.Instance.GetModule<IDGeneratorM>().GenerateInstanceId();
             return component;
         }
 
@@ -564,7 +573,7 @@ namespace NFramework.Module.EntityModule
             Entity component;
             if (isFromPool)
             {
-                component = Framework.Instance.GetModule<EntityPoolModule>().Fetch<T>();
+                component = Framework.Instance.GetModule<EntityPoolM>().Fetch<T>();
             }
             else
             {
@@ -574,7 +583,7 @@ namespace NFramework.Module.EntityModule
             component.IsFromPool = isFromPool;
             component.IsCreated = true;
             component.IsNew = true;
-            component.Id = Framework.Instance.GetModule<IDGeneratorModule>().GenerateInstanceId();
+            component.Id = Framework.Instance.GetModule<IDGeneratorM>().GenerateInstanceId();
             return component;
         }
 
@@ -600,8 +609,8 @@ namespace NFramework.Module.EntityModule
 
             Entity component = Create(type, isFromPool);
             component.ComponentParent = this;
-            Framework.Instance.GetModule<EntitySystemModule>().Awake(component);
-            Framework.Instance.GetModule<EntitySystemModule>().Start(component);
+            Framework.Instance.GetModule<EntitySystemM>().Awake(component);
+            Framework.Instance.GetModule<EntitySystemM>().Start(component);
             return component;
         }
 
@@ -615,8 +624,8 @@ namespace NFramework.Module.EntityModule
 
             Entity component = Create(type, isFromPool);
             component.ComponentParent = this;
-            Framework.Instance.GetModule<EntitySystemModule>().Awake(component);
-            Framework.Instance.GetModule<EntitySystemModule>().Start(component);
+            Framework.Instance.GetModule<EntitySystemM>().Awake(component);
+            Framework.Instance.GetModule<EntitySystemM>().Start(component);
             return component as K;
         }
 
@@ -630,8 +639,8 @@ namespace NFramework.Module.EntityModule
 
             Entity component = Create(type, isFromPool);
             component.ComponentParent = this;
-            Framework.Instance.GetModule<EntitySystemModule>().Awake(component, p1);
-            Framework.Instance.GetModule<EntitySystemModule>().Start(component);
+            Framework.Instance.GetModule<EntitySystemM>().Awake(component, p1);
+            Framework.Instance.GetModule<EntitySystemM>().Start(component);
             return component as K;
         }
 
@@ -646,8 +655,8 @@ namespace NFramework.Module.EntityModule
 
             Entity component = Create(type, isFromPool);
             component.ComponentParent = this;
-            Framework.Instance.GetModule<EntitySystemModule>().Awake(component, p1, p2);
-            Framework.Instance.GetModule<EntitySystemModule>().Start(component);
+            Framework.Instance.GetModule<EntitySystemM>().Awake(component, p1, p2);
+            Framework.Instance.GetModule<EntitySystemM>().Start(component);
             return component as K;
         }
 
@@ -662,8 +671,8 @@ namespace NFramework.Module.EntityModule
 
             Entity component = Create(type, isFromPool);
             component.ComponentParent = this;
-            Framework.Instance.GetModule<EntitySystemModule>().Awake(component, p1, p2, p3);
-            Framework.Instance.GetModule<EntitySystemModule>().Start(component);
+            Framework.Instance.GetModule<EntitySystemM>().Awake(component, p1, p2, p3);
+            Framework.Instance.GetModule<EntitySystemM>().Start(component);
             return component as K;
         }
 
@@ -678,8 +687,8 @@ namespace NFramework.Module.EntityModule
 
             Entity component = Create(type, isFromPool);
             component.ComponentParent = this;
-            Framework.Instance.GetModule<EntitySystemModule>().Awake(component, p1, p2, p3, p4);
-            Framework.Instance.GetModule<EntitySystemModule>().Start(component);
+            Framework.Instance.GetModule<EntitySystemM>().Awake(component, p1, p2, p3, p4);
+            Framework.Instance.GetModule<EntitySystemM>().Start(component);
             return component as K;
         }
 
@@ -687,42 +696,42 @@ namespace NFramework.Module.EntityModule
         public Entity AddChild(Type entityType, bool isFromPool = false)
         {
             Entity child = Create(entityType, isFromPool);
-            child.Id = Framework.Instance.GetModule<IDGeneratorModule>().GenerateId();
+            child.Id = Framework.Instance.GetModule<IDGeneratorM>().GenerateId();
             child.Parent = this;
 
-            Framework.Instance.GetModule<EntitySystemModule>().Awake(child);
-            Framework.Instance.GetModule<EntitySystemModule>().Start(child);
+            Framework.Instance.GetModule<EntitySystemM>().Awake(child);
+            Framework.Instance.GetModule<EntitySystemM>().Start(child);
             return child;
         }
 
         public Entity AddChild<P>(Type entityType, P p, bool isFromPool = false)
         {
             Entity child = Create(entityType, isFromPool);
-            child.Id = Framework.Instance.GetModule<IDGeneratorModule>().GenerateId();
+            child.Id = Framework.Instance.GetModule<IDGeneratorM>().GenerateId();
             child.Parent = this;
 
-            Framework.Instance.GetModule<EntitySystemModule>().Awake(child, p);
-            Framework.Instance.GetModule<EntitySystemModule>().Start(child);
+            Framework.Instance.GetModule<EntitySystemM>().Awake(child, p);
+            Framework.Instance.GetModule<EntitySystemM>().Start(child);
             return child;
         }
 
         public Entity AddChild<P1, P2>(Type entityType, P1 p1, P2 p2, bool isFromPool = false)
         {
             Entity child = Create(entityType, isFromPool);
-            child.Id = Framework.Instance.GetModule<IDGeneratorModule>().GenerateId();
+            child.Id = Framework.Instance.GetModule<IDGeneratorM>().GenerateId();
             child.Parent = this;
 
-            Framework.Instance.GetModule<EntitySystemModule>().Awake(child, p1, p2);
-            Framework.Instance.GetModule<EntitySystemModule>().Start(child);
+            Framework.Instance.GetModule<EntitySystemM>().Awake(child, p1, p2);
+            Framework.Instance.GetModule<EntitySystemM>().Start(child);
             return child;
         }
 
         public T AddChild<T, A>(T inT, A inA) where T : Entity, IAwakeSystem<A>
         {
-            inT.Id = Framework.Instance.GetModule<IDGeneratorModule>().GenerateId();
+            inT.Id = Framework.Instance.GetModule<IDGeneratorM>().GenerateId();
             inT.Parent = this;
-            Framework.Instance.GetModule<EntitySystemModule>().Awake(inT, inA);
-            Framework.Instance.GetModule<EntitySystemModule>().Start(inT);
+            Framework.Instance.GetModule<EntitySystemM>().Awake(inT, inA);
+            Framework.Instance.GetModule<EntitySystemM>().Start(inT);
             return inT;
         }
 
@@ -730,11 +739,11 @@ namespace NFramework.Module.EntityModule
         {
             Type type = typeof(T);
             T component = (T)Entity.Create(type, isFromPool);
-            component.Id = Framework.Instance.GetModule<IDGeneratorModule>().GenerateId();
+            component.Id = Framework.Instance.GetModule<IDGeneratorM>().GenerateId();
             component.Parent = this;
 
-            Framework.Instance.GetModule<EntitySystemModule>().Awake(component);
-            Framework.Instance.GetModule<EntitySystemModule>().Start(component);
+            Framework.Instance.GetModule<EntitySystemM>().Awake(component);
+            Framework.Instance.GetModule<EntitySystemM>().Start(component);
             return component;
         }
 
@@ -742,11 +751,11 @@ namespace NFramework.Module.EntityModule
         {
             Type type = typeof(T);
             T component = (T)Entity.Create(type, isFromPool);
-            component.Id = Framework.Instance.GetModule<IDGeneratorModule>().GenerateId();
+            component.Id = Framework.Instance.GetModule<IDGeneratorM>().GenerateId();
             component.Parent = this;
 
-            Framework.Instance.GetModule<EntitySystemModule>().Awake(component, a);
-            Framework.Instance.GetModule<EntitySystemModule>().Start(component);
+            Framework.Instance.GetModule<EntitySystemM>().Awake(component, a);
+            Framework.Instance.GetModule<EntitySystemM>().Start(component);
             return component;
         }
 
@@ -754,11 +763,11 @@ namespace NFramework.Module.EntityModule
         {
             Type type = typeof(T);
             T component = (T)Entity.Create(type, isFromPool);
-            component.Id = Framework.Instance.GetModule<IDGeneratorModule>().GenerateId();
+            component.Id = Framework.Instance.GetModule<IDGeneratorM>().GenerateId();
             component.Parent = this;
 
-            Framework.Instance.GetModule<EntitySystemModule>().Awake(component, a, b);
-            Framework.Instance.GetModule<EntitySystemModule>().Start(component);
+            Framework.Instance.GetModule<EntitySystemM>().Awake(component, a, b);
+            Framework.Instance.GetModule<EntitySystemM>().Start(component);
             return component;
         }
 
@@ -766,11 +775,11 @@ namespace NFramework.Module.EntityModule
         {
             Type type = typeof(T);
             T component = (T)Entity.Create(type, isFromPool);
-            component.Id = Framework.Instance.GetModule<IDGeneratorModule>().GenerateId();
+            component.Id = Framework.Instance.GetModule<IDGeneratorM>().GenerateId();
             component.Parent = this;
 
-            Framework.Instance.GetModule<EntitySystemModule>().Awake(component, a, b, c);
-            Framework.Instance.GetModule<EntitySystemModule>().Start(component);
+            Framework.Instance.GetModule<EntitySystemM>().Awake(component, a, b, c);
+            Framework.Instance.GetModule<EntitySystemM>().Start(component);
             return component;
         }
 
@@ -779,11 +788,11 @@ namespace NFramework.Module.EntityModule
         {
             Type type = typeof(T);
             T component = (T)Entity.Create(type, isFromPool);
-            component.Id = Framework.Instance.GetModule<IDGeneratorModule>().GenerateId();
+            component.Id = Framework.Instance.GetModule<IDGeneratorM>().GenerateId();
             component.Parent = this;
 
-            Framework.Instance.GetModule<EntitySystemModule>().Awake(component, a, b, c, d);
-            Framework.Instance.GetModule<EntitySystemModule>().Start(component);
+            Framework.Instance.GetModule<EntitySystemM>().Awake(component, a, b, c, d);
+            Framework.Instance.GetModule<EntitySystemM>().Start(component);
             return component;
         }
 
@@ -792,8 +801,8 @@ namespace NFramework.Module.EntityModule
             Type type = typeof(T);
             T component = Entity.Create(type, isFromPool) as T;
             component.Parent = this;
-            Framework.Instance.GetModule<EntitySystemModule>().Awake(component);
-            Framework.Instance.GetModule<EntitySystemModule>().Start(component);
+            Framework.Instance.GetModule<EntitySystemM>().Awake(component);
+            Framework.Instance.GetModule<EntitySystemM>().Start(component);
             return component;
         }
 
@@ -803,8 +812,8 @@ namespace NFramework.Module.EntityModule
             T component = (T)Entity.Create(type, isFromPool);
             component.Parent = this;
 
-            Framework.Instance.GetModule<EntitySystemModule>().Awake(component, a);
-            Framework.Instance.GetModule<EntitySystemModule>().Start(component);
+            Framework.Instance.GetModule<EntitySystemM>().Awake(component, a);
+            Framework.Instance.GetModule<EntitySystemM>().Start(component);
             return component;
         }
 
@@ -815,8 +824,8 @@ namespace NFramework.Module.EntityModule
             T component = (T)Entity.Create(type, isFromPool);
             component.Parent = this;
 
-            Framework.Instance.GetModule<EntitySystemModule>().Awake(component, a, b);
-            Framework.Instance.GetModule<EntitySystemModule>().Start(component);
+            Framework.Instance.GetModule<EntitySystemM>().Awake(component, a, b);
+            Framework.Instance.GetModule<EntitySystemM>().Start(component);
             return component;
         }
 
@@ -827,8 +836,8 @@ namespace NFramework.Module.EntityModule
             T component = (T)Entity.Create(type, isFromPool);
             component.Parent = this;
 
-            Framework.Instance.GetModule<EntitySystemModule>().Awake(component, a, b, c);
-            Framework.Instance.GetModule<EntitySystemModule>().Start(component);
+            Framework.Instance.GetModule<EntitySystemM>().Awake(component, a, b, c);
+            Framework.Instance.GetModule<EntitySystemM>().Start(component);
             return component;
         }
     }

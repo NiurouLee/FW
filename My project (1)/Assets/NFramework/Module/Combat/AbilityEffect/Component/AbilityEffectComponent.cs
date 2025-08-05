@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using DG.Tweening.Core;
 using NFramework.Core.ILiveing;
 using NFramework.Module.EntityModule;
 
@@ -56,17 +55,6 @@ namespace NFramework.Module.Combat
         {
             if (AbilityEffectList.Count > 0)
             {
-                foreach (var item in AbilityEffect)
-                {
-                    item.TryAssignAllEffectToTarget(target);
-                }
-            }
-        }
-
-        public void TryAssingAllEffectToTarget(Combat target)
-        {
-            if (AbilityEffectList.Count > 0)
-            {
                 foreach (var item in AbilityEffectList)
                 {
                     item.TryAssignEffectToTarget(target);
@@ -74,30 +62,42 @@ namespace NFramework.Module.Combat
             }
         }
 
-        public void TryAssignAllEffectToTarget(Combat inTatget, IActionExecution inAbilityItem)
+        public void TryAssignAllEffectToTarget(Combat target, IActionExecution actionExecution)
         {
             if (AbilityEffectList.Count > 0)
             {
                 foreach (var item in AbilityEffectList)
                 {
-                    item.TryAssinEffectToTarget(Target, inAbilityItem);
+                    item.TryAssignEffectToTarget(target, actionExecution);
                 }
             }
         }
 
-        public void TryAssinAllEffectToTarget(Combat inTarget, AbilityItem inAbilityItem)
+        public void TryAssignAllEffectToTarget(Combat target, IAbilityExecution abilityExecution)
         {
             if (AbilityEffectList.Count > 0)
             {
                 foreach (var item in AbilityEffectList)
                 {
-                    item.TryAssignEffectToTarget(Target, inAbilityItem);
+                    item.TryAssignEffectToTarget(target, abilityExecution);
                 }
             }
         }
-        public void TryAssingEffectToTargetByIndex(Combat inTarget, int inIndex)
+
+        public void TryAssignAllEffectToTarget(Combat target, AbilityItem abilityItem)
         {
-            AbilityEffectList[index].TryAssinEffectToTarget(target);
+            if (AbilityEffectList.Count > 0)
+            {
+                foreach (var item in AbilityEffectList)
+                {
+                    item.TryAssignEffectToTarget(target, abilityItem);
+                }
+            }
+        }
+
+        public void TryAssignEffectToTargetByIndex(Combat target, int index)
+        {
+            AbilityEffectList[index].TryAssignEffectToTarget(target);
         }
     }
 

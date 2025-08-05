@@ -49,7 +49,7 @@ namespace NFramework.Module.Combat
             Dispose();
         }
 
-        public void SpawnCollisionItem(ExectteClipData clipData)
+        public void SpawnCollisionItem(ExecuteClipData clipData)
         {
             var abilityItem = Owner.GetParent<CombatContext>().AddAbilityItem(this, clipData);
             if (clipData.CollisionExecuteData.MoveType == CollisionMoveType.FixedPosition)

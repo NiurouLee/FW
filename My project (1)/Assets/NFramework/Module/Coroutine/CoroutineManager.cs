@@ -8,7 +8,7 @@ namespace NFramework.Module.Coroutine
     public interface ICoroutine
     {
     }
-    internal class CoroutineModule : IFrameWorkModule
+    internal class CoroutineM : IFrameWorkModule
     {
         private Dictionary<ICoroutine, List<CoroutineHandler>> _coroutineDict = new Dictionary<ICoroutine, List<CoroutineHandler>>();
 
@@ -90,11 +90,11 @@ namespace NFramework.Module.Coroutine
     {
         public static CoroutineHandler StartCoroutine(this ICoroutine owner, IEnumerator coroutine)
         {
-            return Framework.Instance.GetModule<CoroutineModule>().StartCoroutine(owner, coroutine);
+            return Framework.Instance.GetModule<CoroutineM>().StartCoroutine(owner, coroutine);
         }
         public static void StopAllCoroutines(this ICoroutine owner)
         {
-            Framework.Instance.GetModule<CoroutineModule>().StopAllCoroutines(owner);
+            Framework.Instance.GetModule<CoroutineM>().StopAllCoroutines(owner);
         }
     }
 }

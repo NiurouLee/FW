@@ -16,7 +16,7 @@ namespace NFramework.Module.Combat
             }
             foreach (var effect in GetParent<SkillExectuon>().executionConfigObject.executeClipDataList)
             {
-                exectuionEffect executionEffect = Parent.AddChild<ExecutionEffectComponent, ExecteClipData>(effect);
+                ExecutionEffect executionEffect = Parent.AddChild<ExecutionEffectComponent, ExecteClipData>(effect);
                 AddEffect(exectuionEffect);
             }
         }

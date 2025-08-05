@@ -5,7 +5,7 @@ using NFramework.Module.Log;
 
 namespace NFramework.Module.Config
 {
-    public class Config : IFrameWorkModule
+    public class ConfigM : IFrameWorkModule
     {
         public StackTrace m_markStack;
 
@@ -13,7 +13,7 @@ namespace NFramework.Module.Config
         {
             if (m_markStack != null)
             {
-                Framework.Instance.GetModule<LoggerModule>()?.Err("ConfigManager::MarkCfgObject 重复标记");
+                Framework.Instance.GetModule<LoggerM>()?.Err("ConfigManager::MarkCfgObject 重复标记");
                 return;
             }
             m_markStack = new StackTrace(true);

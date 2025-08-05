@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace NFramework.Module.Log
 {
-    public class LoggerModule : IFrameWorkModule
+    public class LoggerM : IFrameWorkModule
     {
         public void ErrStack(string inMsg)
         {

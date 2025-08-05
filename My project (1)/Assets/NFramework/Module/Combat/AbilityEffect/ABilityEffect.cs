@@ -52,25 +52,25 @@ namespace NFramework.Module.Combat
             { }
             if (effect is DamageBloodSuckEffect)
             {
-                AddComponent<AbilityEffectDamageBooldSuckComponent>();
+                AddComponent<AbilityEffectDamageBloodSuckComponent>();
             }
             if (effect is not ActionControlEffect && effect is not AttributeModifyEffect)
             {
                 if (effect.EffectTriggerType == EffectTriggerType.Instant)
                 {
-                    TryAssinEffectToOwner();
+                    TryAssignEffectToOwner();
                 }
                 if (effect.EffectTriggerType == EffectTriggerType.Action)
                 {
                     AddComponent<AbilityEffectActionTriggerComponent>();
                 }
 
-                if (effect.EffectTriggerType == EffectTriggerType.Interval && !string.IsNullOrEmpty(effect.IntervalValeuFormula))
+                if (effect.EffectTriggerType == EffectTriggerType.Interval && !string.IsNullOrEmpty(effect.IntervalValueFormula))
                 {
                     AddComponent<AbilityEffectIntervalTriggerComponent>();
                 }
 
-                if (effect.EffectTriggerType == EffectTriggerType.Condition && !string.IsNullOrEmpty(effect.ConditionValureFormula))
+                if (effect.EffectTriggerType == EffectTriggerType.Condition && !string.IsNullOrEmpty(effect.ConditioNValueFormula))
                 {
                     AddComponent<AbilityEffectConditionTriggerComponent>();
                 }
@@ -80,56 +80,68 @@ namespace NFramework.Module.Combat
         public Dictionary<string, string> GetparamsDict()
         {
             Dictionary<string, string> temp;
-            if (OwnerAbility is statusAbility status)
+            if (OwnerAbility is StatusAbility status)
             {
-                temp = status.paramsDic;
+                temp = status.paramsDict;
                 return temp;
             }
             else
             {
                 temp = new Dictionary<string, string>();
-                temp.Add("自身生命值", Owner.GetComponent<AttributeComponent>().HealthPoint.value.ToString());
-                temp.Add("自身攻击力", Owner.GetComponent<AttributeComponent>().Attack.value.ToString());
+                temp.Add("自身生命值", Owner.GetComponent<AttributeComponent>().HealthPoint.Value.ToString());
+                temp.Add("自身攻击力", Owner.GetComponent<AttributeComponent>().Attack.Value.ToString());
             }
             return temp;
         }
 
         public void TryAssignEffectToOwner()
         {
-            TryAssignEffectToOwner(Owner);
+            TryAssignEffectToOwner();
         }
 
         public void TryAssignEffectToTarget(Combat target)
         {
             if (Owner.EffectAssignActionAbility.TryMakeAction(out var action))
             {
-                action.target = target;
-                action.sourceAbility = OwnerAbility;
-                action.abilityEffect = this;
+                action.Target = target;
+                action.SourceAbility = OwnerAbility;
+                action.AbilityEffect = this;
                 action.ApplyEffectAssign();
             }
         }
 
         public void TryAssignEffectToTarget(Combat target, IActionExecution actionExecution)
         {
-            if (Owner.effectAssignActionAbility.TryMakeAction(out var action))
+            if (Owner.EffectAssignActionAbility.TryMakeAction(out var action))
             {
-                action.target = target;
-                action.sourceAbility = OwnerAbility;
-                action.abilityEffect = this;
-                action.actionExecution = actionExecution;
+                action.Target = target;
+                action.SourceAbility = OwnerAbility;
+                action.AbilityEffect = this;
+                action.ActionExecution = actionExecution;
+                action.ApplyEffectAssign();
+            }
+        }
+
+        public void TryAssignEffectToTarget(Combat target, IAbilityExecution abilityExecution)
+        {
+            if (Owner.EffectAssignActionAbility.TryMakeAction(out var action))
+            {
+                action.Target = target;
+                action.SourceAbility = OwnerAbility;
+                action.AbilityEffect = this;
+                action.AbilityExecution = abilityExecution;
                 action.ApplyEffectAssign();
             }
         }
 
         public void TryAssignEffectToTarget(Combat target, AbilityItem abilityItem)
         {
-            if (Owner.effectAssignActionAbility.TryMakeAction(out var action))
+            if (Owner.EffectAssignActionAbility.TryMakeAction(out var action))
             {
-                action.target = target;
-                action.sourceAbility = OwnerAbility;
-                action.abilityEffect = this;
-                action.abilityItem = abilityItem;
+                action.Target = target;
+                action.SourceAbility = OwnerAbility;
+                action.AbilityEffect = this;
+                action.AbilityItem = abilityItem;
                 action.ApplyEffectAssign();
             }
         }
@@ -139,7 +151,7 @@ namespace NFramework.Module.Combat
             {
                 GetComponent<AbilityEffectAddStatusComponent>().OnAssignEffect(action);
             }
-            if (effect is clearAllStatusEffect)
+            if (effect is ClearAllStatusEffect)
             {
             }
             if (effect is CureEffect)
@@ -148,7 +160,7 @@ namespace NFramework.Module.Combat
             }
             if (effect is DamageEffect)
             {
-                GetComponent<AbilityEffectDamageComponent>().OnAssingEffect(action);
+                GetComponent<AbilityEffectDamageComponent>().OnAssignEffect(action);
             }
             if (effect is RemoveStatusEffect)
             {

@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace NFramework.Module.EngineWrapper
 {
-    public class EngineWrapperModule : IFrameWorkModule
+    public class EngineWrapperM : IFrameWorkModule
     {
         public void AddUpdate(Action<float> value) { EngineLoop.Instance.AddUpdate(value); }
         public void RemoveUpdate(Action<float> value) { EngineLoop.Instance.RemoveUpdate(value); }

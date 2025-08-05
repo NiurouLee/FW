@@ -102,19 +102,19 @@ namespace NFramework.Module.UI.ScrollView
             {
                 if (data.mItemPrefab == null)
                 {
-                    Framework.Instance.GetModule<LoggerModule>()?.Err("A item prefab is null ");
+                    Framework.Instance.GetModule<LoggerM>()?.Err("A item prefab is null ");
                     continue;
                 }
                 string prefabName = data.mItemPrefab.name;
                 if (mItemPoolDict.ContainsKey(prefabName))
                 {
-                    Framework.Instance.GetModule<LoggerModule>()?.Err("A item prefab with name " + prefabName + " has existed!");
+                    Framework.Instance.GetModule<LoggerM>()?.Err("A item prefab with name " + prefabName + " has existed!");
                     continue;
                 }
                 RectTransform rtf = data.mItemPrefab.GetComponent<RectTransform>();
                 if (rtf == null)
                 {
-                    Framework.Instance.GetModule<LoggerModule>()?.Err("RectTransform component is not found in the prefab " + prefabName);
+                    Framework.Instance.GetModule<LoggerM>()?.Err("RectTransform component is not found in the prefab " + prefabName);
                     continue;
                 }
                 _loopListView.AdjustAnchor(rtf);
@@ -140,14 +140,14 @@ namespace NFramework.Module.UI.ScrollView
             var prefabName = _dataToPrefabNameFunc(data);
             if (string.IsNullOrEmpty(prefabName))
             {
-                Framework.Instance.GetModule<LoggerModule>()?.Err("A item prefab with name " + prefabName + " is null!");
+                Framework.Instance.GetModule<LoggerM>()?.Err("A item prefab with name " + prefabName + " is null!");
                 return null;
             }
             var pool = mItemPoolDict[prefabName];
             var item = pool.GetItem(index);
             if (item == null)
             {
-                Framework.Instance.GetModule<LoggerModule>()?.Err("A item prefab with name " + prefabName + " is null!");
+                Framework.Instance.GetModule<LoggerM>()?.Err("A item prefab with name " + prefabName + " is null!");
                 return null;
             }
 
@@ -164,7 +164,7 @@ namespace NFramework.Module.UI.ScrollView
             // var outView = _container.AddSubViewByFacade(view, facade, _provider);
             if (outView == null)
             {
-                Framework.Instance.GetModule<LoggerModule>()?.Err("A item prefab with name " + prefabName + " is null!");
+                Framework.Instance.GetModule<LoggerM>()?.Err("A item prefab with name " + prefabName + " is null!");
                 return null;
             }
             if (outView is IViewSetData<D> viewSetData)

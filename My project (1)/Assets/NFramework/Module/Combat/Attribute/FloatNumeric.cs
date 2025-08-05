@@ -19,7 +19,7 @@ namespace NFramework.Module.Combat
             set
             {
                 m_NumericEntity.Ste(m_Type * 10 + 1, value);
-                Framework.Instance.GetModule<EventD>().D.Fire(new SyncModifyAttribute(Parent.Id, m_Type, 1, value));
+                Framework.Instance.GetModule<EventM>().D.Fire(new SyncModifyAttribute(Parent.Id, m_Type, 1, value));
             }
         }
 
@@ -33,7 +33,7 @@ namespace NFramework.Module.Combat
             set
             {
                 m_NumericEntity.set(m_Type * 10 + 2, value);
-                Framework.Instance.GetModule<EventD>().D.Fire(new SyncModifyAttribute(Parent.Id, m_Type, 2, value));
+                Framework.Instance.GetModule<EventM>().D.Fire(new SyncModifyAttribute(Parent.Id, m_Type, 2, value));
             }
         }
 
@@ -46,7 +46,7 @@ namespace NFramework.Module.Combat
             set
             {
                 m_NumericEntity.set(m_Type * 10 + 3, value);
-                Framework.Instance.GetModule<EventD>().D.Fire(new SyncModifyAttribute(Parent.Id, m_Type, 3, value));
+                Framework.Instance.GetModule<EventM>().D.Fire(new SyncModifyAttribute(Parent.Id, m_Type, 3, value));
             }
         }
 
@@ -59,7 +59,7 @@ namespace NFramework.Module.Combat
             set
             {
                 m_NumericEntity.set(m_Type * 10 + 4, value);
-                Framework.Instance.GetModule<EventD>().D.Fire(new SyncModifyAttribute(Parent.Id, m_Type, 4, value));
+                Framework.Instance.GetModule<EventM>().D.Fire(new SyncModifyAttribute(Parent.Id, m_Type, 4, value));
             }
         }
 
@@ -72,7 +72,7 @@ namespace NFramework.Module.Combat
             set
             {
                 m_NumericEntity.set(m_Type * 10 + 5, value);
-                Framework.Instance.GetModule<EventD>().D.Fire(new SyncModifyAttribute(Parent.Id, m_Type, 5, value));
+                Framework.Instance.GetModule<EventM>().D.Fire(new SyncModifyAttribute(Parent.Id, m_Type, 5, value));
             }
         }
 

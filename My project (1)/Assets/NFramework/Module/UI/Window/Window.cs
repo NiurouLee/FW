@@ -6,7 +6,7 @@ namespace NFramework.Module.UI
     {
         public void Close()
         {
-            Framework.Instance.GetModule<UI>().Close(this);
+            Framework.Instance.GetModule<UIM>().Close(this);
         }
 
         private IUIFacadeProvider _selfFacadeProvider;

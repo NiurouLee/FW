@@ -66,7 +66,7 @@ namespace NFramework.Module.Combat
             var numeric = Parent.AddChild<FloatNumeric, NumericEntity, AttributeType>(numericEntity);
             _attributeDict.Add(attributeType, numeric);
             var syncAttribute = new SyncAttribute(parent.Id, attributeType);
-            Framework.Instance.GetModule<EventD>().D.Publish(ref syncAttribute);
+            Framework.Instance.GetModule<EventM>().D.Publish(ref syncAttribute);
             numeric.BaseValue = baseValue;
             return numeric;
         }

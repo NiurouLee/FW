@@ -16,7 +16,7 @@ public class NGraphicRaycaster : GraphicRaycaster
         {
             if (TargetCamera == null)
             {
-                return Framework.Instance.GetModule<UI>().UICamera;
+                return Framework.Instance.GetModule<UIM>().UICamera;
             }
             return TargetCamera;
         }

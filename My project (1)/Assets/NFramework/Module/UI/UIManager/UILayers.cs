@@ -4,7 +4,7 @@ using UnityEngine;
 namespace NFramework.Module.UI
 {
 
-    public partial class UI
+    public partial class UIM
     {
         public Dictionary<UIlayer, UILayerServices> layerServices = new Dictionary<UIlayer, UILayerServices>();
 

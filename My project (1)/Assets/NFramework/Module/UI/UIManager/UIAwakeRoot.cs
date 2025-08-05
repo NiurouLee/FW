@@ -11,7 +11,7 @@ using NFramework.Utils;
 
 namespace NFramework.Module.UI
 {
-    public partial class UI
+    public partial class UIM
     {
         private GameObject uiRoot;
         public Camera UICamera { get; private set; }

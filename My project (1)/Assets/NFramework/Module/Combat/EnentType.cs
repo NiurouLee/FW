@@ -75,10 +75,10 @@ namespace NFramework.Module.Combat
     {
         public long id;
         public string name;
-        public Vector3 position;
-        public Quaternion rotation;
+        public UnityEngine.Vector3 position;
+        public UnityEngine.Quaternion rotation;
 
-        public SyncParticleEffect(long id, string name, Vector3 position, Quaternion rotation)
+        public SyncParticleEffect(long id, string name, UnityEngine.Vector3 position, UnityEngine.Quaternion rotation)
         {
             this.id = id;
             this.name = name;

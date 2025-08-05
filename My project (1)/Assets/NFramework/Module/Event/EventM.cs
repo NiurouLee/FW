@@ -1,7 +1,7 @@
 
 namespace NFramework.Module.Event
 {
-    public class EventD : IFrameWorkModule
+    public class EventM : IFrameWorkModule
     {
         public EventSchedule D = new EventSchedule();
 

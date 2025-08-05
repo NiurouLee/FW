@@ -29,6 +29,7 @@ namespace NFramework.Module.Combat
         public Entity SourceAbility;
         public IActionExecution ActionExecution;
         public IAbilityExecution AbilityExecution;
+        public AbilityItem AbilityItem;
         public Entity ActionAbility { get; set; }
         public EffectAssignAction SourceAssignAction { get; set; }
         public Combat Creator { get; set; }

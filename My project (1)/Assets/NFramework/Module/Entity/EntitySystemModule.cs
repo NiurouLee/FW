@@ -8,7 +8,7 @@ using NFramework.Module.Log;
 
 namespace NFramework.Module.EntityModule
 {
-    public class EntitySystemModule : IFrameWorkModule
+    public class EntitySystemM : IFrameWorkModule
     {
         private class OneTypeSystems
         {
@@ -66,7 +66,7 @@ namespace NFramework.Module.EntityModule
 
 
 
-        public EntitySystemModule()
+        public EntitySystemM()
         {
             for (int i = 0; i < this.queues.Length; i++)
             {
@@ -185,7 +185,7 @@ namespace NFramework.Module.EntityModule
                     }
                     catch (Exception e)
                     {
-                        GetFrameWorkModule<LoggerModule>()?.Err($"报错信息：{component.GetType().FullName} \n {e}");
+                        GetFrameWorkModule<LoggerM>()?.Err($"报错信息：{component.GetType().FullName} \n {e}");
                     }
                 }
             }

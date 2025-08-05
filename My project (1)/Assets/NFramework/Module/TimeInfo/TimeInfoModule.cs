@@ -1,15 +1,15 @@
 ﻿using System;
 
-namespace NFramework.Module.TimeModule
+namespace NFramework.Module.TimeInfoModule
 {
-    public class TimeInfoModule : IFrameWorkModule
+    public class TimeInfoM : IFrameWorkModule
     {
         private DateTime dt1970;
         private DateTime dt;
 
         public long ServerMinusClientTime { private get; set; }
 
-        public TimeInfoModule()
+        public TimeInfoM()
         {
             this.dt1970 = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             this.dt = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
