@@ -48,13 +48,32 @@ namespace NFramework.Module.Combat
             }
         }
 
-        public AbilityItem AddAbilityItem(long inID, long inCombatID)
+        public AbilityItem AddAbilityItem(SkillExecution skillExecution, ExecuteClipData data)
         {
-            AbilityItem abilityItem = AddChild<AbilityItem>();
-            abilityItem.AddComponent<AbilityItemComponent, long, long>(inID, inCombatID);
-            abilityItemDict.Add(inID, abilityItem);
+            AbilityItem abilityItem = AddChild<AbilityItem, SkillExecution, ExecuteClipData>(skillExecution, data);
+            if (!abilityItemDict.ContainsKey(abilityItem.Id))
+            {
+                abilityItemDict.Add(abilityItem.Id, abilityItem);
+            }
             return abilityItem;
         }
+
+        public void RemoveAbilityItem(long id)
+        {
+            var abilityItem = GetAbilityItem(id);
+            if (abilityItem != null)
+            {
+                abilityItem.Dispose();
+                abilityItemDict.Remove(id);
+            }
+        }
+
+        public AbilityItem GetAbilityItem(long id)
+        {
+            abilityItemDict.TryGetValue(id, out AbilityItem abilityItem);
+            return abilityItem;
+        }
+
 
 
     }

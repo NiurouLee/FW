@@ -14,7 +14,7 @@ namespace NFramework.Module.Combat
         Duration,
     }
 
-    public class AbilityItemMoveWithDotweenComponent : Entity, IAwakeSystem, IUpdateSystem
+    public class AbilityItemMoveWithDoTweenComponent : Entity, IAwakeSystem, IUpdateSystem
     {
 
         public SpeedType speedType;
@@ -47,7 +47,7 @@ namespace NFramework.Module.Combat
             }
         }
 
-        public AbilityItemMoveWithDotweenComponent DoMoveTo(Vector3 destination, float duration)
+        public AbilityItemMoveWithDoTweenComponent DoMoveTo(Vector3 destination, float duration)
         {
             this.destination = destination;
             DOTween.To(() => { return targetTransformComponent.Position; }, x => transformComponent.Position = x, destination, duration).SetEase(Ease.Linear);

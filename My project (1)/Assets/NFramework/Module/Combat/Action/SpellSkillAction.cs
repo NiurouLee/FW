@@ -1,12 +1,11 @@
-using System.Numerics;
 using NFramework.Module.EntityModule;
 using NFramework.Core.ILiveing;
+using UnityEngine;
 
 namespace NFramework.Module.Combat
 {
     public class SpellSkillActionAbility : Entity, IActionAbility
     {
-        public bool Enable { get; set; }
         public Combat Owner => GetParent<Combat>();
 
         public bool TryMakeAction(out SpellSkillAction action)
@@ -47,17 +46,17 @@ namespace NFramework.Module.Combat
             Creator.TriggerActionPoint(ActionPointType.PreSpell, this);
         }
 
-        public void SpellSkill()
+        public void SpellSkill(bool actionOccupy = true)
         {
             PreProcess();
             SkillExecution = (SkillExecution)SkillAbility.CreateExecution();
 
-            SkillExecution.actionOccupy = actionOccupy;
+            SkillExecution.ActionOccupy = actionOccupy;
             if (InputTarget != null)
             {
-                SkillExecution.targetList.Add(intputTarget);
+                SkillExecution.TargetList.Add(InputTarget);
             }
-            SkillExecution.inputPoint = InputPoint;
+            SkillExecution.InputPoint = this.InputPoint;
             SkillExecution.InputDirection = InputDirection;
             SkillExecution.BeginExecute();
         }

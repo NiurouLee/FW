@@ -1,4 +1,5 @@
 
+using System.Collections.Generic;
 using NFramework.Core.Collections;
 using NFramework.Module.EntityModule;
 
@@ -13,7 +14,7 @@ namespace NFramework.Module.Combat
             SkillExecution parentExecution = parent.GetParent<SkillExecution>();
 
             parentExecution.TargetList.Clear();
-            var list = this.SelectCommat(executionEffect.executeClipData);
+            var list = this.SelectCombat(executionEffect.executeClipData);
             parentExecution.TargetList.AddRange(list);
             list.Dispose();
         }

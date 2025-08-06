@@ -10,12 +10,12 @@ namespace NFramework.Module.Combat
         public void Awake()
         {
             long lifeTime = GetParent<StatusAbility>().duration;
-            LifeTimer = Framework.Instance.GetModule<TimerModule>().NewOnceTimer(lifeTime, GetParent<StatusAbility>().EndAbility);
+            LifeTimer = Framework.Instance.GetModule<TimerM>().NewOnceTimer(lifeTime, GetParent<StatusAbility>().EndAbility);
         }
 
         public void Destroy()
         {
-            Framework.Instance.GetModule<TimerModule>().RemoveTimer(LifeTimer);
+            Framework.Instance.GetModule<TimerM>().RemoveTimer(LifeTimer);
         }
 
     }

@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace NFramework.Module.Combat
 {
-    public class AbilityItem : Entity, IAwakeSystem<IAbilityExecution, ExecuteClipData>
+    public class AbilityItem : Entity, IAwakeSystem<SkillExecution, ExecuteClipData>
     {
         public IAbilityExecution AbilityExecution;
         public Entity ability;
@@ -14,7 +14,7 @@ namespace NFramework.Module.Combat
         public TransformComponent TransformComponent => GetComponent<TransformComponent>();
         public AABBComponent AABBComponent => GetComponent<AABBComponent>();
 
-        public void Awake(IAbilityExecution a, ExecuteClipData b)
+        public void Awake(SkillExecution a, ExecuteClipData b)
         {
             AbilityExecution = a;
             var @event = new SyncCreateAbilityItem(this.Id);

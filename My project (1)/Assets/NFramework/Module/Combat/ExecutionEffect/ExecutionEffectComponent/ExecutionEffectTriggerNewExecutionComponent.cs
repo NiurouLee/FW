@@ -16,8 +16,8 @@ namespace NFramework.Module.Combat
             var parentExecution = parent.GetParent<SkillExecution>();
             var execution = parentExecution.Owner.AddChild<SkillExecution, SkillAbility>(parentExecution.SkillAbility);
             execution.executionConfigObject = executionObject;
-            execution.inputPoint = parentExecution.inputPoint;
-            execution.inputDirection = parentExecution.inputDirection;
+            execution.InputPoint = parentExecution.InputPoint;
+            execution.InputDirection = parentExecution.InputDirection;
             execution.LoadExecutionEffect();
             execution.BeginExecute();
         }

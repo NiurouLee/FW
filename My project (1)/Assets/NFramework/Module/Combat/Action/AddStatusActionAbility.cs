@@ -52,7 +52,7 @@ namespace NFramework.Module.Combat
                 {
                     status = Target.GetStatus(statusConfigObject.Id);
                     var statusLifeTimer = status.GetComponent<StatusLifeTimeComponent>().LifeTimer;
-                    Framework.Instance.GetModule<TimerModule>().RestTimer(statusLifeTimer);
+                    Framework.Instance.GetModule<TimerM>().RestTimer(statusLifeTimer);
                     return;
                 }
             }

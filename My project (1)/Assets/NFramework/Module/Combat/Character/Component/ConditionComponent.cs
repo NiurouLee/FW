@@ -9,10 +9,13 @@ namespace NFramework.Module.Combat
     {
         private Dictionary<long, Condition> _conditionDice = new Dictionary<long, Condition>();
 
-        public void AddListener(long id, Action action, long obj)
+        public void AddListener(ConditionType type, Action action, object obj = null)
         {
-            
+
         }
+
+        public void RemoveListener(ConditionType type, Action action)
+        { }
 
     }
 }

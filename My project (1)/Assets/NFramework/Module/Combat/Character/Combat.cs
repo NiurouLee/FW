@@ -172,13 +172,13 @@ namespace NFramework.Module.Combat
         #region ActionPoint
         public void ListenActionPoint(ActionPointType type, Action<Entity> action)
         {
-            GetComponent<ActionPointComponent>().ListenActionPoint(type, action);
+            GetComponent<ActionPointComponent>().AddListener(type, action);
 
         }
 
         public void UnListenActionPoint(ActionPointType type, Action<Entity> action)
         {
-            GetComponent<ActionPointComponent>().UnListenActionPoint(type, action);
+            GetComponent<ActionPointComponent>().RemoveListener(type, action);
         }
 
         public void TriggerActionPoint(ActionPointType type, Entity action)

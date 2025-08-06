@@ -7,7 +7,7 @@ namespace NFramework.Module.Combat
     public class AbilityEffectActionTriggerComponent : Entity, IAwakeSystem,IDestroySystem
     {
         public Effect Effect => GetParent<AbilityEffect>().effect;
-        public ActionPointType ActionPointType => Effect.ActtionPointType;
+        public ActionPointType ActionPointType => Effect.ActionPointType;
         public Combat Owner => GetParent<AbilityEffect>().Owner;
 
         public void Awake()

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using NFramework.Module.Log;
-using NFramework.Module.TimeModule;
+using NFramework.Module.TimeInfoModule;
 
 namespace NFramework.Module.IDGenerator
 {
