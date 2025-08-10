@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using NFramework.Core.ILiveing;
 using NFramework.Module.EntityModule;
+using NFramework.Module.Res;
 
 namespace NFramework.Module.Combat
 {
@@ -15,22 +16,22 @@ namespace NFramework.Module.Combat
         {
             SkillConfigObject = a;
             AddComponent<AbilityEffectComponent, List<Effect>>(SkillConfigObject.EffectList);
-            ExecutionConfigObject = Framework.Instance.GetModule<ResModule>().LoadRes<ExecutionConfigObject>(string.Empty);
+            ExecutionConfigObject = Framework.I.G<ResM>().Load<ExecutionConfigObject>(string.Empty);
         }
 
         public void ActivateAbility()
         {
             Enable = true;
 
-            if (SkillConfigObject.EnbaleChildStatus)
+            if (SkillConfigObject.EnableChildStatus)
             {
                 foreach (var item in SkillConfigObject.StatusList)
                 {
-                    var status = Owner.AttachStatus(item.statusConfigObject.Id);
+                    var status = Owner.AttachStatus(item.StatusConfigObject.Id);
                     status.Creator = Owner;
-                    status.IsChildStatus = true;
-                    status.ChildStatusData = item;
-                    status.SetParams(item.paramsDict);
+                    status.isChildStatus = true;
+                    status.childStatusData = item;
+                    status.SetParams(item.ParamsDict);
                     status.ActivateAbility();
                     m_StatusList.Add(status);
                 }
@@ -42,7 +43,7 @@ namespace NFramework.Module.Combat
         {
 
             Enable = false;
-            if (SkillConfigObject.EnbaleChildStatus)
+            if (SkillConfigObject.EnableChildStatus)
             {
                 foreach (var item in m_StatusList)
                 {

@@ -64,6 +64,26 @@ namespace NFramework.Module.Combat
             var clipType = executeClipData.ExecuteClipType;
             if (clipType == ExecuteClipType.ActionEvent)
             {
+                if (executeClipData.actionEventData.ActionEventType == FireEventType.FiltrationTarget)
+                {
+                    AddComponent<ExecutionEffectFiltrationTargetComponent>();
+                }
+                if (executeClipData.actionEventData.ActionEventType == FireEventType.AssignEffect)
+                {
+                    AddComponent<ExecutionEffectAssignToTargetComponent>();
+                }
+                if (executeClipData.actionEventData.ActionEventType == FireEventType.TriggerNewExecution)
+                {
+                    AddComponent<ExecutionEffectTriggerNewExecutionComponent>();
+                }
+            }
+            if (clipType == ExecuteClipType.CollisionExecute)
+            {
+                AddComponent<ExecutionEffectSpawnCollisionComponent>();
+            }
+            if (clipType == ExecuteClipType.Animation)
+            {
+                AddComponent<ExecutionEffectAnimationComponent>();
             }
         }
     }
