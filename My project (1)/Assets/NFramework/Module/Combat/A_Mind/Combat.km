@@ -1,0 +1,137 @@
+{
+    "root": {
+        "data": {
+            "id": "dbzlsxqxsig0",
+            "created": 1754916002240,
+            "text": "CombatEntiyt"
+        },
+        "children": [
+            {
+                "data": {
+                    "id": "dbzltaafwm80",
+                    "created": 1754916029541,
+                    "text": "TransformComponent",
+                    "layout_mind_offset": {
+                        "x": 1,
+                        "y": -199
+                    }
+                },
+                "children": []
+            },
+            {
+                "data": {
+                    "id": "dbzluetjhbs0",
+                    "created": 1754916117767,
+                    "text": "OracComponent",
+                    "layout_mind_offset": {
+                        "x": 318,
+                        "y": -254
+                    }
+                },
+                "children": []
+            },
+            {
+                "data": {
+                    "id": "dbzlv48t4880",
+                    "created": 1754916173110,
+                    "text": "AABBComponent",
+                    "layout_mind_offset": {
+                        "x": 83,
+                        "y": -273
+                    }
+                },
+                "children": []
+            },
+            {
+                "data": {
+                    "id": "dbzlumv5rvs0",
+                    "created": 1754916135279,
+                    "text": "AnimationComponent",
+                    "layout_mind_offset": {
+                        "x": 300,
+                        "y": -324
+                    }
+                },
+                "children": []
+            },
+            {
+                "data": {
+                    "id": "dbzlv930jj40",
+                    "created": 1754916183644,
+                    "text": "AttributeComponent",
+                    "layout_mind_offset": {
+                        "x": 953,
+                        "y": -80
+                    }
+                },
+                "children": [
+                    {
+                        "data": {
+                            "id": "dbzlvnhmn7s0",
+                            "created": 1754916215002,
+                            "text": "AttributeDict<AttributeType,FloatNumeric>"
+                        },
+                        "children": []
+                    }
+                ]
+            },
+            {
+                "data": {
+                    "id": "dbzlvt38dcg0",
+                    "created": 1754916227192,
+                    "text": "ActionPointComponent",
+                    "layout_mind_offset": {
+                        "x": 1030,
+                        "y": -81
+                    }
+                },
+                "children": [
+                    {
+                        "data": {
+                            "id": "dbzlw1wg7aw0",
+                            "created": 1754916246373,
+                            "text": "ActionPointTypeActionDict<ActionPointType,Action>"
+                        },
+                        "children": []
+                    }
+                ]
+            },
+            {
+                "data": {
+                    "id": "dbzlx57guqo0",
+                    "created": 1754916331934,
+                    "text": "ConditionComponent",
+                    "layout_mind_offset": {
+                        "x": 979,
+                        "y": -85
+                    }
+                },
+                "children": [
+                    {
+                        "data": {
+                            "id": "dbzlxb9p61s0",
+                            "created": 1754916345130,
+                            "text": "ConditiconTypeDict<ConditionType,Action>"
+                        },
+                        "children": []
+                    }
+                ]
+            },
+            {
+                "data": {
+                    "id": "dbzly61xjio0",
+                    "created": 1754916412140,
+                    "text": "MotionComponent",
+                    "layout_mind_offset": {
+                        "x": 850,
+                        "y": -456
+                    }
+                },
+                "children": []
+            }
+        ]
+    },
+    "template": "default",
+    "theme": "fresh-blue",
+    "version": "1.4.43"
+}
