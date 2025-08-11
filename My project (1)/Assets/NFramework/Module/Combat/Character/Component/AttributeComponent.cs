@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using NFramework.Core.ILiveing;
 using NFramework.Module.EntityModule;
-using NFramework.Module.Event;
+using NFramework.Module.EventModule;
 using Sirenix.OdinInspector;
 using Unity.VisualScripting.Antlr3.Runtime.Tree;
 
@@ -63,7 +63,7 @@ namespace NFramework.Module.Combat
         public FloatNumeric AddNumeric(AttributeType attributeType, float baseValue)
         {
             NumericEntity numericEntity = parent.AddChild<NumericEntity>();
-            var numeric = Parent.AddChild<FloatNumeric, NumericEntity, AttributeType>(numericEntity);
+            var numeric = Parent.AddChild<FloatNumeric, NumericEntity, AttributeType>(numericEntity, attributeType);
             _attributeDict.Add(attributeType, numeric);
             var syncAttribute = new SyncAttribute(parent.Id, attributeType);
             Framework.Instance.GetModule<EventM>().D.Publish(ref syncAttribute);

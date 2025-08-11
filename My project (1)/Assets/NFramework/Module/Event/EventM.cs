@@ -1,5 +1,5 @@
 
-namespace NFramework.Module.Event
+namespace NFramework.Module.EventModule
 {
     public class EventM : IFrameWorkModule
     {

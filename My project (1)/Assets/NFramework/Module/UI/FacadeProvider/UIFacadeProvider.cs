@@ -1,5 +1,5 @@
 using Proto.Promises;
-using NFramework.Module.Res;
+using NFramework.Module.ResModule;
 
 namespace NFramework.Module.UI
 {

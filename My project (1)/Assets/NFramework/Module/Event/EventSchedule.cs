@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using NFramework.Core.Collections;
 
-namespace NFramework.Module.Event
+namespace NFramework.Module.EventModule
 {
     public partial class EventSchedule : IEventRegister
     {

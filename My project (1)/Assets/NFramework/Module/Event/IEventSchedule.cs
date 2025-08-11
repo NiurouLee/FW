@@ -1,4 +1,4 @@
-namespace NFramework.Module.Event
+namespace NFramework.Module.EventModule
 {
     public interface IEventRegister
     {

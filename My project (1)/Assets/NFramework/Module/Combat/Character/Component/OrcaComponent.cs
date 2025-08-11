@@ -28,7 +28,7 @@ namespace NFramework.Module.Combat
             RemoveAgent();
         }
 
-        public Agent AddAgent(Vector2 pos)
+        public Agent AddAgent2D(Vector2 pos)
         {
             RVO.Vector2 vector = new RVO.Vector2(pos.x, pos.y);
             agent = Simulator.Instance.addAgent(vector);

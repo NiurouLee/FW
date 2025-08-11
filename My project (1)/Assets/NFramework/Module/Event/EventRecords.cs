@@ -1,7 +1,7 @@
 using NFramework.Core.Collections;
 using NFramework.Core.ObjectPool;
 
-namespace NFramework.Module.Event
+namespace NFramework.Module.EventModule
 {
     public class EventRecords : BaseRecords<BaseRegister>, IEventRegister, IFreeToPool
     {

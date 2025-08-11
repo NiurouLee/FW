@@ -1,6 +1,7 @@
 
 using NFramework.Core.ILiveing;
 using NFramework.Module.EntityModule;
+using NFramework.Utils;
 
 namespace NFramework.Module.Combat
 {
@@ -17,11 +18,11 @@ namespace NFramework.Module.Combat
             value = ExpressionUtil.Evalue<float>(NumericValueFormula, GetParent<AbilityEffect>().GetParamsDict());
             if (AttributeModifyEffect.ModifyType == ModifyType.Add)
             {
-                Owner.GetComponent<AttributeComponent>().GetNumeric(AttribureType).FinalAdd += value;
+                Owner.GetComponent<AttributeComponent>().GetNumeric(AttributeType).FinalAdd += value;
             }
             if (AttributeModifyEffect.ModifyType == ModifyType.PercentAdd)
             {
-                Owner.GetComponent<AttributeComponent>().GetNumeric(AttribureType).FinalPctAdd += value;
+                Owner.GetComponent<AttributeComponent>().GetNumeric(AttributeType).FinalPctAdd += value;
             }
         }
         public void Destroy()

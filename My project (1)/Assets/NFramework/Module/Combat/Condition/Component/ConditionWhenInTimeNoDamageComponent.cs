@@ -17,18 +17,18 @@ namespace NFramework.Module.Combat
 
         public void Destroy()
         {
-            Framework.Instance.GetModule<TimerModule>().RemoveTimer(noDamageTime);
+            Framework.Instance.GetModule<TimerM>().RemoveTimer(noDamageTime);
             parent.GetParent<Combat>().UnListenActionPoint(ActionPointType.PostReceiveDamage, WhenReceiveDamage);
         }
 
         public void StartListen(Action whenNoDamageInTimeCallback)
         {
-            noDamageTime = Framework.Instance.GetModule<TimerModule>().NewOnceTimer(time, whenNoDamageInTimeCallback);
+            noDamageTime = Framework.Instance.GetModule<TimerM>().NewOnceTimer(time, whenNoDamageInTimeCallback);
         }
 
         private void WhenReceiveDamage(Entity combatAction)
         {
-            Framework.Instance.GetModule<TimerModule>().RemoveTimer(noDamageTime);
+            Framework.Instance.GetModule<TimerM>().RemoveTimer(noDamageTime);
         }
 
 

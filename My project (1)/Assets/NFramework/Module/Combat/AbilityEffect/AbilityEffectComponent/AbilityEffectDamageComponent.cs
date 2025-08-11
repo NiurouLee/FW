@@ -1,6 +1,7 @@
 using NFramework.Core.ILiveing;
 using NFramework.Module.EntityModule;
 using UnityEngine;
+using NFramework.Utils;
 
 namespace NFramework.Module.Combat
 {
@@ -12,15 +13,15 @@ namespace NFramework.Module.Combat
         public int GetDamageValue()
         {
 
-            return Mathf.CeilToInt(Expressionu.Evaluate<float>(DamageValueFormula, GetParent<AbilityEffect>().GetParamsDict()));
+            return Mathf.CeilToInt(ExpressionUtil.Evalue<float>(DamageValueFormula, GetParent<AbilityEffect>().GetParamsDict()));
         }
 
         public void OnAssignEffect(EffectAssignAction effectAssigAction)
         {
-            if (Owner.damageActionAbility.TryMakeAction(out var damageAction))
+            if (Owner.DamageActionAbility.TryMakeAction(out var damageAction))
             {
-                effectAssigAction.FillDataToAction(damageAction);
-                damageAction.damageSource = DamageSource.Skill;
+                effectAssigAction.FillDatasToAction(damageAction);
+                damageAction.DamageSource = DamageSource.Skill;
                 damageAction.ApplyDamage();
             }
         }

@@ -191,6 +191,10 @@ namespace NFramework.Module.Combat
 
         [ShowIf("ActionEventType", FireEventType.FiltrationTarget)]
         [LabelText("筛选目标距离")]
+        public float Distance;
+
+        [ShowIf("ActionEventType", FireEventType.FiltrationTarget)]
+        [LabelText("筛选目标类型")]
         public TagType TagType;
     }
 

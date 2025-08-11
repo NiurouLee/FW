@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using NFramework.Module.EntityModule;
-using NFramework.Module.Res;
+using NFramework.Module.ResModule;
 
 namespace NFramework.Module.Combat
 {
@@ -11,7 +11,7 @@ namespace NFramework.Module.Combat
         public Combat Combat => GetParent<Combat>();
         public Dictionary<int, ExecutionConfigObject> executionDict = new Dictionary<int, ExecutionConfigObject>();
 
-        public ExecutionConfigObject AttachExectuion(int executionID)
+        public ExecutionConfigObject AttachExecution(int executionID)
         {
             if (GetExecution(executionID) != null)
             {

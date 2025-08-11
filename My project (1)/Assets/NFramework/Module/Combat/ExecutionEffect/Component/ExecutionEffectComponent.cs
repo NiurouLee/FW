@@ -6,29 +6,29 @@ namespace NFramework.Module.Combat
 {
     public class ExecutionEffectComponent : Entity, IAwakeSystem
     {
-        public List<ExecutionEffect> exectuionEffectList = new List<ExecutionEffect>();
+        public List<ExecutionEffect> executionEffectList = new List<ExecutionEffect>();
 
         public void Awake()
         {
-            if (GetParent<SkillExectuion>().executionConfigObject == null)
+            if (GetParent<SkillExecution>().executionConfigObject == null)
             {
                 return;
             }
-            foreach (var effect in GetParent<SkillExectuon>().executionConfigObject.executeClipDataList)
+            foreach (var effect in GetParent<SkillExecution>().executionConfigObject.ExecuteClipDataList)
             {
-                ExecutionEffect executionEffect = Parent.AddChild<ExecutionEffectComponent, ExecteClipData>(effect);
-                AddEffect(exectuionEffect);
+                ExecutionEffect executionEffect = Parent.AddChild<ExecutionEffect, ExecuteClipData>(effect);
+                AddEffect(executionEffect);
             }
         }
 
-        public void AddEffect(ExecutionEffectComponent exectuionEffect)
+        public void AddEffect(ExecutionEffect executionEffect)
         {
-            exectuionEffectList.Add(exectuionEffect);
+            executionEffectList.Add(executionEffect);
         }
 
         public void BeginExecute()
         {
-            foreach (var item in exectuionEffectList)
+            foreach (var item in executionEffectList)
             {
                 item.BeginExecute();
             }

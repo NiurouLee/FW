@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 using NFramework.Core.ILiveing;
 using NFramework.Module.EntityModule;
-using NFramework.Module.Combat;
 
 namespace NFramework.Module.Combat
 {
-    public partial class ItemAbility : Entity, IAbility, IAwakeSystem<ItemConfigObject>
+    public partial class ItemAbility : Entity, IAbility, IAwakeSystem<System.Object>
     {
         public Combat Owner => GetParent<Combat>();
         public ItemConfigObject itemConfigObject;
         private List<StatusAbility> _statusList = new List<StatusAbility>();
-        public void Awake(ItemConfigObject a)
+        public void Awake(object a)
         {
+            itemConfigObject = a as ItemConfigObject;
             AddComponent<AbilityEffectComponent, List<Effect>>(itemConfigObject.EffectList);
         }
         public void ActivateAbility()

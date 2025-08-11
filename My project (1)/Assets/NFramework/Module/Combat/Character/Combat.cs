@@ -1,7 +1,7 @@
 using System;
 using NFramework.Core.ILiveing;
 using NFramework.Module.EntityModule;
-using NFramework.Module.Event;
+using NFramework.Module.EventModule;
 using NFramework.Module.Math;
 using UnityEngine;
 
@@ -35,13 +35,16 @@ namespace NFramework.Module.Combat
             AABB aabb = new AABB(new Vector2(-1, -1), new Vector2(1, 1));
             AddComponent<AABBComponent, AABB>(aabb);
             AddComponent<AttributeComponent>();
+            AddComponent<ActionPointComponent>();
             AddComponent<ConditionComponent>();
+
             AddComponent<MotionComponent>();
+
             AddComponent<StatusComponent>();
             AddComponent<SkillComponent>();
             AddComponent<ExecutionComponent>();
-            AddComponent<ExecutionComponent>();
             AddComponent<ItemComponent>();
+
             AddComponent<SpellSkillComponent>();
             AddComponent<JoystickComponent>();
 
@@ -51,29 +54,34 @@ namespace NFramework.Module.Combat
             AddStatusActionAbility = AttachAction<AddStatusActionAbility>();
 
             SpellSkillActionAbility = AttachAction<SpellSkillActionAbility>();
+
             SpellItemActionAbility = AttachAction<SpellItemActionAbility>();
+
             DamageActionAbility = AttachAction<DamageActionAbility>();
             CureActionAbility = AttachAction<CureActionAbility>();
 
-            OrcaComponent.AddAgent2D(TransformComponent.position);
+            OrcaComponent.AddAgent2D(TransformComponent.Position);
 
             ListenActionPoint(ActionPointType.PostReceiveDamage, e =>
             {
                 var damageAction = e as DamageAction;
-                Framework.Instance.GetModule<EventM>().D.Publish(ref new SyncDamage(this.Id, damageAction.DamageValue));
+                var syncDamage = new SyncDamage(this.Id, damageAction.DamageValue);
+                Framework.Instance.GetModule<EventM>().D.Publish(ref syncDamage);
             });
 
             ListenActionPoint(ActionPointType.PostReceiveCure, e =>
             {
                 var cureAction = e as CureAction;
-                Framework.Instance.GetModule<EventM>().D.Publish(ref new SyncCure(this.Id, cureAction.CureValue));
+                var syncCure = new SyncCure(this.Id, cureAction.CureValue);
+                Framework.Instance.GetModule<EventM>().D.Publish(ref syncCure);
             });
         }
 
 
         public void Dead()
         {
-            Framework.Instance.GetModule<EventM>().D.Publish(ref new SyncDeleteCombat(this.Id));
+            var syncDeleteCombat = new SyncDeleteCombat(this.Id);
+            Framework.Instance.GetModule<EventM>().D.Publish(ref syncDeleteCombat);
             GetParent<CombatContext>().RemoveCombat(this.Id);
         }
 
@@ -99,9 +107,10 @@ namespace NFramework.Module.Combat
 
         public bool CheckDead()
         {
-            return CurrentHealth.CurrentHealth <= 0;
+            return CurrentHealth.Value <= 0;
         }
 
+        //能力
         public T AttachAbility<T>(object configObject) where T : Entity, IAbility, IAwakeSystem<object>
         {
             var ability = AddChild<T, object>(configObject);
@@ -110,6 +119,7 @@ namespace NFramework.Module.Combat
         }
 
 
+        //行动
         public T AttachAction<T>() where T : Entity, IActionAbility
         {
             var action = AddChild<T>();
@@ -151,7 +161,7 @@ namespace NFramework.Module.Combat
 
         public SkillAbility GetSkill(int skillId)
         {
-            return GetComponent<SkillCOmponent>().GetSkill(skillId);
+            return GetComponent<SkillComponent>().GetSkill(skillId);
         }
 
 

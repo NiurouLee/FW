@@ -1,4 +1,4 @@
-namespace NFramework.Module.Event
+namespace NFramework.Module.EventModule
 {
     public delegate void RefAction<T>(ref T inItem);
 

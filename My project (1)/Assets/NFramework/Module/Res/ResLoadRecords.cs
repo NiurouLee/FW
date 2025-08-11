@@ -2,7 +2,7 @@ using NFramework.Core.Collections;
 using Proto.Promises;
 using UnityEngine;
 
-namespace NFramework.Module.Res
+namespace NFramework.Module.ResModule
 {
     public class ResLoadRecords : BaseRecords<ResHandler>, IResLoader
     {

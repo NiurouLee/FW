@@ -1,6 +1,7 @@
 
 using NFramework.Core.ILiveing;
 using NFramework.Module.EntityModule;
+using NFramework.Utils;
 using UnityEngine;
 
 namespace NFramework.Module.Combat

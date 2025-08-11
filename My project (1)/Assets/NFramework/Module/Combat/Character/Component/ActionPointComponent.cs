@@ -1,7 +1,7 @@
 
 using NFramework.Core.ILiveing;
 using NFramework.Module.EntityModule;
-using NFramework.Module.Event;
+using NFramework.Module.EventModule;
 using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;

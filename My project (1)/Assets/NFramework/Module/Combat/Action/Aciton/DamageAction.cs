@@ -1,5 +1,6 @@
 using UnityEngine;
 using NFramework.Module.EntityModule;
+using NFramework.Utils;
 
 namespace NFramework.Module.Combat
 {
@@ -55,9 +56,9 @@ namespace NFramework.Module.Combat
 
             if (this.DamageSource == DamageSource.Attack)
             {
-                isCritical = (RandomUtil.RandomRate() / 100f) < Creator.GetComponent<AttribureComponent>().CriticalProbability.Value;
+                isCritical = (RandomUtil.RandomRate() / 100f) < Creator.GetComponent<AttributeComponent>().CriticalProbability.Value;
                 DamageValue = (int)Creator.GetComponent<AttributeComponent>().Attack.Value;
-                DamageValue = Mathf.CeilToInt(Mathf.Max(1, DamageValue - Target.GetComponent<AttribureComponent>().Defense.Value));
+                DamageValue = Mathf.CeilToInt(Mathf.Max(1, DamageValue - Target.GetComponent<AttributeComponent>().Defense.Value));
                 if (isCritical)
                 {
                     DamageValue = Mathf.CeilToInt(DamageValue * 1.5f);
@@ -69,7 +70,7 @@ namespace NFramework.Module.Combat
                 {
                     isCritical = (RandomUtil.RandomRate() / 100f) < Creator.GetComponent<AttributeComponent>().CriticalProbability.Value;
                 }
-                DamageValue = SourceAssignAction.AbilityEffect.GetComponent<AbilityEffectDamageComponet>().GetDamageValue();
+                DamageValue = SourceAssignAction.AbilityEffect.GetComponent<AbilityEffectDamageComponent>().GetDamageValue();
                 DamageValue = Mathf.CeilToInt(Mathf.Max(1, DamageValue - Target.GetComponent<AttributeComponent>().Defense.Value));
                 if (isCritical)
                 {
@@ -97,7 +98,7 @@ namespace NFramework.Module.Combat
                 var targetCounterComponent = SourceAssignAction.AbilityItem.GetComponent<AbilityItemTargetCounterComponent>();
                 if (targetCounterComponent != null)
                 {
-                    var damagePercent = component.GetDamagePercent(targetCounterComponent.TargetCounter);
+                    var damagePercent = component.GetDamagePercent(targetCounterComponent.targetCounter);
                     DamageValue = Mathf.CeilToInt(DamageValue * damagePercent);
                 }
             }

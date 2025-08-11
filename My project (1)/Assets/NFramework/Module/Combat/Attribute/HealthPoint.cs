@@ -7,8 +7,8 @@ namespace NFramework.Module.Combat
     {
         public FloatNumeric Current => Parent.GetComponent<AttributeComponent>().HealthPoint;
         public FloatNumeric Max => Parent.GetComponent<AttributeComponent>().HealthPoint;
-        public int Value => (int)Current.value;
-        public int MaxValue => (int)Max.value;
+        public int Value => (int)Current.Value;
+        public int MaxValue => (int)Max.Value;
 
         public void Awake()
         {

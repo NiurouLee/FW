@@ -77,7 +77,7 @@ namespace NFramework.Module.Combat
             }
         }
 
-        public Dictionary<string, string> GetparamsDict()
+        public Dictionary<string, string> GetParamsDict()
         {
             Dictionary<string, string> temp;
             if (OwnerAbility is StatusAbility status)

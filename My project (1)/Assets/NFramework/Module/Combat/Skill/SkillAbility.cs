@@ -1,20 +1,20 @@
 using System.Collections.Generic;
 using NFramework.Core.ILiveing;
 using NFramework.Module.EntityModule;
-using NFramework.Module.Res;
+using NFramework.Module.ResModule;
 
 namespace NFramework.Module.Combat
 {
-    public class SkillAbility : Entity, IAbility, IAwakeSystem<SkillConfigObject>
+    public class SkillAbility : Entity, IAbility, IAwakeSystem<System.Object>
     {
         public bool Spelling { get; set; }
         public Combat Owner => GetParent<Combat>();
         public SkillConfigObject SkillConfigObject;
         public ExecutionConfigObject ExecutionConfigObject;
         private List<StatusAbility> m_StatusList = new List<StatusAbility>();
-        public void Awake(SkillConfigObject a)
+        public void Awake(object a)
         {
-            SkillConfigObject = a;
+            SkillConfigObject = a as SkillConfigObject;
             AddComponent<AbilityEffectComponent, List<Effect>>(SkillConfigObject.EffectList);
             ExecutionConfigObject = Framework.I.G<ResM>().Load<ExecutionConfigObject>(string.Empty);
         }

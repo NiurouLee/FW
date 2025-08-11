@@ -1,7 +1,7 @@
 using System;
 using NFramework.Core.ObjectPool;
 
-namespace NFramework.Module.Event
+namespace NFramework.Module.EventModule
 {
     public abstract class BaseRegister : IFreeToPool, IEquatable<BaseRegister>
     {

@@ -74,8 +74,18 @@ namespace NFramework.Module.Combat
             return abilityItem;
         }
 
-
-
+        public List<Combat> GetCombatListByTag(TagType tagType)
+        {
+            List<Combat> list = new List<Combat>();
+            foreach (var combat in combatDic.Values)
+            {
+                if (combat.TagComponent.tagType == tagType)
+                {
+                    list.Add(combat);
+                }
+            }
+            return list;
+        }
     }
 
 }

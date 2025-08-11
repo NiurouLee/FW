@@ -1,6 +1,6 @@
 using NFramework.Core.ILiveing;
 using NFramework.Module.EntityModule;
-using NFramework.Module.Event;
+using NFramework.Module.EventModule;
 using NFramework.Module.Math;
 using UnityEngine;
 

@@ -1,5 +1,6 @@
 using System.Threading;
 using NFramework.Module.EntityModule;
+using NFramework.Module.TimerModule;
 
 namespace NFramework.Module.Combat
 {

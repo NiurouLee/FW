@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using NFramework.Core.Collections;
 using NFramework.Module.EntityModule;
-using NFramework.Module.Res;
+using NFramework.Module.ResModule;
 
 namespace NFramework.Module.Combat
 {
@@ -12,7 +12,7 @@ namespace NFramework.Module.Combat
 
         public UnOrderMultiMapVector<int, StatusAbility> statusDict = new UnOrderMultiMapVector<int, StatusAbility>();
 
-        public StatusAbility AddStatus(int StatusId)
+        public StatusAbility AttachStatus(int StatusId)
         {
             StatusConfigObject statusConfigObject = Framework.Instance.GetModule<ResM>().Load<StatusConfigObject>(string.Empty);
             if (statusConfigObject == null)
@@ -45,9 +45,36 @@ namespace NFramework.Module.Combat
             statusDict[inStatusAbility.StatusConfigObject.Id].Remove(inStatusAbility);
             statusList.Remove(inStatusAbility);
         }
-        private bool HasStatus(int statusID)
+        public bool HasStatus(int statusID)
         {
             return statusDict.ContainsKey(statusID);
         }
+
+        public void OnStatuesChanged(StatusAbility statusAbility)
+        {
+            var tempActionControl = ActionControlType.None;
+            foreach (var item in Combat.Children.Values)
+            {
+                if (item is StatusAbility status)
+                {
+                    if (!status.Enable)
+                    {
+                        continue;
+                    }
+                    foreach (var effect in status.GetComponent<AbilityEffectComponent>().AbilityEffectList)
+                    {
+                        var actionControlComponent = effect.GetComponent<AbilityEffectActionControlComponent>();
+                        if (actionControlComponent != null)
+                        {
+                            tempActionControl = tempActionControl | actionControlComponent.ActionControlEffect.ActionControlType;
+                        }
+                    }
+                }
+            }
+            Combat.ActionControlType = tempActionControl;
+            var moveForbid = Combat.ActionControlType.HasFlag(ActionControlType.MoveForbid);
+            Combat.GetComponent<MotionComponent>().SetEnable(!moveForbid);
+        }
     }
+
 }

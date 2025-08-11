@@ -1,6 +1,6 @@
 using NFramework.Core.ObjectPool;
 
-namespace NFramework.Module.Event
+namespace NFramework.Module.EventModule
 {
     public partial class EventSchedule
     {

@@ -1,5 +1,5 @@
 using System;
-using NFramework.Module.Event;
+using NFramework.Module.EventModule;
 using UnityEngine;
 
 namespace NFramework.Test.EventTestEx

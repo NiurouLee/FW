@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Proto.Promises;
-using NFramework.Module.Res;
+using NFramework.Module.ResModule;
 using System.Threading.Tasks;
 
 namespace NFramework.Module.UI

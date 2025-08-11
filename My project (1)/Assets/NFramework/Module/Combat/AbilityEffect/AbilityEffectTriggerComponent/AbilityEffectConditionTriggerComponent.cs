@@ -8,7 +8,7 @@ namespace NFramework.Module.Combat
     public class AbilityEffectConditionTriggerComponent : Entity, IAwakeSystem, IDestroySystem
     {
         public Effect Effect => GetParent<AbilityEffect>().effect;
-        public string ConditionValueFromula => ParseParams(Effect.ConditioNValueFormula, GetParent<AbilityEffect>().GetparamsDict());
+        public string ConditionValueFromula => ParseParams(Effect.ConditioNValueFormula, GetParent<AbilityEffect>().GetParamsDict());
         public ConditionType ConditionType => Effect.ConditionType;
         public Combat Owner => GetParent<AbilityEffect>().Owner;
 

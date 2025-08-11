@@ -1,7 +1,7 @@
 
 using System;
 
-namespace NFramework.Module.Res
+namespace NFramework.Module.ResModule
 {
     public enum ResHandlerState
     {

@@ -15,14 +15,14 @@ namespace NFramework.Module.Combat
         {
             foreach (var item in DamageEffect.DecoratorList)
             {
-                if (item is DamageErdureWithTargetCountDecorator decorator)
+                if (item is DamageReduceWithTargetCountDecorator decorator)
                 {
                     ReducePercent = decorator.ReducePercent / 100;
-                    minPercent = decorator / 100;
+                    minPercent = decorator.MinPercent / 100;
                 }
             }
         }
-        public float GetDamageValue(int targetCounter)
+        public float GetDamagePercent(int targetCounter)
         {
             return Mathf.Max(minPercent, 1 - ReducePercent * targetCounter);
         }

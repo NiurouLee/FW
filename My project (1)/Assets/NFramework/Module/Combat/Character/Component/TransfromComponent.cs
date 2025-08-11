@@ -1,6 +1,8 @@
 using UnityEngine;
 using NFramework.Module.EntityModule;
 using NFramework.Core.ILiveing;
+using NFramework.Module.EventModule;
+
 namespace NFramework.Module.Combat
 {
     public class TransformComponent : Entity, IAwakeSystem
@@ -73,9 +75,9 @@ namespace NFramework.Module.Combat
             }
         }
 
-        public void MoveToTarget(TransformComponent target)
+        public void MoveToTarget(Vector3 target)
         {
-            Vector3 normalDistance = (target.Position - Position).normalized;
+            Vector3 normalDistance = (target - Position).normalized;
             if (normalDistance.x < 0)
             {
                 Rotation = Quaternion.Euler(0, 180, 0);
@@ -88,7 +90,8 @@ namespace NFramework.Module.Combat
         }
         public void SyncTransform()
         {
-            Framework.Instance.GetModule<EventD>().D.Fire(ref new SyncTranform(GetParent<Combat>().id, _position, _rotation, _localScale));
+            var syncTransform = new SyncTransform(GetParent<Combat>().Id, _position, _rotation, _localScale);
+            Framework.I.G<EventM>().D.Fire(ref syncTransform);
 
         }
 

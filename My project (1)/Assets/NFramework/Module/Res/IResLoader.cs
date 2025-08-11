@@ -1,7 +1,7 @@
 using System;
 using Proto.Promises;
 
-namespace NFramework.Module.Res
+namespace NFramework.Module.ResModule
 {
     public interface IResLoader
     {

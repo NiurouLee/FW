@@ -1,5 +1,5 @@
 ﻿using System;
-using NFramework.Module.Res;
+using NFramework.Module.ResModule;
 using Proto.Promises;
 using NFramework.Module.Log;
 

@@ -19,5 +19,9 @@ namespace NFramework.Module.TimerModule
         public void Update(float deltaTime)
         {
         }
+
+        internal void RestTimer(long statusLifeTimer)
+        {
+        }
     }
 }

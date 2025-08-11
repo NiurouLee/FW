@@ -1,6 +1,6 @@
 using NFramework.Core.ILiveing;
 using NFramework.Module.EntityModule;
-using NFramework.Module.Event;
+using NFramework.Module.EventModule;
 
 namespace NFramework.Module.Combat
 {
@@ -22,7 +22,8 @@ namespace NFramework.Module.Combat
         {
             currentType = inType;
             bool isLoop = currentType == AnimationType.Idle || currentType == AnimationType.Walk ? true : false;
-            Framework.Instance.GetModule<EventM>().D.Publish(ref new SyncAnimation(GetParent<Combat>().id, inType, speed, isLoop));
+            var syncAnimation = new SyncAnimation(GetParent<Combat>().Id, inType, speed, isLoop);
+            Framework.Instance.GetModule<EventM>().D.Publish(ref syncAnimation);
         }
 
         public void Awake()

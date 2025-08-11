@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Proto.Promises;
 using UnityEngine;
 
-namespace NFramework.Module.Res
+namespace NFramework.Module.ResModule
 {
     public class ResM : IFrameWorkModule
     {

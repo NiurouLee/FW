@@ -16,15 +16,15 @@ namespace NFramework.Module.Combat
             {
                 if (this.executeClipData.actionEventData.ActionEventType == FireEventType.FiltrationTarget)
                 {
-                    AddComponent<ExectuionEffectFiltrationTargetComponent>();
+                    AddComponent<ExecutionEffectFiltrationTargetComponent>();
                 }
                 if (this.executeClipData.actionEventData.ActionEventType == FireEventType.AssignEffect)
                 {
-                    AddComponent<ExectuionEffectAssignToTargetEffectComponent>();
+                    AddComponent<ExecutionEffectAssignToTargetComponent>();
                 }
                 if (executeClipData.actionEventData.ActionEventType == FireEventType.TriggerNewExecution)
                 {
-                    AddComponent<ExectuionEffectTriggerNewExecutionComponent>();
+                    AddComponent<ExecutionEffectTriggerNewExecutionComponent>();
                 }
             }
             if (clipType == ExecuteClipType.CollisionExecute)
@@ -46,14 +46,15 @@ namespace NFramework.Module.Combat
             var clipType = executeClipData.ExecuteClipType;
             if (clipType == ExecuteClipType.ActionEvent)
             {
-                AddComponent<ExecutionEffectTimeTriggerComponent>().startTime = (long)(executeClipData.StartTime * 1000);
+                AddComponent<ExecutionEffectTimerTriggerComponent>().startTime = (long)(executeClipData.StartTime * 1000);
             }
             else if (executeClipData.Duration > 0)
             {
-                var com = AddComponent<ExecutionEffectTimeTriggerComponent>().startTime = (long)(executeClipData.StartTime * 1000);
+                var com = AddComponent<ExecutionEffectTimerTriggerComponent>();
+                com.startTime = (long)(executeClipData.StartTime * 1000);
                 com.endTime = (long)(executeClipData.EndTime * 1000f);
             }
-            if (GetComponent<ExecutionEffectTimeTriggerComponent>() == null)
+            if (GetComponent<ExecutionEffectTimerTriggerComponent>() == null)
             {
                 StartTriggerEffect();
             }
@@ -84,6 +85,40 @@ namespace NFramework.Module.Combat
             if (clipType == ExecuteClipType.Animation)
             {
                 AddComponent<ExecutionEffectAnimationComponent>();
+            }
+            if (clipType == ExecuteClipType.ParticleEffect)
+            {
+                GetComponent<ExecutionEffectParticleEffectComponent>().OnTriggerExecutionEffect(this);
+            }
+        }
+
+        public void EndEffect()
+        {
+            var clipType = executeClipData.ExecuteClipType;
+            if (clipType == ExecuteClipType.ActionEvent)
+            {
+                if (executeClipData.actionEventData.ActionEventType == FireEventType.FiltrationTarget)
+                {
+                }
+                if (executeClipData.actionEventData.ActionEventType == FireEventType.AssignEffect)
+                {
+
+                }
+                if (executeClipData.actionEventData.ActionEventType == FireEventType.TriggerNewExecution)
+                {
+                }
+            }
+
+            if (clipType == ExecuteClipType.CollisionExecute)
+            {
+            }
+            if (clipType == ExecuteClipType.Animation)
+            {
+
+            }
+            if (clipType == ExecuteClipType.ParticleEffect)
+            {
+                GetComponent<ExecutionEffectParticleEffectComponent>().OnTriggerExecutionEffectEnd(this);
             }
         }
     }

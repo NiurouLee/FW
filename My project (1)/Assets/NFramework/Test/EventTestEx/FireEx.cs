@@ -1,4 +1,4 @@
-using NFramework.Module.Event;
+using NFramework.Module.EventModule;
 
 
 namespace NFramework.Test.EventTestEx
