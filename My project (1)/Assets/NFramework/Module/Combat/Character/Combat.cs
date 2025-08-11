@@ -78,12 +78,19 @@ namespace NFramework.Module.Combat
         }
 
 
+        /// <summary>
+        /// 接收伤害
+        /// </summary>
+        /// <param name="actionExecution"></param>
         public void ReceiveDamage(IActionExecution actionExecution)
         {
             var damageAction = actionExecution as DamageAction;
             CurrentHealth.Minus(damageAction.DamageValue);
         }
-
+        /// <summary>
+        /// 接受治疗
+        /// </summary>
+        /// <param name="actionExecution"></param>
         public void ReceiveCure(IActionExecution actionExecution)
         {
             var cureAction = actionExecution as CureAction;
@@ -173,7 +180,6 @@ namespace NFramework.Module.Combat
         public void ListenActionPoint(ActionPointType type, Action<Entity> action)
         {
             GetComponent<ActionPointComponent>().AddListener(type, action);
-
         }
 
         public void UnListenActionPoint(ActionPointType type, Action<Entity> action)
