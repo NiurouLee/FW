@@ -76,5 +76,4 @@ namespace NFramework.Module.Combat
             Combat.GetComponent<MotionComponent>().SetEnable(!moveForbid);
         }
     }
-
 }

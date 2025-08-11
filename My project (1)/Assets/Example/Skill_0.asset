@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47be09d446c5ab948b1a6c639d6b50b5, type: 3}
+  m_Name: Skill_0
+  m_EditorClassIdentifier: 
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes:
+    - Name: StatusList
+      Entry: 7
+      Data: 0|System.Collections.Generic.List`1[[NFramework.Module.Combat.ChildStatus,
+        Assembly-CSharp]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: EffectList
+      Entry: 7
+      Data: 1|System.Collections.Generic.List`1[[NFramework.Module.Combat.Effect,
+        Assembly-CSharp]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+  Id: 0
+  Name: "\u6280\u80FD1"
+  SkillSpellType: 0
+  AffectTargetType: 0
+  ColdTime: 0
+  EnableChildStatus: 0
+  SKillDescription: 
+  EffectTypeName: "(\u6DFB\u52A0\u6548\u679C)"

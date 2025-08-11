@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
 using Sirenix.OdinInspector;
-using Sirenix.OdinInspector.Editor;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace NFramework.Module.Combat
@@ -14,7 +12,7 @@ namespace NFramework.Module.Combat
         public ExecutionTargetInputType TargetInputType;
 
         [Space(10)]
-        [ListDrawerSettings(DraggableItems = false, ShowItemCount = false, CustomAddFunction = "AddExecuteClipData")]
+        [ListDrawerSettings(DraggableItems = false, ShowItemCount = false, CustomAddFunction = "AddExecutionClipData")]
         public List<ExecuteClipData> ExecuteClipDataList = new List<ExecuteClipData>();
 
         public float TotalTime
