@@ -51,6 +51,7 @@ namespace NFramework.Module.Combat
             CurrentHealth = AddChild<HealthPoint>();
 
             EffectAssignActionAbility = AttachAction<EffectAssignActionAbility>();
+
             AddStatusActionAbility = AttachAction<AddStatusActionAbility>();
 
             SpellSkillActionAbility = AttachAction<SpellSkillActionAbility>();
@@ -58,6 +59,7 @@ namespace NFramework.Module.Combat
             SpellItemActionAbility = AttachAction<SpellItemActionAbility>();
 
             DamageActionAbility = AttachAction<DamageActionAbility>();
+            
             CureActionAbility = AttachAction<CureActionAbility>();
 
             OrcaComponent.AddAgent2D(TransformComponent.Position);

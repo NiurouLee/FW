@@ -24,8 +24,8 @@ namespace NFramework.Module.Combat
 
     public class EffectAssignAction : Entity, IActionExecution
     {
-        public AbilityEffect AbilityEffect { get; set; }
         //释放这个赋予效果行动的能力（skill能力，status能力，Item能力，Attack能力）
+        public AbilityEffect AbilityEffect { get; set; }
         public Entity SourceAbility;
         public IActionExecution ActionExecution;
         public IAbilityExecution AbilityExecution;

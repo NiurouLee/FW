@@ -35,6 +35,9 @@ namespace NFramework.Module.Combat
     }
 
 
+    /// <summary>
+    /// 这是一次具体的受伤行为 
+    /// </summary>
     public class DamageAction : Entity, IActionExecution
     {
         public DamageSource DamageSource;
@@ -49,15 +52,23 @@ namespace NFramework.Module.Combat
             Dispose();
         }
 
+        /// <summary>
+        /// 预处理,根据攻击类型计算具体伤害值
+        /// </summary>
         private void PreProcess()
         {
             DamageEffect damageEffect = (DamageEffect)SourceAssignAction.AbilityEffect.effect;
+            //是否暴击
             bool isCritical = false;
 
+            //如果是普攻
             if (this.DamageSource == DamageSource.Attack)
             {
+                //暴击概率
                 isCritical = (RandomUtil.RandomRate() / 100f) < Creator.GetComponent<AttributeComponent>().CriticalProbability.Value;
+                //攻击方攻击力
                 DamageValue = (int)Creator.GetComponent<AttributeComponent>().Attack.Value;
+                //受击方防御力
                 DamageValue = Mathf.CeilToInt(Mathf.Max(1, DamageValue - Target.GetComponent<AttributeComponent>().Defense.Value));
                 if (isCritical)
                 {
