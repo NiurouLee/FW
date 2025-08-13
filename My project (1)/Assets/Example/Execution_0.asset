@@ -15,7 +15,7 @@ MonoBehaviour:
   id: 0
   TargetInputType: 1
   ExecuteClipDataList:
-  - {fileID: 8960529829744520085}
+  - {fileID: 4256193344715999689}
   - {fileID: 4256193344715999689}
 --- !u!114 &4256193344715999689
 MonoBehaviour:
@@ -41,8 +41,8 @@ MonoBehaviour:
   CollisionExecuteData:
     ExecuteType: 0
     ActionData:
-      ActionEventType: 0
-      EffectApply: 0
+      ActionEventType: 1
+      EffectApply: 2
       NewExecutionId: 0
       Distance: 0
       TagType: 0
