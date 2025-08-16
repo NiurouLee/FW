@@ -1,10 +1,15 @@
 using NFramework.Core.Collections;
+using NFramework.Core.ObjectPool;
 
 namespace NFramework.Module.UI
 {
-    public class SubViewRecords : BaseRecords<View>
+    public class SubViewRecords : BaseRecords<View>, IFreeToPool
     {
         private View m_orderView;
+
+        public void FreeToPool()
+        {
+        }
 
         public void SetView(View inOrder)
         {

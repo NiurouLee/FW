@@ -1,4 +1,6 @@
 using System;
+using Nframework.Module.ObjectPoolModule;
+using Nframework.Module.TimerModule;
 
 namespace NFramework.Module.TimerModule
 {
@@ -7,21 +9,55 @@ namespace NFramework.Module.TimerModule
     /// </summary>
     public class TimerM : IFrameWorkModule
     {
-        public long NewOnceTimer(float time, Action action)
+        private HireachicalTimerWheel hireachicalTimerWheel;
+        public override void Awake()
         {
-            return 0;
+            base.Awake();
+            hireachicalTimerWheel = new();
         }
 
-        public void RemoveTimer(long timer)
+        public override void Update(float elapseSeconds, float realElapseSeconds)
         {
+            base.Update(elapseSeconds, realElapseSeconds);
+            this.hireachicalTimerWheel?.OnUpdate(realElapseSeconds);
         }
 
-        public void Update(float deltaTime)
+
+        public long NewOnceTimer(float inTime, Action inAction)
         {
+            return AddTimer(inTime, 1, inAction);
+        }
+
+        public long AddTimer(float inIntervalInSec, uint inRepateCount, Action inIntervalCallback, Action inStartCallback = null, Action inEndCallback = null)
+        {
+            if (inIntervalInSec <= 0 && inRepateCount == 1)
+            {
+                inStartCallback?.Invoke();
+                inIntervalCallback?.Invoke();
+                inEndCallback?.Invoke();
+                return 0;
+            }
+            ulong _intervalInMs = (ulong)(inIntervalInSec * 1000);
+            _intervalInMs = _intervalInMs > this.hireachicalTimerWheel.MaxInterval ? this.hireachicalTimerWheel.MaxInterval : _intervalInMs;
+            ulong _totalInMS = _intervalInMs * inRepateCount;
+            var _task = Framework.I.G<ObjectPoolM>().Alloc<TimerTask>();
+            _task.Init(_intervalInMs, _totalInMS, inStartCallback, inIntervalCallback, inEndCallback);
+            return this.hireachicalTimerWheel.AddTimerTask(_task);
+        }
+
+        public void RemoveTimer(long inTimerTaskID)
+        {
+            this.hireachicalTimerWheel?.RemoveTimerTask(inTimerTaskID);
         }
 
         internal void RestTimer(long statusLifeTimer)
         {
+        }
+
+        public override void Destroy()
+        {
+            base.Destroy();
+            this.hireachicalTimerWheel?.Clear();
         }
     }
 }

@@ -1,4 +1,5 @@
-using NFramework.Core.ObjectPool;
+
+using Nframework.Module.ObjectPoolModule;
 
 namespace NFramework.Module.UI
 {
@@ -11,7 +12,7 @@ namespace NFramework.Module.UI
             {
                 if (m_promiseRecords == null)
                 {
-                    m_promiseRecords = ObjectPool.Alloc<PromiseRecords>();
+                    m_promiseRecords = this.GetFrameworkModule<ObjectPoolM>().Alloc<PromiseRecords>();
                     m_promiseRecords.Awake();
                 }
                 return m_promiseRecords;

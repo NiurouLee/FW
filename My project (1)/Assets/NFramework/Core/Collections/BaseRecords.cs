@@ -18,7 +18,7 @@ namespace NFramework.Core.Collections
     /// 只记录
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class BaseRecords<T> : IRecords<T>
+    public abstract partial class BaseRecords<T> : IRecords<T>
     {
         public HashSet<T> Records { get; set; }
 
@@ -73,5 +73,6 @@ namespace NFramework.Core.Collections
                 this.Records = null;
             }
         }
+
     }
 }

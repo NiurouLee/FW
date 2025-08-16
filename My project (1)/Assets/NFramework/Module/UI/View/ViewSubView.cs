@@ -1,5 +1,5 @@
 using Proto.Promises;
-using NFramework.Core.ObjectPool;
+using Nframework.Module.ObjectPoolModule;
 
 namespace NFramework.Module.UI
 {
@@ -13,7 +13,7 @@ namespace NFramework.Module.UI
             {
                 if (m_viewRecords == null)
                 {
-                    m_viewRecords = ObjectPool.Alloc<SubViewRecords>();
+                    m_viewRecords = GetFrameworkModule<ObjectPoolM>().Alloc<SubViewRecords>();
                     m_viewRecords.Awake();
                     m_viewRecords.SetView(this);
                 }

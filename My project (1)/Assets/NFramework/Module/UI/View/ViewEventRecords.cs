@@ -1,5 +1,5 @@
-using NFramework.Core.ObjectPool;
 using NFramework.Module.EventModule;
+using Nframework.Module.ObjectPoolModule;
 
 namespace NFramework.Module.UI
 {
@@ -13,7 +13,7 @@ namespace NFramework.Module.UI
             {
                 if (m_viewEventRecords == null)
                 {
-                    m_viewEventRecords = ObjectPool.Alloc<EventRecords>();
+                    m_viewEventRecords = GetFrameworkModule<ObjectPoolM>().Alloc<EventRecords>();
                     m_viewEventRecords.Awake();
                     m_viewEventRecords.SetSchedule(Framework.Instance.GetModule<EventM>().D);
                 }
@@ -26,7 +26,7 @@ namespace NFramework.Module.UI
             if (m_viewEventRecords != null)
             {
                 m_viewEventRecords.Destroy();
-                ObjectPool.Free(m_viewEventRecords);
+                GetFrameworkModule<ObjectPoolM>().Free(m_viewEventRecords);
                 m_viewEventRecords = null;
             }
         }

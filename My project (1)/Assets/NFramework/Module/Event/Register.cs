@@ -1,4 +1,5 @@
 using System;
+using Nframework.Module.ObjectPoolModule;
 using NFramework.Core.ObjectPool;
 
 namespace NFramework.Module.EventModule
@@ -24,9 +25,12 @@ namespace NFramework.Module.EventModule
             this.EventSchedule = null;
             this.CallBack = null;
             this.EventType = null;
-            ObjectPool.Free(this);
         }
 
+        public T GerFrameworkModule<T>() where T : IFrameWorkModule
+        {
+            return Framework.I.G<T>();
+        }
 
 
         public bool Equals(BaseRegister other)
@@ -46,11 +50,17 @@ namespace NFramework.Module.EventModule
 
         public override void UnRegister()
         {
-            var inRegister = ObjectPool.Alloc<NormalRegister>();
+            var inRegister = this.GerFrameworkModule<ObjectPoolM>().Alloc<NormalRegister>();
             inRegister.EventType = this.EventType;
             inRegister.CallBack = this.CallBack;
             inRegister.EventSchedule = this.EventSchedule;
             this.EventSchedule.UnSubscribe(inRegister);
+        }
+
+        public override void FreeToPool()
+        {
+            base.FreeToPool();
+            GerFrameworkModule<ObjectPoolM>().Free(this);
         }
 
         public override bool Equals(object obj)
@@ -77,7 +87,7 @@ namespace NFramework.Module.EventModule
 
         public override void UnRegister()
         {
-            var inRegister = ObjectPool.Alloc<ConditionRegister>();
+            var inRegister = GerFrameworkModule<ObjectPoolM>().Alloc<ConditionRegister>();
             inRegister.EventType = this.EventType;
             inRegister.CallBack = this.CallBack;
             inRegister.EventSchedule = this.EventSchedule;
@@ -89,6 +99,7 @@ namespace NFramework.Module.EventModule
         {
             this.Condition = default;
             base.FreeToPool();
+            GerFrameworkModule<ObjectPoolM>().Free(this);
         }
 
         public override bool Equals(object obj)
@@ -113,7 +124,7 @@ namespace NFramework.Module.EventModule
 
         public override void UnRegister()
         {
-            var inRegister = ObjectPool.Alloc<ChannelRegister>();
+            var inRegister = GerFrameworkModule<ObjectPoolM>().Alloc<ChannelRegister>();
             inRegister.EventType = this.EventType;
             inRegister.CallBack = this.CallBack;
             inRegister.EventSchedule = this.EventSchedule;
@@ -125,6 +136,8 @@ namespace NFramework.Module.EventModule
         {
             this.Channel = default;
             base.FreeToPool();
+            GerFrameworkModule<ObjectPoolM>().Free(this);
+
         }
         public override bool Equals(object obj)
         {
