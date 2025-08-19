@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 using Proto.Promises;
-using NFramework.Module.ResModule;
-using System.Threading.Tasks;
 
 namespace NFramework.Module.UI
 {
@@ -100,8 +98,6 @@ namespace NFramework.Module.UI
 
             }
         }
-
-
         private bool CheckWindowReq(string inWindowID, out WindowRequest outWindowRequest)
         {
             if (this.WindowRequestDictionary.TryGetValue(inWindowID, out var request))

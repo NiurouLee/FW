@@ -2,7 +2,10 @@ using System;
 
 namespace NFramework.Module.UI
 {
-    public class Window : View
+    /// <summary>
+    /// Container 上一层，
+    /// </summary>
+    public class Window : Container
     {
         public void Close()
         {
@@ -10,13 +13,15 @@ namespace NFramework.Module.UI
         }
 
         private IUIFacadeProvider _selfFacadeProvider;
-        internal IUIFacadeProvider GetSelfFacadeProvider()
+        public IUIFacadeProvider GetSelfFacadeProvider()
         {
             if (_selfFacadeProvider == null)
             {
-                _selfFacadeProvider = new UIFacadeProviderAssetLoader(this.ResLoadRecords);
+                _selfFacadeProvider = new UIFacadeProviderWindow(this.ResLoadRecords);
             }
             return _selfFacadeProvider;
         }
+
+
     }
 }

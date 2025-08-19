@@ -29,6 +29,12 @@ namespace NFramework.Module.UI
             var type = typeof(T);
             return this.GetViewConfigByType(type);
         }
+
+        public ViewConfig GetViewConfig(View inView)
+        {
+            return this.GetViewConfigByType(inView.GetType());
+        }
+
         private ViewConfig GetViewConfigByType(System.Type inType)
         {
             if (this.type2ConfigIDDic.TryGetValue(inType, out var configName))

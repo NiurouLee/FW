@@ -7,7 +7,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using Unity.VisualScripting;
 using UnityEngine.UI;
-using NFramework.Utils;
 
 namespace NFramework.Module.UI
 {
@@ -36,6 +35,6 @@ namespace NFramework.Module.UI
         }
 
 
-        
+
     }
 }

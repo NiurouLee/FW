@@ -18,14 +18,9 @@ namespace NFramework.Module.UI
         public BitField32 Set;
 
         /// <summary>
-        /// ExclusionGroup
-        /// </summary>
-        public Byte ExclusionGroup;
-
-        /// <summary>
         /// Layer
         /// </summary>
         /// <returns></returns>
-        public Byte Layer;
+        public int Layer;
     }
 }

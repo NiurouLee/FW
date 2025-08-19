@@ -16,7 +16,7 @@ namespace Nframework.Module.TimerModule
         /// <value></value>
         public ulong RemainingWheelInMS { get; set; } = 0;
         /// <summary>
-        /// 总次数 0 => Loop
+        /// 总时长 0 => Loop
         /// </summary>
         private ulong totalInMS = 0;
         /// <summary>
@@ -60,6 +60,7 @@ namespace Nframework.Module.TimerModule
         public void OnTrigger()
         {
             this.onIntervalEvent?.Invoke();
+            //loop
             if (totalInMS == 0)
             {
                 this.RemainingWheelInMS = IntervalInMS;

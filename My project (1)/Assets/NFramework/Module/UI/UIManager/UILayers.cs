@@ -19,7 +19,7 @@ namespace NFramework.Module.UI
                 // TransformUtils.NormalizeRectTransform(trans);
                 // go.AddComponent<>
                 //todo: 适配 
-                UILayerServices services = new UILayerServices(_ilayer, go);
+                UILayerServices services = new UILayerServices(this, _ilayer, go);
                 this.layerServices.Add(_ilayer, services);
             }
         }

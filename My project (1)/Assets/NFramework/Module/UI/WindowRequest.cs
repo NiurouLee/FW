@@ -152,6 +152,10 @@ namespace NFramework.Module.UI
         {
             this.Deferred = deferred;
         }
+
+        internal void Cancel()
+        {
+        }
     }
 
     public class WindowRequest<I> : WindowRequest where I : class

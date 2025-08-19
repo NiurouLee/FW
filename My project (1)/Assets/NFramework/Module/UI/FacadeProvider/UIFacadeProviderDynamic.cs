@@ -6,11 +6,11 @@ namespace NFramework.Module.UI
     /// <summary>
     /// uiFacade 提供者
     /// </summary>
-    public class UIFacadeProviderAssetLoader : IUIFacadeProvider
+    public class UIFacadeProviderDynamic : IUIFacadeProvider
     {
         private IResLoader _resLoader;
 
-        public UIFacadeProviderAssetLoader(IResLoader inResLoader)
+        public UIFacadeProviderDynamic(IResLoader inResLoader)
         {
             _resLoader = inResLoader;
         }
@@ -42,6 +42,11 @@ namespace NFramework.Module.UI
 
         public void Free(UIFacade inUIFacade)
         {
+        }
+
+        public void Destroy()
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

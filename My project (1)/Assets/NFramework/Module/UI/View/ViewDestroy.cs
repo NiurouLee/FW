@@ -10,6 +10,7 @@ namespace NFramework.Module.UI
             DestroyPopEvent2Parent();
             DestroyPromise();
             DestroyFacade();
+            DestroyFacadeProvider();
         }
 
         protected virtual void OnDestroy()

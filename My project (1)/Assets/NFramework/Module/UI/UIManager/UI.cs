@@ -23,17 +23,30 @@ namespace NFramework.Module.UI
             return result.Promise;
         }
 
+        public ViewConfig GetViewConfig<T>(T inView) where T : View
+        {
+            return this.ConfigServices.GetViewConfig(inView);
+        }
 
         public ViewConfig GetViewConfig<T>() where T : View
         {
             return this.ConfigServices.GetViewConfig<T>();
         }
 
-        public ViewConfig GetViewConfig(string inName)
+        public ViewConfig GetViewConfig(string inID)
         {
-            return this.ConfigServices.GetViewConfig(inName);
+            return this.ConfigServices.GetViewConfig(inID);
         }
 
+        public string GetViewID<T>(T inView) where T : View
+        {
+            return this.ConfigServices.GetViewConfig(inView).ID;
+        }
+
+        public string GetViewID<T>() where T : View
+        {
+            return this.ConfigServices.GetViewConfig<T>().ID;
+        }
 
         public T CreateView<T>() where T : View, new()
         {

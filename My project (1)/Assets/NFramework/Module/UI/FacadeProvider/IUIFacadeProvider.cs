@@ -8,5 +8,6 @@ namespace NFramework.Module.UI
         public Promise<UIFacade> AllocAsync<T>() where T : View;
         public Promise<UIFacade> AllocAsync(string inViewID);
         public void Free(UIFacade inUIFacade);
+        public void Destroy();
     }
 }
