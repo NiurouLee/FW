@@ -8,14 +8,7 @@ namespace NFramework.Module.UIModule
     {
         public string ID;
         public string AssetID;
-
-        /// <summary>
-        /// 31位 0 view 1 window
-        /// 30位 
-        ///
-        /// ExclusionGroup
-        /// </summary>
-        public BitField32 Set;
+        private BitField32 Set;
 
         /// <summary>
         /// Layer
@@ -23,5 +16,16 @@ namespace NFramework.Module.UIModule
         /// <returns></returns>
         public UIlayer Layer => (UIlayer)this.Set.Low;
         public bool IsWindow => this.Set.GetBit(31);
+
+        public void SetLayer(UIlayer inLayer)
+        {
+            this.Set.Low = (ushort)inLayer;
+        }
+        public void SetWindow(bool inWindow)
+        {
+            this.Set.SetBit(31, inWindow);
+        }
+
+
     }
 }
