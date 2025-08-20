@@ -1,4 +1,4 @@
-namespace NFramework.Module.UI
+namespace NFramework.Module.UIModule
 {
     public partial class UIM
     {

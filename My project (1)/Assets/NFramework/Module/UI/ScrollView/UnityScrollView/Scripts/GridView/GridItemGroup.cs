@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NFramework.Module.UI.ScrollView
+namespace NFramework.Module.UIModule.ScrollView
 {
     //if GridFixedType is GridFixedType.ColumnCountFixed, then the GridItemGroup is one row of the gridview
     //if GridFixedType is GridFixedType.RowCountFixed, then the GridItemGroup is one column of the gridview

@@ -1,6 +1,6 @@
 using System;
 
-namespace NFramework.Module.UI
+namespace NFramework.Module.UIModule
 {
     /// <summary>
     /// Container 上一层，
@@ -21,7 +21,5 @@ namespace NFramework.Module.UI
             }
             return _selfFacadeProvider;
         }
-
-
     }
 }

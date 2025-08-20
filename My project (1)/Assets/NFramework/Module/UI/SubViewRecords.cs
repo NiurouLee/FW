@@ -1,7 +1,7 @@
 using NFramework.Core.Collections;
 using NFramework.Core.ObjectPool;
 
-namespace NFramework.Module.UI
+namespace NFramework.Module.UIModule
 {
     public class SubViewRecords : BaseRecords<View>, IFreeToPool
     {

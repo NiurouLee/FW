@@ -1,9 +1,9 @@
 
 using System.Diagnostics;
 using Google.FlatBuffers;
-using NFramework.Module.Log;
+using NFramework.Module.LogModule;
 
-namespace NFramework.Module.Config
+namespace NFramework.Module.ConfigModule
 {
     public class ConfigM : IFrameWorkModule
     {

@@ -1,14 +1,23 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace NFramework
 {
     public class EngineLoop : MonoBehaviour
     {
+        public void Awake()
+        {
+            if (Instance != null)
+            {
+                throw new Exception("EngineLoop already created");
+            }
+            Instance = this;
+            this.StartCoroutine(endOfFrame());
+        }
         public static EngineLoop Instance { get; private set; }
-
         private WaitForEndOfFrame w = new WaitForEndOfFrame();
         private List<Action<float>> OnLateUpdateList = new List<Action<float>>();
         private List<Action<float>> OnUpdateList = new List<Action<float>>();
@@ -40,12 +49,6 @@ namespace NFramework
 
         public void AddOnApplicationPauseEvent(Action<bool> value) { OnApplicationPauseEventList.Add(value); }
         public void RemoveOnApplicationPauseEvent(Action<bool> value) { OnApplicationPauseEventList.Remove(value); }
-
-
-        private void Awake()
-        {
-            this.StartCoroutine(endOfFrame());
-        }
 
         private IEnumerator endOfFrame()
         {

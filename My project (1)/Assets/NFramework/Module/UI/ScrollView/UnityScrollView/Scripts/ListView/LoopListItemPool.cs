@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using NFramework.Module.UI;
-using View = NFramework.Module.UI.View;
+using NFramework.Module.UIModule;
+using View = NFramework.Module.UIModule.View;
 
-namespace NFramework.Module.UI.ScrollView
+namespace NFramework.Module.UIModule.ScrollView
 {
     public class LoopViewItemPool
     {
@@ -13,20 +13,20 @@ namespace NFramework.Module.UI.ScrollView
         int mInitCreateCount = 1;
         float mPadding = 0;
         float mStartPosOffset = 0;
-        List<Module.UI.View> mTmpPooledItemList = new List<Module.UI.View>();
-        List<Module.UI.View> mPooledItemList = new List<Module.UI.View>();
+        List<Module.UIModule.View> mTmpPooledItemList = new List<Module.UIModule.View>();
+        List<Module.UIModule.View> mPooledItemList = new List<Module.UIModule.View>();
         static int mCurItemIdCount = 0;
         RectTransform mItemParent = null;
-        Func<GameObject, Module.UI.View> mCreateItemFunc;
-        Module.UI.View mParentView;
+        Func<GameObject, Module.UIModule.View> mCreateItemFunc;
+        Module.UIModule.View mParentView;
         public float Padding { get { return mPadding; } }
         public float StartPosOffset { get { return mStartPosOffset; } }
-        public Module.UI.View ParentView { get { return mParentView; } }
+        public Module.UIModule.View ParentView { get { return mParentView; } }
         public LoopViewItemPool()
         {
 
         }
-        public void Init(GameObject prefabObj, float padding, float startPosOffset, int createCount, RectTransform parent, Func<GameObject, Module.UI.View> createItemFunc, Module.UI.View parentView)
+        public void Init(GameObject prefabObj, float padding, float startPosOffset, int createCount, RectTransform parent, Func<GameObject, Module.UIModule.View> createItemFunc, Module.UIModule.View parentView)
         {
             mPrefabObj = prefabObj;
             mPrefabName = mPrefabObj.name;
@@ -38,14 +38,14 @@ namespace NFramework.Module.UI.ScrollView
             mPrefabObj.SetActive(false);
             for (int i = 0; i < mInitCreateCount; ++i)
             {
-                Module.UI.View tViewItem = CreateItem();
+                Module.UIModule.View tViewItem = CreateItem();
                 RecycleItemReal(tViewItem);
             }
         }
-        public Module.UI.View GetItem(int itemIndexForSearch)
+        public Module.UIModule.View GetItem(int itemIndexForSearch)
         {
             mCurItemIdCount++;
-            Module.UI.View tItem = null;
+            Module.UIModule.View tItem = null;
             if (mTmpPooledItemList.Count > 0)
             {
                 var count = mTmpPooledItemList.Count;
@@ -79,7 +79,7 @@ namespace NFramework.Module.UI.ScrollView
             }
             mPooledItemList.Clear();
         }
-        public Module.UI.View CreateItem()
+        public Module.UIModule.View CreateItem()
         {
 
             GameObject go = GameObject.Instantiate<GameObject>(mPrefabObj, Vector3.zero, Quaternion.identity, mItemParent);
@@ -88,15 +88,15 @@ namespace NFramework.Module.UI.ScrollView
             rf.localScale = Vector3.one;
             rf.anchoredPosition3D = Vector3.zero;
             rf.localEulerAngles = Vector3.zero;
-            Module.UI.View tViewItem = mCreateItemFunc(go);
+            Module.UIModule.View tViewItem = mCreateItemFunc(go);
             return tViewItem;
         }
-        public void RecycleItemReal(Module.UI.View item)
+        public void RecycleItemReal(Module.UIModule.View item)
         {
             item.Facade.NotVisible();
             mPooledItemList.Add(item);
         }
-        public void RecycleItem(Module.UI.View item)
+        public void RecycleItem(Module.UIModule.View item)
         {
             mTmpPooledItemList.Add(item);
         }

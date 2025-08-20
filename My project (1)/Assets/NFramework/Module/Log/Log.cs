@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Diagnostics;
 
-namespace NFramework.Module.Log
+namespace NFramework.Module.LogModule
 {
     public class LoggerM : IFrameWorkModule
     {

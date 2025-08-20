@@ -1,9 +1,9 @@
 ﻿using System;
 using NFramework.Module.ResModule;
 using Proto.Promises;
-using NFramework.Module.Log;
+using NFramework.Module.LogModule;
 
-namespace NFramework.Module.UI
+namespace NFramework.Module.UIModule
 {
     /// <summary>
     ///  UIRequest阶段,当前到那个阶段了

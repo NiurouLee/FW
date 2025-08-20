@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace NFramework.Module.UI.ScrollView
+namespace NFramework.Module.UIModule.ScrollView
 {
 
     public class LoopListItem : MonoBehaviour

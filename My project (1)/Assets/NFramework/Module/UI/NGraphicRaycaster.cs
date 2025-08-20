@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using NFramework;
-using NFramework.Module.UI;
+using NFramework.Module.UIModule;
 
 public class NGraphicRaycaster : GraphicRaycaster
 {

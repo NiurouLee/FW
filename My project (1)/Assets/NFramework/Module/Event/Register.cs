@@ -1,5 +1,5 @@
 using System;
-using Nframework.Module.ObjectPoolModule;
+using NFramework.Module.ObjectPoolModule;
 using NFramework.Core.ObjectPool;
 
 namespace NFramework.Module.EventModule

@@ -1,4 +1,4 @@
-namespace NFramework.Module.UI
+namespace NFramework.Module.UIModule
 {
     public interface IViewSetData<T> where T : class
     {

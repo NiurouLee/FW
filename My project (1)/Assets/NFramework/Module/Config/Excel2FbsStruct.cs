@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 
-namespace NFramework.Module.Config
+namespace NFramework.Module.ConfigModule
 {
     /// <summary>
     /// 生成一个FBS struct 结构

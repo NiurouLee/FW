@@ -1,6 +1,6 @@
 
 
-namespace NFramework.Module.UI
+namespace NFramework.Module.UIModule
 {
     public enum FacadeProviderEnum
     {

@@ -1,5 +1,5 @@
 
-namespace NFramework.Module.UI
+namespace NFramework.Module.UIModule
 {
     ///  <summary>
     /// View 上一层， 比view多了loadAsset的能力

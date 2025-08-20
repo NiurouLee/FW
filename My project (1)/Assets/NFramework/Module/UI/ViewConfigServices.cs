@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace NFramework.Module.UI
+namespace NFramework.Module.UIModule
 {
     /// <summary>
     /// UI框架View配置提供服务 ,组合优于继承，不把所有的东西塞到UIManager中

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-namespace NFramework.Module.UI.ScrollView
+namespace NFramework.Module.UIModule.ScrollView
 {
 
     [System.Serializable]
@@ -95,27 +95,27 @@ namespace NFramework.Module.UI.ScrollView
         /// <summary>
         /// 2.获取新Item
         /// </summary>
-        public System.Func<int, Module.UI.View> mOnGetNewItemByDataIndex;
+        public System.Func<int, Module.UIModule.View> mOnGetNewItemByDataIndex;
         /// <summary>
         /// 3.获取Item
         /// </summary>
-        public System.Func<int, Module.UI.View> mOnGetItemByIndex;
+        public System.Func<int, Module.UIModule.View> mOnGetItemByIndex;
         /// <summary>
         /// 4.获取Item索引
         /// </summary>
-        public System.Func<Module.UI.View, int> mOnGetItemIndexByView;
+        public System.Func<Module.UIModule.View, int> mOnGetItemIndexByView;
         /// <summary>
         /// 5.回收Item temp
         /// </summary>
-        public System.Action<Module.UI.View> mOnRecycleItemTemp;
+        public System.Action<Module.UIModule.View> mOnRecycleItemTemp;
         /// <summary>
         /// 6.回收Item Real
         /// </summary>
-        public System.Action<Module.UI.View> mOnRecycleItemReal;
+        public System.Action<Module.UIModule.View> mOnRecycleItemReal;
         /// <summary>
         /// 7.回收Item Immediately
         /// </summary>
-        public System.Action<Module.UI.View> mOnRecycleItemImmediately;
+        public System.Action<Module.UIModule.View> mOnRecycleItemImmediately;
 
         /// <summary>
         /// 8.清空所有临时回收的Item
@@ -124,59 +124,59 @@ namespace NFramework.Module.UI.ScrollView
         /// <summary>
         /// 9.获取Item起始位置偏移
         /// </summary>
-        public System.Func<Module.UI.View, float> mOnGetItemStartPosOffset;
+        public System.Func<Module.UIModule.View, float> mOnGetItemStartPosOffset;
         /// <summary>
         /// 10.获取Item创建检查帧数
         /// </summary>
-        public System.Func<Module.UI.View, float> mOnGetItemCreatedCheckFrameCount;
+        public System.Func<Module.UIModule.View, float> mOnGetItemCreatedCheckFrameCount;
         /// <summary>
         /// 11.
         /// </summary>
-        public System.Action<Module.UI.View, float> mOnSetItemCreatedCheckFrameCount;
+        public System.Action<Module.UIModule.View, float> mOnSetItemCreatedCheckFrameCount;
         /// <summary>
         /// 12.获取Item大小
         /// </summary>
-        public System.Func<Module.UI.View, float> mOnGetItemSize;
+        public System.Func<Module.UIModule.View, float> mOnGetItemSize;
         /// <summary>
         /// 13.获取Item内边距
         /// </summary>
-        public System.Func<Module.UI.View, float> mOnGetItemPadding;
+        public System.Func<Module.UIModule.View, float> mOnGetItemPadding;
         /// <summary>
         /// 14.获取Item大小（包含内边距）
         /// </summary>
-        public System.Func<Module.UI.View, float> mOnGetItemSizeWithPadding;
+        public System.Func<Module.UIModule.View, float> mOnGetItemSizeWithPadding;
         /// <summary>
         /// 15.获取Item与视口中心距离
         /// </summary>
-        public System.Func<Module.UI.View, float> mOnGetItemTopY;
+        public System.Func<Module.UIModule.View, float> mOnGetItemTopY;
         /// <summary>
         /// 16.获取Item底部Y
         /// </summary>
-        public System.Func<Module.UI.View, float> mOnGetItemBottomY;
+        public System.Func<Module.UIModule.View, float> mOnGetItemBottomY;
         /// <summary>
         /// 17.获取Item左边X
         /// </summary>
-        public System.Func<Module.UI.View, float> mOnGetItemRightX;
+        public System.Func<Module.UIModule.View, float> mOnGetItemRightX;
         /// <summary>
         /// 18.获取Item左边X
         /// </summary>
-        public System.Func<Module.UI.View, float> mOnGetItemLeftX;
+        public System.Func<Module.UIModule.View, float> mOnGetItemLeftX;
 
         /// <summary>
         /// 19.获取Item与视口中心距离
         /// </summary>
-        public System.Func<Module.UI.View, float> mOnGetItemDistanceWithViewPortSnapCenter;
+        public System.Func<Module.UIModule.View, float> mOnGetItemDistanceWithViewPortSnapCenter;
 
         /// <summary>
         /// 20.存储Item与视口中心距离
         /// </summary>
-        public System.Action<Module.UI.View, float> mOnSetItemDistanceWithViewPortSnapCenter;
+        public System.Action<Module.UIModule.View, float> mOnSetItemDistanceWithViewPortSnapCenter;
 
 
         //------------  end  ----------------------------
         public System.Action<LoopList> OnListViewStart = null;
-        public System.Action<LoopList, Module.UI.View> mOnSnapItemFinished = null;
-        public System.Action<LoopList, Module.UI.View> mOnSnapNearestChanged = null;
+        public System.Action<LoopList, Module.UIModule.View> mOnSnapItemFinished = null;
+        public System.Action<LoopList, Module.UIModule.View> mOnSnapNearestChanged = null;
         public System.Action mOnBeginDragAction = null;
         public System.Action mOnDragingAction = null;
         public System.Action mOnEndDragAction = null;

@@ -1,7 +1,7 @@
 using Proto.Promises;
 using NFramework.Module.ResModule;
 
-namespace NFramework.Module.UI
+namespace NFramework.Module.UIModule
 {
     /// <summary>
     /// uiFacade 提供者

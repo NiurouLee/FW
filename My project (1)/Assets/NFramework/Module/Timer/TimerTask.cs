@@ -1,7 +1,7 @@
 using System;
 using NFramework.Core.ObjectPool;
 
-namespace Nframework.Module.TimerModule
+namespace NFramework.Module.TimerModule
 {
     public class TimerTask : IFreeToPool
     {

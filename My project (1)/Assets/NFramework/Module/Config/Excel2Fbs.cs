@@ -6,7 +6,7 @@ using System;
 using System.Threading.Tasks;
 using UnityEditor;
 
-namespace NFramework.Module.Config
+namespace NFramework.Module.ConfigModule
 {
 
     /// <summary>

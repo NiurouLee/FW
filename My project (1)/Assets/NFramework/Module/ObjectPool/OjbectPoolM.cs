@@ -1,8 +1,7 @@
 using System.Collections.Generic;
 using NFramework.Core.ObjectPool;
-using NFramework;
 
-namespace Nframework.Module.ObjectPoolModule
+namespace NFramework.Module.ObjectPoolModule
 {
     public class ObjectPoolM : IFrameWorkModule
     {

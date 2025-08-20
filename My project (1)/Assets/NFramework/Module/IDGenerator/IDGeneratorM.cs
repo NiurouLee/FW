@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using NFramework.Module.Log;
+using NFramework.Module.LogModule;
 using NFramework.Module.TimeInfoModule;
 
-namespace NFramework.Module.IDGenerator
+namespace NFramework.Module.IDGeneratorModule
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct IdStruct

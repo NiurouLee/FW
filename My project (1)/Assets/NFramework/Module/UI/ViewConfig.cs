@@ -1,7 +1,7 @@
 using System;
 using NFramework.Core.Collections;
 
-namespace NFramework.Module.UI
+namespace NFramework.Module.UIModule
 {
     [Serializable]
     public class ViewConfig
@@ -21,6 +21,7 @@ namespace NFramework.Module.UI
         /// Layer
         /// </summary>
         /// <returns></returns>
-        public int Layer;
+        public UIlayer Layer => (UIlayer)this.Set.Low;
+        public bool IsWindow => this.Set.GetBit(31);
     }
 }

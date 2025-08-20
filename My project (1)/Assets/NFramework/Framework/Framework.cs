@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using NFramework.Module.EngineWrapper;
+using Unity.VisualScripting;
 
 namespace NFramework
 {
@@ -7,6 +9,15 @@ namespace NFramework
     {
         public static Framework I => Instance;
         public static Framework Instance { get; private set; }
+
+        public static void CreateInstance()
+        {
+            if (Instance != null)
+            {
+                throw new Exception("Framework already created");
+            }
+            Instance = new Framework();
+        }
 
         /// <summary>
         /// 按类型存储
@@ -19,8 +30,11 @@ namespace NFramework
 
         public void Awake()
         {
-            Instance = this;
+            this.m_modulesDict = new Dictionary<Type, IFrameWorkModule>();
+            this.m_modulesList = new List<IFrameWorkModule>();
         }
+
+
         public T G<T>() where T : IFrameWorkModule
         {
             return GetModule<T>();
@@ -85,6 +99,15 @@ namespace NFramework
             m_modulesList.Clear();
         }
 
+        internal void RegisterMainLoop()
+        {
+            this.GetModule<EngineWrapperM>().AddUpdate(this._EngineUpdate);
+        }
+
+        private void _EngineUpdate(float obj)
+        {
+            this.Update(obj, obj);
+        }
     }
 
 }

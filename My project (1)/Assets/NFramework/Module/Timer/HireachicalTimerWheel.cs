@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using Nframework.Module.ObjectPoolModule;
-using Nframework.Module.TimerModule;
+using NFramework.Module.ObjectPoolModule;
+using NFramework.Module.TimerModule;
 
 namespace NFramework.Module.TimerModule
 {

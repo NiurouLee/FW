@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using NFramework.UI;
 using UnityEngine;
 
-namespace NFramework.Module.UI
+namespace NFramework.Module.UIModule
 {
     public class UILayerServices
     {

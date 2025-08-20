@@ -6,7 +6,7 @@ using UnityEditor;
 using UnityEditorInternal;
 
 
-namespace NFramework.Module.UI.ScrollView
+namespace NFramework.Module.UIModule.ScrollView
 {
 
     [CustomEditor(typeof(LoopList))]

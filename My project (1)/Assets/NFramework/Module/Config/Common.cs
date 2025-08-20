@@ -1,7 +1,7 @@
 
 using System.Collections.Generic;
 
-namespace NFramework.Module.Config
+namespace NFramework.Module.ConfigModule
 {
     /// <summary>
     /// Excel 表头,前四行

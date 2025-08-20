@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace NFramework.Module.Config
+namespace NFramework.Module.ConfigModule
 {
     public class FbsStruct
     {

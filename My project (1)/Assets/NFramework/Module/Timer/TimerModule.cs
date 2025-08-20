@@ -1,6 +1,5 @@
 using System;
-using Nframework.Module.ObjectPoolModule;
-using Nframework.Module.TimerModule;
+using NFramework.Module.ObjectPoolModule;
 
 namespace NFramework.Module.TimerModule
 {

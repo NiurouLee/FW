@@ -1,6 +1,6 @@
 using NFramework.Core.ILiveing;
 
-namespace NFramework.Module.UI
+namespace NFramework.Module.UIModule
 {
     public partial class View : IAwakeSystem, IDestroySystem
     {

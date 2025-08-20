@@ -2,8 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Nframework.Module.ObjectPoolModule;
-using Nframework.Module.TimerModule;
+using NFramework.Module.ObjectPoolModule;
+using NFramework.Module.TimerModule;
 
 namespace NFramework.Module.TimerModule
 {

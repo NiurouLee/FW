@@ -1,4 +1,4 @@
-using NFramework.Module.UI;
+using NFramework.Module.UIModule;
 
 [View("DemoWindow")]
 public class DemoWindow : Window, IViewSetData<DemoWindowData>

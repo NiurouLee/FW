@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace NFramework.Module.UI
+namespace NFramework.Module.UIModule
 {
 
     public partial class UIM
@@ -12,15 +12,13 @@ namespace NFramework.Module.UI
         {
             foreach (var item in System.Enum.GetValues(typeof(UIlayer)))
             {
-                UIlayer _ilayer = (UIlayer)item;
-                var go = new GameObject(item.ToString());
-                var trans = go.AddComponent<RectTransform>();
-                trans.SetParent(uiCanvasTrf, false);
-                // TransformUtils.NormalizeRectTransform(trans);
-                // go.AddComponent<>
-                //todo: 适配 
-                UILayerServices services = new UILayerServices(this, _ilayer, go);
-                this.layerServices.Add(_ilayer, services);
+                UIlayer _layerEnum = (UIlayer)item;
+                var _go = new GameObject(item.ToString());
+                var _trans = _go.AddComponent<RectTransform>();
+                _trans.sizeDelta = new Vector2(0, 0);
+                _trans.SetParent(inCanvas.transform, false);
+                UILayerServices _services = new UILayerServices(this, _layerEnum, _go);
+                this.layerServices.Add(_layerEnum, _services);
             }
         }
 
@@ -30,7 +28,6 @@ namespace NFramework.Module.UI
             var layerServices = this.layerServices[(UIlayer)layer];
             var window = inWindow;
             window.Facade.transform.SetParent(layerServices.Go.transform, false);
-
         }
     }
 }

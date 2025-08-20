@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using NFramework.Core.Collections;
 
-namespace NFramework.Module.UI
+namespace NFramework.Module.UIModule
 {
     public partial class View
     {

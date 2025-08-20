@@ -1,7 +1,7 @@
 using NFramework.Module.EventModule;
-using Nframework.Module.ObjectPoolModule;
+using NFramework.Module.ObjectPoolModule;
 
-namespace NFramework.Module.UI
+namespace NFramework.Module.UIModule
 {
     public partial class View
     {

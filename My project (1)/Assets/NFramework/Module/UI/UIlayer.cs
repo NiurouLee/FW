@@ -1,6 +1,6 @@
 using System;
 
-namespace NFramework.Module.UI
+namespace NFramework.Module.UIModule
 {
     [Flags]
     public enum UIlayer : Byte

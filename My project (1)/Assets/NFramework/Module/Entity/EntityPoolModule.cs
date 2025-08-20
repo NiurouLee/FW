@@ -4,7 +4,6 @@ namespace NFramework.Module.EntityModule
 {
     public class EntityPoolM : IFrameWorkModule
     {
-
         public T Fetch<T>() where T : Entity, new()
         {
             return new T();

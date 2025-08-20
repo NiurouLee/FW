@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using NFramework.Core.Collections;
 using NFramework.Core.ILiveing;
-using NFramework.Module.Log;
-using NFramework.Module.IDGenerator;
+using NFramework.Module.LogModule;
+using NFramework.Module.IDGeneratorModule;
 
 
 namespace NFramework.Module.EntityModule

@@ -1,31 +1,31 @@
 using System;
 using System.Collections.Generic;
-using NFramework.Module.Log;
+using NFramework.Module.LogModule;
 using NFramework.Core.Collections;
 using UnityEngine;
 
-namespace NFramework.Module.UI.ScrollView
+namespace NFramework.Module.UIModule.ScrollView
 {
-    public class ScrollListSwift<D, V> where V : Module.UI.View, IViewSetData<D> where D : class
+    public class ScrollListSwift<D, V> where V : Module.UIModule.View, IViewSetData<D> where D : class
     {
         private IReadOnlyList<D> _dataList;
         private Func<D, String> _dataToPrefabNameFunc;
         private Func<D, V> _dataToViewFunc;
         private LoopList _loopListView;
-        private Module.UI.View _container;
+        private Module.UIModule.View _container;
         private IUIFacadeProvider _provider;
-        private Dictionary<Module.UI.View, string> _viewToPrefabNameDict;
-        private Dictionary<Module.UI.View, int> _viewToIndexDict;
-        private Dictionary<int, Module.UI.View> _indexToViewDict;
-        private Dictionary<Module.UI.View, float> _viewToCreatedCheckFrameCountDict;
-        private Dictionary<Module.UI.View, float> _viewToDistanceWithViewPortSnapCenterDict;
+        private Dictionary<Module.UIModule.View, string> _viewToPrefabNameDict;
+        private Dictionary<Module.UIModule.View, int> _viewToIndexDict;
+        private Dictionary<int, Module.UIModule.View> _indexToViewDict;
+        private Dictionary<Module.UIModule.View, float> _viewToCreatedCheckFrameCountDict;
+        private Dictionary<Module.UIModule.View, float> _viewToDistanceWithViewPortSnapCenterDict;
 
-        public ScrollListSwift(Module.UI.View container, LoopList loopListView)
+        public ScrollListSwift(Module.UIModule.View container, LoopList loopListView)
         {
-            _viewToPrefabNameDict = DictionaryPool.Alloc<Module.UI.View, string>();
-            _viewToIndexDict = DictionaryPool.Alloc<Module.UI.View, int>();
-            _indexToViewDict = DictionaryPool.Alloc<int, Module.UI.View>();
-            _viewToDistanceWithViewPortSnapCenterDict = DictionaryPool.Alloc<Module.UI.View, float>();
+            _viewToPrefabNameDict = DictionaryPool.Alloc<Module.UIModule.View, string>();
+            _viewToIndexDict = DictionaryPool.Alloc<Module.UIModule.View, int>();
+            _indexToViewDict = DictionaryPool.Alloc<int, Module.UIModule.View>();
+            _viewToDistanceWithViewPortSnapCenterDict = DictionaryPool.Alloc<Module.UIModule.View, float>();
 
             _container = container;
             _loopListView = loopListView;
@@ -126,14 +126,14 @@ namespace NFramework.Module.UI.ScrollView
             }
         }
 
-        private Module.UI.View CreateItem(GameObject go)
+        private Module.UIModule.View CreateItem(GameObject go)
         {
             return null;
         }
 
 
 
-        private Module.UI.View GetNewItemByDataIndex(int index)
+        private Module.UIModule.View GetNewItemByDataIndex(int index)
         {
             var data = _dataList[index];
             //todo: 这里不能每次new
@@ -178,7 +178,7 @@ namespace NFramework.Module.UI.ScrollView
 
             return outView;
         }
-        private Module.UI.View GetItemByIndex(int arg)
+        private Module.UIModule.View GetItemByIndex(int arg)
         {
             if (_indexToViewDict.TryGetValue(arg, out var view))
             {
@@ -186,7 +186,7 @@ namespace NFramework.Module.UI.ScrollView
             }
             return null;
         }
-        private int GetItemIndexByView(Module.UI.View view)
+        private int GetItemIndexByView(Module.UIModule.View view)
         {
             if (_viewToIndexDict.TryGetValue(view, out var index))
             {
@@ -195,7 +195,7 @@ namespace NFramework.Module.UI.ScrollView
             return -1;
         }
 
-        public virtual float GetItemSize(Module.UI.View inView)
+        public virtual float GetItemSize(Module.UIModule.View inView)
         {
             if (_loopListView.IsVertList)
             {
@@ -206,7 +206,7 @@ namespace NFramework.Module.UI.ScrollView
                 return inView.RectTransform.rect.width;
             }
         }
-        private void RecycleItemTemp(Module.UI.View view)
+        private void RecycleItemTemp(Module.UIModule.View view)
         {
             if (view == null)
             {
@@ -227,10 +227,10 @@ namespace NFramework.Module.UI.ScrollView
             pool.RecycleItem(view);
         }
 
-        private void RecycleItemReal(Module.UI.View view)
+        private void RecycleItemReal(Module.UIModule.View view)
         {
         }
-        private void RecycleItemImmediately(Module.UI.View view)
+        private void RecycleItemImmediately(Module.UIModule.View view)
         {
             var prefabName = _viewToPrefabNameDict[view];
             if (string.IsNullOrEmpty(prefabName))
@@ -252,42 +252,42 @@ namespace NFramework.Module.UI.ScrollView
                 mItemPoolList[i].ClearTmpRecycledItem();
             }
         }
-        private float GetItemStartPosOffset(Module.UI.View view)
+        private float GetItemStartPosOffset(Module.UIModule.View view)
         {
             return 0;
         }
 
-        private float GetItemCreatedCheckFrameCount(Module.UI.View view)
+        private float GetItemCreatedCheckFrameCount(Module.UIModule.View view)
         {
             return _viewToCreatedCheckFrameCountDict[view];
         }
 
-        private void SetItemCreatedCheckFrameCount(Module.UI.View view, float createdCheckFrameCount)
+        private void SetItemCreatedCheckFrameCount(Module.UIModule.View view, float createdCheckFrameCount)
         {
             _viewToCreatedCheckFrameCountDict[view] = createdCheckFrameCount;
         }
 
-        private float GetItemPadding(Module.UI.View view)
+        private float GetItemPadding(Module.UIModule.View view)
         {
             return 0;
 
         }
 
-        private float GetItemSizeWithPadding(Module.UI.View view)
+        private float GetItemSizeWithPadding(Module.UIModule.View view)
         {
             return GetItemSize(view) + GetItemPadding(view);
         }
 
-        private float GetItemDistanceWithViewPortSnapCenter(Module.UI.View view)
+        private float GetItemDistanceWithViewPortSnapCenter(Module.UIModule.View view)
         {
             return _viewToDistanceWithViewPortSnapCenterDict[view];
         }
 
-        private void SetItemDistanceWithViewPortSnapCenter(Module.UI.View view, float arg2)
+        private void SetItemDistanceWithViewPortSnapCenter(Module.UIModule.View view, float arg2)
         {
             _viewToDistanceWithViewPortSnapCenterDict[view] = arg2;
         }
-        private float GetItemTopY(Module.UI.View view)
+        private float GetItemTopY(Module.UIModule.View view)
         {
             ListItemArrangeType arrageType = _loopListView.ArrangeType;
             if (arrageType == ListItemArrangeType.TopToBottom)
@@ -301,7 +301,7 @@ namespace NFramework.Module.UI.ScrollView
             return 0;
         }
 
-        private float GetItemBottomY(Module.UI.View view)
+        private float GetItemBottomY(Module.UIModule.View view)
         {
             ListItemArrangeType arrageType = _loopListView.ArrangeType;
             if (arrageType == ListItemArrangeType.TopToBottom)
@@ -315,7 +315,7 @@ namespace NFramework.Module.UI.ScrollView
             return 0;
         }
 
-        private float GetItemLeftX(Module.UI.View view)
+        private float GetItemLeftX(Module.UIModule.View view)
         {
             ListItemArrangeType arrageType = _loopListView.ArrangeType;
             if (arrageType == ListItemArrangeType.LeftToRight)
@@ -329,7 +329,7 @@ namespace NFramework.Module.UI.ScrollView
             return 0;
         }
 
-        private float GetItemRightX(Module.UI.View view)
+        private float GetItemRightX(Module.UIModule.View view)
         {
             ListItemArrangeType arrageType = _loopListView.ArrangeType;
             if (arrageType == ListItemArrangeType.LeftToRight)

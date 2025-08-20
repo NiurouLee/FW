@@ -1,7 +1,7 @@
-using NFramework.Module.Log;
+using NFramework.Module.LogModule;
 using Unity.VisualScripting;
 
-namespace NFramework.Module.UI
+namespace NFramework.Module.UIModule
 {
     public partial class UIM
     {
@@ -31,7 +31,7 @@ namespace NFramework.Module.UI
         {
             var cacheWindow = inWindow;
             var cacheFacade = inWindow.Facade;
-            
+
             inWindow.Hide();
             // inWindow.Destroy();
             //入池

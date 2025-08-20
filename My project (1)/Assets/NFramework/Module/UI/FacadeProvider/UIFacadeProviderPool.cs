@@ -1,7 +1,7 @@
 
 using Proto.Promises;
 
-namespace NFramework.Module.UI
+namespace NFramework.Module.UIModule
 {
     /// <summary>
     /// 带池的provider
