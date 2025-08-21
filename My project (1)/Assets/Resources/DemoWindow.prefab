@@ -80,7 +80,7 @@ MonoBehaviour:
   ID: exchange.content
   Elements:
   - Name: Element_0
-    Component: {fileID: 7312938622087283373}
+    Component: {fileID: 2587455425537948486}
     ActiveDefault: 0
 --- !u!1 &2104724411446943283
 GameObject:
