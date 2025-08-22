@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using NFramework.Module.Config.DataPipeline.Core;
 using UnityEngine;
 
 namespace NFramework.Module.Config.DataPipeline.Processors
@@ -158,7 +157,7 @@ namespace NFramework.Module.Config.DataPipeline.Processors
                 // 添加一些默认的基础类型
                 var defaultTypes = new[] { "character", "skill", "item", "monster", "quest", "npc" };
                 Debug.Log($"添加默认配置类型: {string.Join(", ", defaultTypes)}");
-                
+
                 foreach (var type in defaultTypes)
                 {
                     _validConfigTypes.Add(type);

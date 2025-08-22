@@ -2,6 +2,7 @@ using System.IO;
 using System.Text;
 using UnityEngine;
 using UnityEditor;
+using NFramework.Module.Config.DataPipeline;
 
 namespace NFramework.Module.Config.DataPipeline.Examples
 {

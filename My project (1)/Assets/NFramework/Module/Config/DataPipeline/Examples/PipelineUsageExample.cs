@@ -1,7 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
-using NFramework.Module.Config.DataPipeline.Core;
+using NFramework.Module.Config.DataPipeline;
 using UnityEngine;
 
 namespace NFramework.Module.Config.DataPipeline.Examples
@@ -33,23 +34,13 @@ namespace NFramework.Module.Config.DataPipeline.Examples
                 };
 
                 // 3. 执行管道
-                var result = pipeline.Execute(input);
+                var result = pipeline.Execute(new List<PipelineInput> { input });
 
                 // 4. 处理结果
                 if (result.Success)
                 {
                     Debug.Log($"管道执行成功！耗时: {result.Duration.TotalMilliseconds:F0}ms");
                     Debug.Log($"生成的文件: {string.Join(", ", result.GeneratedFiles.Keys)}");
-                    
-                                            // 存储到SQLite
-#if SQLITE4UNITY3D
-                        using (var dataManager = new SQLite4Unity3dDataManager("ConfigData/game_config.db"))
-#else
-                        using (var dataManager = new SQLiteDataManager("ConfigData/game_config.db"))
-#endif
-                        {
-                            dataManager.StoreFlatBufferData(input.ConfigType, input.ConfigName, result.BinaryData);
-                        }
                 }
                 else
                 {
@@ -74,41 +65,76 @@ namespace NFramework.Module.Config.DataPipeline.Examples
                 // 1. 创建自定义配置
                 var config = new PipelineConfiguration
                 {
-                    EnableDataCleaning = true,
-                    EnableLocalization = true,
                     EnableCodeGeneration = true,
+                    EnableValidation = true,
+                    EnableLocalization = true,
+                    EnableReferenceResolution = true,
                     CompressionSettings = new CompressionSettings
                     {
-                        Enabled = true,
-                        Type = Core.CompressionType.GZip,
-                        Level = 9
+                        EnableCompression = true
                     },
                     EncryptionSettings = new EncryptionSettings
                     {
-                        Enabled = true,
-                        Type = Core.EncryptionType.XOR,
-                        Key = "MySecretKey123"
+                        EnableEncryption = true,
+                        EncryptionKey = "MySecretKey123"
                     }
                 };
 
                 // 2. 创建管道
                 var pipeline = ConfigPipelineFactory.CreateStandardPipeline(config);
 
-                // 3. 添加自定义处理器
-                pipeline.RegisterPreProcessor(new CustomCharacterProcessor())
-                       .RegisterValidator(new CustomCharacterValidator());
-
-                // 4. 执行处理
-                var input = new PipelineInput
+                // 3. 准备输入数据
+                var inputs = new List<PipelineInput>
                 {
-                    ConfigType = "Character",
-                    ConfigName = "NPCs",
-                    SourceFilePath = "ConfigData/Excel/NPCs.xlsx"
+                    new PipelineInput
+                    {
+                        ConfigType = "Character",
+                        ConfigName = "NPCs",
+                        SourceFilePath = "ConfigData/Excel/NPCs.xlsx",
+                        OutputPath = "ConfigData/Output/NPCs"
+                    },
+                    new PipelineInput
+                    {
+                        ConfigType = "Item",
+                        ConfigName = "Weapons",
+                        SourceFilePath = "ConfigData/Excel/Weapons.xlsx",
+                        OutputPath = "ConfigData/Output/Items"
+                    }
                 };
 
-                var result = pipeline.Execute(input);
+                // 4. 执行处理
+                var result = pipeline.Execute(inputs);
 
-                Debug.Log(result.Success ? "自定义管道执行成功" : "自定义管道执行失败");
+                // 5. 处理结果
+                if (result.Success)
+                {
+                    Debug.Log($"自定义管道执行成功！耗时: {result.Duration.TotalMilliseconds:F0}ms");
+                    Debug.Log($"生成的文件: {string.Join(", ", result.GeneratedFiles.Keys)}");
+
+                    // 显示日志
+                    if (result.Logs.Count > 0)
+                    {
+                        Debug.Log("处理日志:");
+                        foreach (var log in result.Logs)
+                        {
+                            Debug.Log($"  {log}");
+                        }
+                    }
+
+                    // 显示警告
+                    if (result.Warnings.Count > 0)
+                    {
+                        Debug.Log("警告信息:");
+                        foreach (var warning in result.Warnings)
+                        {
+                            Debug.LogWarning($"  {warning}");
+                        }
+                    }
+                }
+                else
+                {
+                    Debug.LogError($"自定义管道执行失败！错误: {string.Join("; ", result.Errors)}");
+                }
             }
             catch (Exception ex)
             {
@@ -128,41 +154,42 @@ namespace NFramework.Module.Config.DataPipeline.Examples
                 var excelDirectory = "ConfigData/Excel";
                 var excelFiles = Directory.GetFiles(excelDirectory, "*.xlsx", SearchOption.AllDirectories);
 
+                var inputs = new List<PipelineInput>();
                 foreach (var excelFile in excelFiles)
                 {
                     var fileName = Path.GetFileNameWithoutExtension(excelFile);
                     var configType = DetermineConfigType(fileName);
 
-                    // 为每种配置类型创建专门的管道
-                    var pipeline = ConfigPipelineFactory.CreateForConfigType(configType);
-
-                    var input = new PipelineInput
+                    inputs.Add(new PipelineInput
                     {
                         ConfigType = configType,
                         ConfigName = fileName,
-                        SourceFilePath = excelFile
-                    };
+                        SourceFilePath = excelFile,
+                        OutputPath = Path.Combine("ConfigData/Output", configType)
+                    });
+                }
 
-                    var result = pipeline.Execute(input);
+                // 创建管道并执行
+                var config = new PipelineConfiguration
+                {
+                    EnableCodeGeneration = true,
+                    EnableValidation = true,
+                    EnableReferenceResolution = true
+                };
 
-                    if (result.Success)
-                    {
-                        Debug.Log($"处理成功: {fileName}");
-                        
-                        // 存储到数据库
-#if SQLITE4UNITY3D
-                        using (var dataManager = new SQLite4Unity3dDataManager("ConfigData/game_config.db"))
-#else
-                        using (var dataManager = new SQLiteDataManager("ConfigData/game_config.db"))
-#endif
-                        {
-                            dataManager.StoreFlatBufferData(configType, fileName, result.BinaryData);
-                        }
-                    }
-                    else
-                    {
-                        Debug.LogError($"处理失败: {fileName}, 错误: {string.Join("; ", result.Errors)}");
-                    }
+                var pipeline = ConfigPipelineFactory.CreateStandardPipeline(config);
+                var result = pipeline.Execute(inputs);
+
+                // 处理结果
+                if (result.Success)
+                {
+                    Debug.Log($"批量处理成功！耗时: {result.Duration.TotalMilliseconds:F0}ms");
+                    Debug.Log($"处理的文件数: {inputs.Count}");
+                    Debug.Log($"生成的文件: {string.Join(", ", result.GeneratedFiles.Keys)}");
+                }
+                else
+                {
+                    Debug.LogError($"批量处理失败！错误: {string.Join("; ", result.Errors)}");
                 }
             }
             catch (Exception ex)
@@ -174,7 +201,7 @@ namespace NFramework.Module.Config.DataPipeline.Examples
         private static string DetermineConfigType(string fileName)
         {
             var lowerName = fileName.ToLower();
-            
+
             if (lowerName.Contains("character") || lowerName.Contains("角色"))
                 return "Character";
             if (lowerName.Contains("item") || lowerName.Contains("物品"))
@@ -183,48 +210,8 @@ namespace NFramework.Module.Config.DataPipeline.Examples
                 return "Skill";
             if (lowerName.Contains("localization") || lowerName.Contains("本地化"))
                 return "Localization";
-                
+
             return "Generic";
-        }
-    }
-
-    /// <summary>
-    /// 自定义角色处理器示例
-    /// </summary>
-    public class CustomCharacterProcessor : IPreProcessor
-    {
-        public string Name => "Custom Character Processor";
-        public int Priority => 90;
-        public bool IsEnabled { get; set; } = true;
-
-        public bool Process(PreProcessContext context)
-        {
-            context.AddLog("执行自定义角色数据处理");
-            
-            // 这里可以实现特定于角色数据的处理逻辑
-            // 例如：计算派生属性、验证数值平衡、处理技能引用等
-            
-            return true;
-        }
-    }
-
-    /// <summary>
-    /// 自定义角色验证器示例
-    /// </summary>
-    public class CustomCharacterValidator : IValidator
-    {
-        public string Name => "Custom Character Validator";
-        public int Priority => 100;
-        public bool IsEnabled { get; set; } = true;
-
-        public ValidationResult Validate(ValidationContext context)
-        {
-            var result = new ValidationResult { IsValid = true };
-            
-            // 这里可以实现特定于角色数据的验证逻辑
-            // 例如：属性值范围检查、技能组合验证、平衡性检查等
-            
-            return result;
         }
     }
 }

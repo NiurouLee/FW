@@ -3,7 +3,7 @@ using System.IO;
 using System.Diagnostics;
 using UnityEngine;
 
-namespace NFramework.Module.Config.DataPipeline.Processors
+namespace NFramework.Module.Config.DataPipeline
 {
     public class ConfigCodeGenerator
     {

@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text.RegularExpressions;
-using NFramework.Module.Config.DataPipeline.Core;
-using UnityEngine;
 
 namespace NFramework.Module.Config.DataPipeline.Processors
 {
@@ -53,7 +51,7 @@ namespace NFramework.Module.Config.DataPipeline.Processors
                     {
                         var originalValue = table.Rows[row][col];
                         var cleanedValue = CleanCellValue(originalValue, row, col, context);
-                        
+
                         if (!Equals(originalValue, cleanedValue))
                         {
                             table.Rows[row][col] = cleanedValue;
@@ -204,7 +202,7 @@ namespace NFramework.Module.Config.DataPipeline.Processors
 
             // 检测并标准化数组分隔符
             var separators = new[] { ";", "|", ":", "，" };
-            
+
             foreach (var sep in separators)
             {
                 if (value.Contains(sep))
@@ -212,7 +210,7 @@ namespace NFramework.Module.Config.DataPipeline.Processors
                     var elements = value.Split(new[] { sep }, StringSplitOptions.RemoveEmptyEntries)
                                        .Select(e => e.Trim())
                                        .Where(e => !string.IsNullOrEmpty(e));
-                    
+
                     return string.Join(",", elements);
                 }
             }
@@ -240,7 +238,7 @@ namespace NFramework.Module.Config.DataPipeline.Processors
                 if (nullCount > 0)
                 {
                     double nullPercentage = (double)nullCount / (table.Rows.Count - 1) * 100;
-                    
+
                     if (nullPercentage > _settings.MaxNullPercentage)
                     {
                         context.AddWarning($"列 '{columnName}' 有 {nullPercentage:F1}% 的空值");
@@ -259,7 +257,7 @@ namespace NFramework.Module.Config.DataPipeline.Processors
         {
             // 查找可能的ID列
             var idColumns = new List<int>();
-            
+
             for (int col = 0; col < table.Columns.Count; col++)
             {
                 var columnName = table.Columns[col].ColumnName.ToLower();
@@ -299,7 +297,7 @@ namespace NFramework.Module.Config.DataPipeline.Processors
             {
                 var originalName = table.Columns[i].ColumnName;
                 var standardizedName = StandardizeColumnName(originalName);
-                
+
                 if (originalName != standardizedName)
                 {
                     table.Columns[i].ColumnName = standardizedName;
@@ -315,17 +313,17 @@ namespace NFramework.Module.Config.DataPipeline.Processors
 
             // 移除特殊字符，只保留字母数字和下划线
             var sanitized = Regex.Replace(columnName.Trim(), @"[^a-zA-Z0-9_\u4e00-\u9fa5]", "_");
-            
+
             // 移除连续的下划线
             sanitized = Regex.Replace(sanitized, @"_+", "_");
-            
+
             // 移除开头和结尾的下划线
             sanitized = sanitized.Trim('_');
-            
+
             // 确保不为空
             if (string.IsNullOrEmpty(sanitized))
                 sanitized = "UnknownColumn";
-            
+
             // 确保以字母开头（对于英文字段名）
             if (char.IsDigit(sanitized[0]))
                 sanitized = "Field_" + sanitized;

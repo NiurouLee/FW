@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using NFramework.Module.Config.DataPipeline.Core;
 using UnityEngine;
 
 namespace NFramework.Module.Config.DataPipeline.Processors

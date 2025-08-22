@@ -5,7 +5,7 @@ using System.Text;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace NFramework.Module.Config.DataPipeline.Processors
+namespace NFramework.Module.Config.DataPipeline
 {
     public class EnhancedCodeProcessor
     {
@@ -44,7 +44,7 @@ namespace NFramework.Module.Config.DataPipeline.Processors
             foreach (var line in lines)
             {
                 var trimmedLine = line.Trim();
-                
+
                 // 检测类开始
                 if (trimmedLine.Contains(" class ") && trimmedLine.Contains(" : IFlatbufferObject"))
                 {
@@ -58,7 +58,7 @@ namespace NFramework.Module.Config.DataPipeline.Processors
                 if (inClass && trimmedLine.StartsWith("///"))
                 {
                     var comment = trimmedLine.TrimStart('/').Trim();
-                    
+
                     // 检查是否是新字段的开始
                     if (currentField == null)
                     {
@@ -96,7 +96,7 @@ namespace NFramework.Module.Config.DataPipeline.Processors
                     if (fields.Any(f => f.IsRef || f.IsLan))
                     {
                         sb.AppendLine();
-                        
+
                         // 生成引用访问器
                         foreach (var field in fields.Where(f => f.IsRef))
                         {

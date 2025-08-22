@@ -1,218 +1,126 @@
-using System;
 using System.Collections.Generic;
-using System.Data;
-using UnityEngine;
 
-namespace NFramework.Module.Config.DataPipeline.Core
+namespace NFramework.Module.Config.DataPipeline
 {
     /// <summary>
-    /// 管道处理上下文基类
+    /// 管道上下文基类
     /// </summary>
-    public abstract class PipelineContext
+    public abstract class PipelineContextBase
+    {
+        private readonly List<string> _logs = new List<string>();
+        private readonly List<string> _warnings = new List<string>();
+        private readonly List<string> _errors = new List<string>();
+
+        public IReadOnlyList<string> Logs => _logs;
+        public IReadOnlyList<string> Warnings => _warnings;
+        public IReadOnlyList<string> Errors => _errors;
+
+        public bool HasErrors => _errors.Count > 0;
+
+        public void AddLog(string message)
+        {
+            _logs.Add(message);
+        }
+
+        public void AddWarning(string message)
+        {
+            _warnings.Add(message);
+        }
+
+        public void AddError(string message)
+        {
+            _errors.Add(message);
+        }
+
+        public void Clear()
+        {
+            _logs.Clear();
+            _warnings.Clear();
+            _errors.Clear();
+        }
+    }
+
+    /// <summary>
+    /// 收集阶段上下文
+    /// </summary>
+    public class CollectionContext : PipelineContextBase
     {
         public string ConfigType { get; set; }
         public string ConfigName { get; set; }
         public string SourceFilePath { get; set; }
+        public System.Data.DataSet RawDataSet { get; set; }
+        public Dictionary<string, object> CollectedData { get; } = new Dictionary<string, object>();
+    }
+
+    /// <summary>
+    /// 批处理阶段上下文
+    /// </summary>
+    public class BatchProcessContext : PipelineContextBase
+    {
+        public Dictionary<string, CollectionContext> CollectedContexts { get; } = new Dictionary<string, CollectionContext>();
+        public Dictionary<string, object> SharedData { get; } = new Dictionary<string, object>();
+    }
+
+    /// <summary>
+    /// 预处理阶段上下文
+    /// </summary>
+    public class PreProcessContext : PipelineContextBase
+    {
+        public string ConfigType { get; set; }
+        public string ConfigName { get; set; }
+        public System.Data.DataTable CurrentSheet { get; set; }
+        public SchemaDefinition SchemaDefinition { get; set; }
         public Dictionary<string, object> Properties { get; } = new Dictionary<string, object>();
-        public List<string> Logs { get; } = new List<string>();
-        public List<string> Warnings { get; } = new List<string>();
-        public List<string> Errors { get; } = new List<string>();
-
-        public void AddLog(string message) => Logs.Add($"[{DateTime.Now:HH:mm:ss}] {message}");
-        public void AddWarning(string message) => Warnings.Add($"[{DateTime.Now:HH:mm:ss}] {message}");
-        public void AddError(string message) => Errors.Add($"[{DateTime.Now:HH:mm:ss}] {message}");
-
-        public bool HasErrors => Errors.Count > 0;
-        public bool HasWarnings => Warnings.Count > 0;
-    }
-
-    /// <summary>
-    /// 前处理上下文
-    /// </summary>
-    public class PreProcessContext : PipelineContext
-    {
-        public DataSet RawDataSet { get; set; }
-        public DataTable CurrentSheet { get; set; }
-        public Dictionary<string, DataTable> ProcessedSheets { get; } = new Dictionary<string, DataTable>();
-        public SchemaDefinition SchemaDefinition { get; set; }
-    }
-
-    /// <summary>
-    /// 数据处理上下文
-    /// </summary>
-    public class DataProcessContext : PipelineContext
-    {
-        public DataTable SourceData { get; set; }
-        public List<object> ProcessedObjects { get; } = new List<object>();
-        public Type TargetType { get; set; }
-        public SchemaDefinition SchemaDefinition { get; set; }
-        public Dictionary<string, object> TypeConverters { get; } = new Dictionary<string, object>();
-    }
-
-    /// <summary>
-    /// 后处理上下文
-    /// </summary>
-    public class PostProcessContext : PipelineContext
-    {
-        public byte[] BinaryData { get; set; }
-        public string OutputPath { get; set; }
-        public Dictionary<string, byte[]> AdditionalFiles { get; } = new Dictionary<string, byte[]>();
-        public CompressionSettings CompressionSettings { get; set; }
-        public EncryptionSettings EncryptionSettings { get; set; }
-    }
-
-    /// <summary>
-    /// 验证上下文
-    /// </summary>
-    public class ValidationContext : PipelineContext
-    {
-        public object DataToValidate { get; set; }
-        public Type DataType { get; set; }
-        public ValidationRules ValidationRules { get; set; }
-        public List<ValidationError> ValidationErrors { get; } = new List<ValidationError>();
+        public HashSet<string> ValidConfigTypes { get; } = new HashSet<string>();
     }
 
     /// <summary>
     /// 代码生成上下文
     /// </summary>
-    public class CodeGenerationContext : PipelineContext
+    public class CodeGenerationContext : PipelineContextBase
     {
+        public string ConfigType { get; set; }
+        public string ConfigName { get; set; }
         public SchemaDefinition SchemaDefinition { get; set; }
         public string OutputDirectory { get; set; }
         public CodeGenerationSettings Settings { get; set; }
+        public Dictionary<string, object> Properties { get; } = new Dictionary<string, object>();
         public Dictionary<string, string> GeneratedFiles { get; } = new Dictionary<string, string>();
     }
 
     /// <summary>
-    /// Schema定义
+    /// 后处理阶段上下文
     /// </summary>
-    [Serializable]
-    public class SchemaDefinition
+    public class PostProcessContext : PipelineContextBase
     {
-        public string Name { get; set; }
-        public string Namespace { get; set; }
-        public List<FieldDefinition> Fields { get; } = new List<FieldDefinition>();
-        public Dictionary<string, object> Metadata { get; } = new Dictionary<string, object>();
-    }
-
-    /// <summary>
-    /// 字段定义
-    /// </summary>
-    [Serializable]
-    public class FieldDefinition
-    {
-        public string Name { get; set; }
-        public string Type { get; set; }
-        public bool IsRequired { get; set; }
-        public object DefaultValue { get; set; }
-        public string Comment { get; set; }
-        public Dictionary<string, object> Attributes { get; } = new Dictionary<string, object>();
-    }
-
-    /// <summary>
-    /// 验证结果
-    /// </summary>
-    public class ValidationResult
-    {
-        public bool IsValid { get; set; }
-        public List<ValidationError> Errors { get; } = new List<ValidationError>();
-        public List<string> Warnings { get; } = new List<string>();
-    }
-
-    /// <summary>
-    /// 验证错误
-    /// </summary>
-    public class ValidationError
-    {
-        public string Field { get; set; }
-        public string Message { get; set; }
-        public object Value { get; set; }
-        public ValidationSeverity Severity { get; set; }
-    }
-
-    /// <summary>
-    /// 验证严重程度
-    /// </summary>
-    public enum ValidationSeverity
-    {
-        Info,
-        Warning,
-        Error,
-        Critical
-    }
-
-    /// <summary>
-    /// 代码生成结果
-    /// </summary>
-    public class CodeGenerationResult
-    {
-        public bool Success { get; set; }
-        public Dictionary<string, string> GeneratedFiles { get; } = new Dictionary<string, string>();
-        public List<string> Errors { get; } = new List<string>();
-    }
-
-    /// <summary>
-    /// 验证规则
-    /// </summary>
-    public class ValidationRules
-    {
-        public Dictionary<string, List<IValidationRule>> FieldRules { get; } = new Dictionary<string, List<IValidationRule>>();
-        public List<IValidationRule> GlobalRules { get; } = new List<IValidationRule>();
-    }
-
-    /// <summary>
-    /// 压缩设置
-    /// </summary>
-    public class CompressionSettings
-    {
-        public bool Enabled { get; set; }
-        public CompressionType Type { get; set; } = CompressionType.GZip;
-        public int Level { get; set; } = 6;
-    }
-
-    /// <summary>
-    /// 加密设置
-    /// </summary>
-    public class EncryptionSettings
-    {
-        public bool Enabled { get; set; }
-        public EncryptionType Type { get; set; } = EncryptionType.AES;
-        public string Key { get; set; }
-    }
-
-    /// <summary>
-    /// 代码生成设置
-    /// </summary>
-    public class CodeGenerationSettings
-    {
-        public string Namespace { get; set; } = "GameConfig";
-        public bool GenerateAccessors { get; set; } = true;
-        public bool GenerateValidation { get; set; } = true;
-        public bool GenerateComments { get; set; } = true;
+        public string ConfigType { get; set; }
+        public string ConfigName { get; set; }
+        public byte[] BinaryData { get; set; }
         public string OutputPath { get; set; }
-    }
-
-    public enum CompressionType
-    {
-        None,
-        GZip,
-        Deflate,
-        LZ4
-    }
-
-    public enum EncryptionType
-    {
-        None,
-        AES,
-        XOR
+        public CompressionSettings CompressionSettings { get; set; }
+        public EncryptionSettings EncryptionSettings { get; set; }
+        public Dictionary<string, byte[]> AdditionalFiles { get; } = new Dictionary<string, byte[]>();
     }
 
     /// <summary>
-    /// 验证规则接口
+    /// 最终处理阶段上下文
     /// </summary>
-    public interface IValidationRule
+    public class FinalProcessContext : PipelineContextBase
     {
-        string Name { get; }
-        ValidationResult Validate(object value, string fieldName);
+        public Dictionary<string, object> ProcessedResults { get; } = new Dictionary<string, object>();
+        public Dictionary<string, byte[]> OutputFiles { get; } = new Dictionary<string, byte[]>();
+        public PipelineSettings Settings { get; set; }
+    }
+
+    /// <summary>
+    /// 验证上下文
+    /// </summary>
+    public class ValidationContext : PipelineContextBase
+    {
+        public string ConfigType { get; set; }
+        public string ConfigName { get; set; }
+        public object DataToValidate { get; set; }
+        public System.Type DataType { get; set; }
+        public ValidationRules ValidationRules { get; set; }
     }
 }

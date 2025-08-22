@@ -1,80 +1,77 @@
-using System;
-using System.Collections.Generic;
-
-namespace NFramework.Module.Config.DataPipeline.Core
+namespace NFramework.Module.Config.DataPipeline
 {
     /// <summary>
-    /// 管道处理器基础接口
+    /// 基础处理器接口
     /// </summary>
-    public interface IPipelineProcessor
+    public interface IProcessor
     {
         string Name { get; }
         int Priority { get; }
-        bool IsEnabled { get; set; }
+        bool IsEnabled { get; }
     }
 
     /// <summary>
-    /// 前处理器接口
+    /// 收集器接口 - 用于收集单个配置文件的信息
     /// </summary>
-    public interface IPreProcessor : IPipelineProcessor
+    public interface ICollector : IProcessor
     {
-        /// <summary>
-        /// 处理原始Excel数据
-        /// </summary>
-        /// <param name="context">处理上下文</param>
-        /// <returns>是否继续处理</returns>
+        bool Collect(CollectionContext context);
+    }
+
+    /// <summary>
+    /// 批处理器接口 - 用于统一处理所有配置类型
+    /// </summary>
+    public interface IBatchProcessor : IProcessor
+    {
+        bool ProcessBatch(BatchProcessContext context);
+    }
+
+    /// <summary>
+    /// 单文件预处理器接口
+    /// </summary>
+    public interface IPreProcessor : IProcessor
+    {
         bool Process(PreProcessContext context);
     }
 
     /// <summary>
-    /// 数据处理器接口
+    /// 单文件生成器接口
     /// </summary>
-    public interface IDataProcessor : IPipelineProcessor
+    public interface IGenerator : IProcessor
     {
-        /// <summary>
-        /// 处理数据对象
-        /// </summary>
-        /// <param name="context">处理上下文</param>
-        /// <returns>是否继续处理</returns>
-        bool Process(DataProcessContext context);
-    }
-
-    /// <summary>
-    /// 后处理器接口
-    /// </summary>
-    public interface IPostProcessor : IPipelineProcessor
-    {
-        /// <summary>
-        /// 处理生成的二进制数据
-        /// </summary>
-        /// <param name="context">处理上下文</param>
-        /// <returns>是否继续处理</returns>
-        bool Process(PostProcessContext context);
-    }
-
-    /// <summary>
-    /// 验证器接口
-    /// </summary>
-    public interface IValidator : IPipelineProcessor
-    {
-        /// <summary>
-        /// 验证数据
-        /// </summary>
-        /// <param name="context">验证上下文</param>
-        /// <returns>验证结果</returns>
-        ValidationResult Validate(ValidationContext context);
+        CodeGenerationResult Generate(CodeGenerationContext context);
     }
 
     /// <summary>
     /// 代码生成器接口
     /// </summary>
-    public interface ICodeGenerator : IPipelineProcessor
+    public interface ICodeGenerator : IGenerator
     {
-        /// <summary>
-        /// 生成代码
-        /// </summary>
-        /// <param name="context">生成上下文</param>
-        /// <returns>生成结果</returns>
-        CodeGenerationResult Generate(CodeGenerationContext context);
+        string TargetLanguage { get; }
+        string[] SupportedFileExtensions { get; }
+    }
+
+    /// <summary>
+    /// 单文件后处理器接口
+    /// </summary>
+    public interface IPostProcessor : IProcessor
+    {
+        bool Process(PostProcessContext context);
+    }
+
+    /// <summary>
+    /// 统一后处理器接口 - 用于处理所有文件的最终处理
+    /// </summary>
+    public interface IFinalProcessor : IProcessor
+    {
+        bool ProcessFinal(FinalProcessContext context);
+    }
+
+    /// <summary>
+    /// 验证器接口
+    /// </summary>
+    public interface IValidator : IProcessor
+    {
+        ValidationResult Validate(ValidationContext context);
     }
 }

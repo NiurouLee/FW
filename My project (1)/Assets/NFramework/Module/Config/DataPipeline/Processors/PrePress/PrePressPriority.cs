@@ -1,4 +1,4 @@
-namespace NFramework.Module.Config.DataPipeline.Processors
+namespace NFramework.Module.Config.DataPipeline
 {
     public class PrePressPriority
     {

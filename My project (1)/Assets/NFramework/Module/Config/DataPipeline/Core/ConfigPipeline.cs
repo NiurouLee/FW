@@ -3,19 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace NFramework.Module.Config.DataPipeline.Core
+namespace NFramework.Module.Config.DataPipeline
 {
     /// <summary>
     /// 配置数据处理管道核心
     /// </summary>
     public class ConfigPipeline
     {
+        private readonly List<ICollector> _collectors = new List<ICollector>();
+        private readonly List<IBatchProcessor> _batchProcessors = new List<IBatchProcessor>();
         private readonly List<IPreProcessor> _preProcessors = new List<IPreProcessor>();
-        private readonly List<IDataProcessor> _dataProcessors = new List<IDataProcessor>();
-        private readonly List<IPostProcessor> _postProcessors = new List<IPostProcessor>();
-        private readonly List<IValidator> _validators = new List<IValidator>();
+        private readonly List<IGenerator> _generators = new List<IGenerator>();
         private readonly List<ICodeGenerator> _codeGenerators = new List<ICodeGenerator>();
-
+        private readonly List<IPostProcessor> _postProcessors = new List<IPostProcessor>();
+        private readonly List<IFinalProcessor> _finalProcessors = new List<IFinalProcessor>();
+        private readonly List<IValidator> _validators = new List<IValidator>();
         private readonly PipelineSettings _settings;
 
         public ConfigPipeline(PipelineSettings settings = null)
@@ -24,9 +26,27 @@ namespace NFramework.Module.Config.DataPipeline.Core
             InitializeDefaultProcessors();
         }
 
-        /// <summary>
-        /// 注册前处理器
-        /// </summary>
+        #region 注册处理器
+        public ConfigPipeline RegisterCollector(ICollector collector)
+        {
+            if (collector != null && !_collectors.Contains(collector))
+            {
+                _collectors.Add(collector);
+                _collectors.Sort((a, b) => a.Priority.CompareTo(b.Priority));
+            }
+            return this;
+        }
+
+        public ConfigPipeline RegisterBatchProcessor(IBatchProcessor processor)
+        {
+            if (processor != null && !_batchProcessors.Contains(processor))
+            {
+                _batchProcessors.Add(processor);
+                _batchProcessors.Sort((a, b) => a.Priority.CompareTo(b.Priority));
+            }
+            return this;
+        }
+
         public ConfigPipeline RegisterPreProcessor(IPreProcessor processor)
         {
             if (processor != null && !_preProcessors.Contains(processor))
@@ -37,48 +57,27 @@ namespace NFramework.Module.Config.DataPipeline.Core
             return this;
         }
 
-        /// <summary>
-        /// 注册数据处理器
-        /// </summary>
-        public ConfigPipeline RegisterDataProcessor(IDataProcessor processor)
+        public ConfigPipeline RegisterGenerator(IGenerator generator)
         {
-            if (processor != null && !_dataProcessors.Contains(processor))
+            if (generator != null)
             {
-                _dataProcessors.Add(processor);
-                _dataProcessors.Sort((a, b) => a.Priority.CompareTo(b.Priority));
+                if (generator is ICodeGenerator codeGenerator)
+                {
+                    if (!_codeGenerators.Contains(codeGenerator))
+                    {
+                        _codeGenerators.Add(codeGenerator);
+                        _codeGenerators.Sort((a, b) => a.Priority.CompareTo(b.Priority));
+                    }
+                }
+                else if (!_generators.Contains(generator))
+                {
+                    _generators.Add(generator);
+                    _generators.Sort((a, b) => a.Priority.CompareTo(b.Priority));
+                }
             }
             return this;
         }
 
-        /// <summary>
-        /// 注册后处理器
-        /// </summary>
-        public ConfigPipeline RegisterPostProcessor(IPostProcessor processor)
-        {
-            if (processor != null && !_postProcessors.Contains(processor))
-            {
-                _postProcessors.Add(processor);
-                _postProcessors.Sort((a, b) => a.Priority.CompareTo(b.Priority));
-            }
-            return this;
-        }
-
-        /// <summary>
-        /// 注册验证器
-        /// </summary>
-        public ConfigPipeline RegisterValidator(IValidator validator)
-        {
-            if (validator != null && !_validators.Contains(validator))
-            {
-                _validators.Add(validator);
-                _validators.Sort((a, b) => a.Priority.CompareTo(b.Priority));
-            }
-            return this;
-        }
-
-        /// <summary>
-        /// 注册代码生成器
-        /// </summary>
         public ConfigPipeline RegisterCodeGenerator(ICodeGenerator generator)
         {
             if (generator != null && !_codeGenerators.Contains(generator))
@@ -89,109 +88,179 @@ namespace NFramework.Module.Config.DataPipeline.Core
             return this;
         }
 
+        public ConfigPipeline RegisterPostProcessor(IPostProcessor processor)
+        {
+            if (processor != null && !_postProcessors.Contains(processor))
+            {
+                _postProcessors.Add(processor);
+                _postProcessors.Sort((a, b) => a.Priority.CompareTo(b.Priority));
+            }
+            return this;
+        }
+
+        public ConfigPipeline RegisterFinalProcessor(IFinalProcessor processor)
+        {
+            if (processor != null && !_finalProcessors.Contains(processor))
+            {
+                _finalProcessors.Add(processor);
+                _finalProcessors.Sort((a, b) => a.Priority.CompareTo(b.Priority));
+            }
+            return this;
+        }
+
+        public ConfigPipeline RegisterValidator(IValidator validator)
+        {
+            if (validator != null && !_validators.Contains(validator))
+            {
+                _validators.Add(validator);
+                _validators.Sort((a, b) => a.Priority.CompareTo(b.Priority));
+            }
+            return this;
+        }
+        #endregion
+
         /// <summary>
         /// 执行完整的处理管道
         /// </summary>
-        public PipelineResult Execute(PipelineInput input)
+        public PipelineResult Execute(List<PipelineInput> inputs)
         {
             var result = new PipelineResult
             {
-                Input = input,
                 StartTime = DateTime.Now
             };
 
             try
             {
-                // 1. 前处理阶段
-                var preProcessContext = new PreProcessContext
+                // 1. 收集阶段 - 对每个输入文件进行收集
+                var collectionResults = new Dictionary<string, CollectionContext>();
+                foreach (var input in inputs)
                 {
-                    ConfigType = input.ConfigType,
-                    ConfigName = input.ConfigName,
-                    SourceFilePath = input.SourceFilePath,
-                    RawDataSet = input.RawDataSet
+                    var collectionContext = new CollectionContext
+                    {
+                        ConfigType = input.ConfigType,
+                        ConfigName = input.ConfigName,
+                        SourceFilePath = input.SourceFilePath,
+                        RawDataSet = input.RawDataSet
+                    };
+
+                    if (!ExecuteCollectors(collectionContext, result))
+                    {
+                        return result;
+                    }
+
+                    collectionResults[input.ConfigName] = collectionContext;
+                }
+
+                // 2. 统一处理阶段 - 处理所有收集到的类型
+                var batchContext = new BatchProcessContext
+                {
+                    CollectedContexts = collectionResults
                 };
 
-                if (!ExecutePreProcessors(preProcessContext, result))
+                if (!ExecuteBatchProcessors(batchContext, result))
                 {
                     return result;
                 }
 
-                // 2. 代码生成阶段（如果需要）
+                // 3. 逐个预处理
+                foreach (var input in inputs)
+                {
+                    var preProcessContext = new PreProcessContext
+                    {
+                        ConfigType = input.ConfigType,
+                        ConfigName = input.ConfigName,
+                        CurrentSheet = input.RawDataSet.Tables[0], // 假设第一个表是主表
+                        SchemaDefinition = batchContext.SharedData[$"{input.ConfigName}_Schema"] as SchemaDefinition
+                    };
+
+                    if (!ExecutePreProcessors(preProcessContext, result))
+                    {
+                        return result;
+                    }
+
+                    // 执行验证
+                    if (_settings.EnableValidation)
+                    {
+                        var validationContext = new ValidationContext
+                        {
+                            ConfigType = input.ConfigType,
+                            ConfigName = input.ConfigName,
+                            DataToValidate = preProcessContext.CurrentSheet,
+                            DataType = input.TargetType,
+                            ValidationRules = input.ValidationRules
+                        };
+
+                        if (!ExecuteValidators(validationContext, result))
+                        {
+                            return result;
+                        }
+                    }
+                }
+
+                // 4. 逐个生成
                 if (_settings.EnableCodeGeneration)
                 {
-                    var codeGenContext = new CodeGenerationContext
+                    foreach (var input in inputs)
                     {
-                        ConfigType = input.ConfigType,
-                        ConfigName = input.ConfigName,
-                        SchemaDefinition = preProcessContext.SchemaDefinition,
-                        OutputDirectory = _settings.CodeOutputDirectory,
-                        Settings = _settings.CodeGenerationSettings
-                    };
+                        var codeGenContext = new CodeGenerationContext
+                        {
+                            ConfigType = input.ConfigType,
+                            ConfigName = input.ConfigName,
+                            SchemaDefinition = batchContext.SharedData[$"{input.ConfigName}_Schema"] as SchemaDefinition,
+                            OutputDirectory = _settings.CodeOutputDirectory,
+                            Settings = _settings.CodeGenerationSettings
+                        };
 
-                    if (!ExecuteCodeGenerators(codeGenContext, result))
-                    {
-                        return result;
+                        // 执行代码生成器
+                        if (!ExecuteCodeGenerators(codeGenContext, result))
+                        {
+                            return result;
+                        }
+
+                        // 执行其他生成器
+                        if (!ExecuteGenerators(codeGenContext, result))
+                        {
+                            return result;
+                        }
                     }
                 }
 
-                // 3. 数据处理阶段
-                var dataProcessContext = new DataProcessContext
+                // 5. 逐个后处理
+                foreach (var input in inputs)
                 {
-                    ConfigType = input.ConfigType,
-                    ConfigName = input.ConfigName,
-                    SourceData = preProcessContext.CurrentSheet,
-                    SchemaDefinition = preProcessContext.SchemaDefinition,
-                    TargetType = input.TargetType
-                };
-
-                if (!ExecuteDataProcessors(dataProcessContext, result))
-                {
-                    return result;
-                }
-
-                // 4. 验证阶段
-                if (_settings.EnableValidation)
-                {
-                    var validationContext = new ValidationContext
+                    var postProcessContext = new PostProcessContext
                     {
                         ConfigType = input.ConfigType,
                         ConfigName = input.ConfigName,
-                        DataToValidate = dataProcessContext.ProcessedObjects,
-                        DataType = input.TargetType,
-                        ValidationRules = input.ValidationRules
+                        OutputPath = input.OutputPath,
+                        CompressionSettings = _settings.CompressionSettings,
+                        EncryptionSettings = _settings.EncryptionSettings
                     };
 
-                    if (!ExecuteValidators(validationContext, result))
+                    if (!ExecutePostProcessors(postProcessContext, result))
                     {
                         return result;
                     }
+
+                    // 合并后处理生成的文件
+                    foreach (var kvp in postProcessContext.AdditionalFiles)
+                    {
+                        result.OutputFiles[kvp.Key] = kvp.Value;
+                    }
                 }
 
-                // 5. 后处理阶段
-                var postProcessContext = new PostProcessContext
+                // 6. 统一后处理
+                var finalContext = new FinalProcessContext
                 {
-                    ConfigType = input.ConfigType,
-                    ConfigName = input.ConfigName,
-                    BinaryData = result.BinaryData,
-                    OutputPath = input.OutputPath,
-                    CompressionSettings = _settings.CompressionSettings,
-                    EncryptionSettings = _settings.EncryptionSettings
+                    Settings = _settings
                 };
 
-                if (!ExecutePostProcessors(postProcessContext, result))
+                if (!ExecuteFinalProcessors(finalContext, result))
                 {
                     return result;
                 }
 
                 result.Success = true;
-                result.BinaryData = postProcessContext.BinaryData;
-
-                // 复制后处理生成的文件到结果中
-                foreach (var kvp in postProcessContext.AdditionalFiles)
-                {
-                    result.OutputFiles[kvp.Key] = kvp.Value;
-                }
-
             }
             catch (Exception ex)
             {
@@ -208,37 +277,85 @@ namespace NFramework.Module.Config.DataPipeline.Core
             return result;
         }
 
+        #region 执行处理器
+        private bool ExecuteCollectors(CollectionContext context, PipelineResult result)
+        {
+            foreach (var collector in _collectors.Where(c => c.IsEnabled))
+            {
+                try
+                {
+                    context.AddLog($"Executing collector: {collector.Name}");
+
+                    if (!collector.Collect(context))
+                    {
+                        result.Errors.Add($"Collector {collector.Name} failed");
+                        return false;
+                    }
+
+                    result.Logs.AddRange(context.Logs);
+                    result.Warnings.AddRange(context.Warnings);
+
+                    if (context.HasErrors)
+                    {
+                        result.Errors.AddRange(context.Errors);
+                        return false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    result.Errors.Add($"Collector {collector.Name} threw exception: {ex.Message}");
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private bool ExecuteBatchProcessors(BatchProcessContext context, PipelineResult result)
+        {
+            foreach (var processor in _batchProcessors.Where(p => p.IsEnabled))
+            {
+                try
+                {
+                    context.AddLog($"Executing batch processor: {processor.Name}");
+
+                    if (!processor.ProcessBatch(context))
+                    {
+                        result.Errors.Add($"Batch processor {processor.Name} failed");
+                        return false;
+                    }
+
+                    result.Logs.AddRange(context.Logs);
+                    result.Warnings.AddRange(context.Warnings);
+
+                    if (context.HasErrors)
+                    {
+                        result.Errors.AddRange(context.Errors);
+                        return false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    result.Errors.Add($"Batch processor {processor.Name} threw exception: {ex.Message}");
+                    return false;
+                }
+            }
+            return true;
+        }
+
         private bool ExecutePreProcessors(PreProcessContext context, PipelineResult result)
         {
-            var preProcessors = _preProcessors.Where(p => p.IsEnabled).ToList();
-            preProcessors.Sort((a, b) => a.Priority.CompareTo(b.Priority));
-            foreach (var processor in preProcessors)
+            foreach (var processor in _preProcessors.Where(p => p.IsEnabled))
             {
                 try
                 {
                     context.AddLog($"Executing pre-processor: {processor.Name}");
 
-                    // 先添加日志和警告
-                    result.Logs.AddRange(context.Logs);
-                    result.Warnings.AddRange(context.Warnings);
-
                     if (!processor.Process(context))
                     {
-                        // 添加处理器失败的错误信息
                         result.Errors.Add($"Pre-processor {processor.Name} failed");
-                        
-                        // 添加处理器的具体错误信息
-                        if (context.HasErrors)
-                        {
-                            result.Errors.AddRange(context.Errors);
-                        }
-                        
-                        // 添加处理器的日志，可能包含有用的上下文信息
-                        result.Logs.AddRange(context.Logs);
                         return false;
                     }
 
-                    // 继续添加新的日志和警告
                     result.Logs.AddRange(context.Logs);
                     result.Warnings.AddRange(context.Warnings);
 
@@ -254,40 +371,86 @@ namespace NFramework.Module.Config.DataPipeline.Core
                     return false;
                 }
             }
-
             return true;
         }
 
-        private bool ExecuteDataProcessors(DataProcessContext context, PipelineResult result)
+        private bool ExecuteGenerators(CodeGenerationContext context, PipelineResult result)
         {
-            foreach (var processor in _dataProcessors.Where(p => p.IsEnabled))
+            foreach (var generator in _generators.Where(g => g.IsEnabled))
             {
                 try
                 {
-                    context.AddLog($"Executing data processor: {processor.Name}");
+                    context.AddLog($"Executing generator: {generator.Name}");
 
-                    if (!processor.Process(context))
+                    var genResult = generator.Generate(context);
+                    if (!genResult.Success)
                     {
-                        result.Errors.Add($"Data processor {processor.Name} failed");
+                        result.Errors.AddRange(genResult.Errors);
                         return false;
                     }
 
                     result.Logs.AddRange(context.Logs);
                     result.Warnings.AddRange(context.Warnings);
+                    result.Warnings.AddRange(genResult.Warnings);
 
                     if (context.HasErrors)
                     {
                         result.Errors.AddRange(context.Errors);
                         return false;
                     }
+
+                    // 合并生成的文件
+                    foreach (var kvp in genResult.GeneratedFiles)
+                    {
+                        result.GeneratedFiles[kvp.Key] = kvp.Value;
+                    }
                 }
                 catch (Exception ex)
                 {
-                    result.Errors.Add($"Data processor {processor.Name} threw exception: {ex.Message}");
+                    result.Errors.Add($"Generator {generator.Name} threw exception: {ex.Message}");
                     return false;
                 }
             }
+            return true;
+        }
 
+        private bool ExecuteCodeGenerators(CodeGenerationContext context, PipelineResult result)
+        {
+            foreach (var generator in _codeGenerators.Where(g => g.IsEnabled))
+            {
+                try
+                {
+                    context.AddLog($"Executing code generator: {generator.Name} ({generator.TargetLanguage})");
+
+                    var genResult = generator.Generate(context);
+                    if (!genResult.Success)
+                    {
+                        result.Errors.AddRange(genResult.Errors);
+                        return false;
+                    }
+
+                    result.Logs.AddRange(context.Logs);
+                    result.Warnings.AddRange(context.Warnings);
+                    result.Warnings.AddRange(genResult.Warnings);
+
+                    if (context.HasErrors)
+                    {
+                        result.Errors.AddRange(context.Errors);
+                        return false;
+                    }
+
+                    // 合并生成的文件
+                    foreach (var kvp in genResult.GeneratedFiles)
+                    {
+                        result.GeneratedFiles[kvp.Key] = kvp.Value;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    result.Errors.Add($"Code generator {generator.Name} threw exception: {ex.Message}");
+                    return false;
+                }
+            }
             return true;
         }
 
@@ -320,7 +483,38 @@ namespace NFramework.Module.Config.DataPipeline.Core
                     return false;
                 }
             }
+            return true;
+        }
 
+        private bool ExecuteFinalProcessors(FinalProcessContext context, PipelineResult result)
+        {
+            foreach (var processor in _finalProcessors.Where(p => p.IsEnabled))
+            {
+                try
+                {
+                    context.AddLog($"Executing final processor: {processor.Name}");
+
+                    if (!processor.ProcessFinal(context))
+                    {
+                        result.Errors.Add($"Final processor {processor.Name} failed");
+                        return false;
+                    }
+
+                    result.Logs.AddRange(context.Logs);
+                    result.Warnings.AddRange(context.Warnings);
+
+                    if (context.HasErrors)
+                    {
+                        result.Errors.AddRange(context.Errors);
+                        return false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    result.Errors.Add($"Final processor {processor.Name} threw exception: {ex.Message}");
+                    return false;
+                }
+            }
             return true;
         }
 
@@ -359,40 +553,7 @@ namespace NFramework.Module.Config.DataPipeline.Core
             result.ValidationResults = allValidationResults;
             return true;
         }
-
-        private bool ExecuteCodeGenerators(CodeGenerationContext context, PipelineResult result)
-        {
-            var codeGenerators = _codeGenerators.Where(g => g.IsEnabled).ToList();
-            codeGenerators.Sort((a, b) => a.Priority.CompareTo(b.Priority));
-            foreach (var generator in codeGenerators)
-            {
-                try
-                {
-                    context.AddLog($"Executing code generator: {generator.Name}");
-
-                    var generationResult = generator.Generate(context);
-
-                    if (!generationResult.Success)
-                    {
-                        result.Errors.AddRange(generationResult.Errors);
-                        return false;
-                    }
-
-                    // 合并生成的文件
-                    foreach (var kvp in generationResult.GeneratedFiles)
-                    {
-                        result.GeneratedFiles[kvp.Key] = kvp.Value;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    result.Errors.Add($"Code generator {generator.Name} threw exception: {ex.Message}");
-                    return false;
-                }
-            }
-
-            return true;
-        }
+        #endregion
 
         private void InitializeDefaultProcessors()
         {
@@ -407,81 +568,14 @@ namespace NFramework.Module.Config.DataPipeline.Core
         {
             return new PipelineInfo
             {
+                Collectors = _collectors.Select(p => new ProcessorInfo { Name = p.Name, Priority = p.Priority, IsEnabled = p.IsEnabled }).ToList(),
+                BatchProcessors = _batchProcessors.Select(p => new ProcessorInfo { Name = p.Name, Priority = p.Priority, IsEnabled = p.IsEnabled }).ToList(),
                 PreProcessors = _preProcessors.Select(p => new ProcessorInfo { Name = p.Name, Priority = p.Priority, IsEnabled = p.IsEnabled }).ToList(),
-                DataProcessors = _dataProcessors.Select(p => new ProcessorInfo { Name = p.Name, Priority = p.Priority, IsEnabled = p.IsEnabled }).ToList(),
+                Generators = _generators.Select(p => new ProcessorInfo { Name = p.Name, Priority = p.Priority, IsEnabled = p.IsEnabled }).ToList(),
                 PostProcessors = _postProcessors.Select(p => new ProcessorInfo { Name = p.Name, Priority = p.Priority, IsEnabled = p.IsEnabled }).ToList(),
-                Validators = _validators.Select(p => new ProcessorInfo { Name = p.Name, Priority = p.Priority, IsEnabled = p.IsEnabled }).ToList(),
-                CodeGenerators = _codeGenerators.Select(p => new ProcessorInfo { Name = p.Name, Priority = p.Priority, IsEnabled = p.IsEnabled }).ToList()
+                FinalProcessors = _finalProcessors.Select(p => new ProcessorInfo { Name = p.Name, Priority = p.Priority, IsEnabled = p.IsEnabled }).ToList(),
+                Validators = _validators.Select(p => new ProcessorInfo { Name = p.Name, Priority = p.Priority, IsEnabled = p.IsEnabled }).ToList()
             };
         }
-    }
-
-    /// <summary>
-    /// 管道设置
-    /// </summary>
-    public class PipelineSettings
-    {
-        public bool EnableValidation { get; set; } = true;
-        public bool EnableCodeGeneration { get; set; } = true;
-        public bool StopOnValidationError { get; set; } = true;
-        public string CodeOutputDirectory { get; set; } = "Assets/Generated/Config";
-        public CompressionSettings CompressionSettings { get; set; } = new CompressionSettings();
-        public EncryptionSettings EncryptionSettings { get; set; } = new EncryptionSettings();
-        public CodeGenerationSettings CodeGenerationSettings { get; set; } = new CodeGenerationSettings();
-    }
-
-    /// <summary>
-    /// 管道输入
-    /// </summary>
-    public class PipelineInput
-    {
-        public string ConfigType { get; set; }
-        public string ConfigName { get; set; }
-        public string SourceFilePath { get; set; }
-        public System.Data.DataSet RawDataSet { get; set; }
-        public Type TargetType { get; set; }
-        public string OutputPath { get; set; }
-        public ValidationRules ValidationRules { get; set; }
-    }
-
-    /// <summary>
-    /// 管道结果
-    /// </summary>
-    public class PipelineResult
-    {
-        public bool Success { get; set; }
-        public PipelineInput Input { get; set; }
-        public byte[] BinaryData { get; set; }
-        public Dictionary<string, byte[]> OutputFiles { get; } = new Dictionary<string, byte[]>();
-        public Dictionary<string, string> GeneratedFiles { get; } = new Dictionary<string, string>();
-        public List<ValidationResult> ValidationResults { get; set; } = new List<ValidationResult>();
-        public List<string> Logs { get; } = new List<string>();
-        public List<string> Warnings { get; } = new List<string>();
-        public List<string> Errors { get; } = new List<string>();
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
-        public TimeSpan Duration { get; set; }
-    }
-
-    /// <summary>
-    /// 管道信息
-    /// </summary>
-    public class PipelineInfo
-    {
-        public List<ProcessorInfo> PreProcessors { get; set; } = new List<ProcessorInfo>();
-        public List<ProcessorInfo> DataProcessors { get; set; } = new List<ProcessorInfo>();
-        public List<ProcessorInfo> PostProcessors { get; set; } = new List<ProcessorInfo>();
-        public List<ProcessorInfo> Validators { get; set; } = new List<ProcessorInfo>();
-        public List<ProcessorInfo> CodeGenerators { get; set; } = new List<ProcessorInfo>();
-    }
-
-    /// <summary>
-    /// 处理器信息
-    /// </summary>
-    public class ProcessorInfo
-    {
-        public string Name { get; set; }
-        public int Priority { get; set; }
-        public bool IsEnabled { get; set; }
     }
 }

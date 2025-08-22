@@ -14,14 +14,14 @@ namespace NFramework.Module.Config.DataPipeline
         private const string EXCEL_PATH = "ConfigData/Excel";
         private const string OUTPUT_PATH = "ConfigData/Output";
         private const string DATABASE_PATH = "ConfigData/game_config.db";
-        
+
         // [MenuItem("NFramework/Config/Build All Configs")]  // 已禁用，简化菜单
         public static void BuildAllConfigs()
         {
             try
             {
                 Debug.Log("开始构建所有配置数据...");
-                
+
                 // 1. 检查Excel文件目录
                 string excelDir = Path.Combine(Application.dataPath, "..", EXCEL_PATH);
                 if (!Directory.Exists(excelDir))
@@ -29,27 +29,27 @@ namespace NFramework.Module.Config.DataPipeline
                     Debug.LogError($"Excel目录不存在: {excelDir}");
                     return;
                 }
-                
+
                 // 2. 初始化数据库
                 string dbPath = Path.Combine(Application.dataPath, "..", DATABASE_PATH);
                 string dbDir = Path.GetDirectoryName(dbPath);
                 Directory.CreateDirectory(dbDir);
-                
+
                 using (var dataManager = new SQLiteDataManager(dbPath))
                 {
                     // 3. 处理所有Excel文件
                     var excelFiles = Directory.GetFiles(excelDir, "*.xlsx", SearchOption.AllDirectories);
-                    
+
                     foreach (var excelFile in excelFiles)
                     {
                         ProcessExcelFile(excelFile, dataManager);
                     }
-                    
+
                     // 4. 显示统计信息
                     var stats = dataManager.GetDatabaseStats();
                     Debug.Log($"配置构建完成！统计信息: {stats}");
                 }
-                
+
                 Debug.Log("所有配置数据构建完成！");
             }
             catch (Exception ex)
@@ -57,21 +57,21 @@ namespace NFramework.Module.Config.DataPipeline
                 Debug.LogError($"构建配置数据失败: {ex.Message}");
             }
         }
-        
+
         // [MenuItem("NFramework/Config/Build Single Config")]  // 已禁用，简化菜单
         public static void BuildSingleConfig()
         {
             // 弹出文件选择对话框
-            string excelFile = EditorUtility.OpenFilePanel("选择Excel配置文件", 
+            string excelFile = EditorUtility.OpenFilePanel("选择Excel配置文件",
                 Path.Combine(Application.dataPath, "..", EXCEL_PATH), "xlsx");
-            
+
             if (!string.IsNullOrEmpty(excelFile))
             {
                 try
                 {
                     string dbPath = Path.Combine(Application.dataPath, "..", DATABASE_PATH);
                     var dataManager = CreateDataManager(dbPath);
-                    
+
                     try
                     {
                         ProcessExcelFile(excelFile, dataManager);
@@ -83,7 +83,7 @@ namespace NFramework.Module.Config.DataPipeline
                             disposable.Dispose();
                         }
                     }
-                    
+
                     Debug.Log($"单个配置文件构建完成: {Path.GetFileName(excelFile)}");
                 }
                 catch (Exception ex)
@@ -92,26 +92,26 @@ namespace NFramework.Module.Config.DataPipeline
                 }
             }
         }
-        
+
         // [MenuItem("NFramework/Config/View Database Stats")]  // 已禁用，简化菜单
         public static void ViewDatabaseStats()
         {
             try
             {
                 string dbPath = Path.Combine(Application.dataPath, "..", DATABASE_PATH);
-                
+
                 if (!File.Exists(dbPath))
                 {
                     EditorUtility.DisplayDialog("提示", "数据库文件不存在，请先构建配置数据", "确定");
                     return;
                 }
-                
+
                 var dataManager = CreateDataManager(dbPath);
                 try
                 {
                     var stats = GetDatabaseStats(dataManager);
                     var configTypes = GetAllConfigTypes(dataManager);
-                    
+
                     string message = $"{stats}\n\n配置类型:\n{string.Join("\n", configTypes)}";
                     EditorUtility.DisplayDialog("数据库统计信息", message, "确定");
                 }
@@ -128,7 +128,7 @@ namespace NFramework.Module.Config.DataPipeline
                 EditorUtility.DisplayDialog("错误", $"查看数据库统计失败: {ex.Message}", "确定");
             }
         }
-        
+
         // [MenuItem("NFramework/Config/Clear Database")]  // 已禁用，简化菜单
         public static void ClearDatabase()
         {
@@ -137,7 +137,7 @@ namespace NFramework.Module.Config.DataPipeline
                 try
                 {
                     string dbPath = Path.Combine(Application.dataPath, "..", DATABASE_PATH);
-                    
+
                     if (File.Exists(dbPath))
                     {
                         File.Delete(dbPath);
@@ -154,16 +154,16 @@ namespace NFramework.Module.Config.DataPipeline
                 }
             }
         }
-        
+
         private static void ProcessExcelFile(string excelFilePath, object dataManager)
         {
             try
             {
                 string fileName = Path.GetFileNameWithoutExtension(excelFilePath);
                 string configType = DetermineConfigType(fileName);
-                
+
                 Debug.Log($"处理Excel文件: {fileName} -> {configType}");
-                
+
                 // 使用新的增强管道系统
                 var config = new PipelineConfiguration
                 {
@@ -172,19 +172,19 @@ namespace NFramework.Module.Config.DataPipeline
                     EnableLocalization = true,
                     EnableReferenceResolution = true
                 };
-                
+
                 var pipeline = ConfigPipelineFactory.CreateForConfigType(configType, config);
-                
+
                 // 创建管道输入
                 var input = EnhancedExcelDataLoader.CreatePipelineInput(excelFilePath, configType, fileName);
-                
-                // 执行管道处理
-                var result = pipeline.Execute(input);
-                
-                if (result.Success)
+
+                // Wrap the input in a List before executing the pipeline
+                var result = pipeline.Execute(new List<PipelineInput> { input });
+
+                if (result.IsSuccess)
                 {
                     Debug.Log($"✓ 处理成功: {fileName}");
-                    
+
                     // 存储到数据库
                     if (result.BinaryData != null && result.BinaryData.Length > 0)
                     {
@@ -205,14 +205,14 @@ namespace NFramework.Module.Config.DataPipeline
                 Debug.LogError($"处理Excel文件失败: {Path.GetFileName(excelFilePath)}, 错误: {ex.Message}");
             }
         }
-        
+
         /// <summary>
         /// 确定配置类型
         /// </summary>
         private static string DetermineConfigType(string fileName)
         {
             var lowerName = fileName.ToLower();
-            
+
             if (lowerName.Contains("character") || lowerName.Contains("角色"))
                 return "Character";
             if (lowerName.Contains("item") || lowerName.Contains("物品"))
@@ -221,10 +221,10 @@ namespace NFramework.Module.Config.DataPipeline
                 return "Skill";
             if (lowerName.Contains("localization") || lowerName.Contains("本地化"))
                 return "Localization";
-                
+
             return "Generic";
         }
-        
+
         /// <summary>
         /// 存储二进制数据到数据库（兼容两种数据管理器）
         /// </summary>
@@ -253,12 +253,12 @@ namespace NFramework.Module.Config.DataPipeline
                 Debug.LogError($"存储数据到数据库失败: {configType}.{configName}, 错误: {ex.Message}");
             }
         }
-        
+
         // [MenuItem("NFramework/Config/Open Config Folder")]  // 已禁用，简化菜单
         public static void OpenConfigFolder()
         {
             string configDir = Path.Combine(Application.dataPath, "..", "ConfigData");
-            
+
             if (Directory.Exists(configDir))
             {
                 EditorUtility.RevealInFinder(configDir);
@@ -268,12 +268,12 @@ namespace NFramework.Module.Config.DataPipeline
                 Directory.CreateDirectory(configDir);
                 Directory.CreateDirectory(Path.Combine(configDir, "Excel"));
                 Directory.CreateDirectory(Path.Combine(configDir, "Output"));
-                
+
                 EditorUtility.RevealInFinder(configDir);
                 Debug.Log("配置目录已创建，请将Excel文件放入Excel文件夹中");
             }
         }
-        
+
         /// <summary>
         /// 创建数据管理器（兼容两种SQLite库）
         /// </summary>
@@ -288,7 +288,7 @@ namespace NFramework.Module.Config.DataPipeline
             return new EmptyDataManager();
 #endif
         }
-        
+
         /// <summary>
         /// 获取数据库统计信息（兼容两种数据管理器）
         /// </summary>
@@ -308,7 +308,7 @@ namespace NFramework.Module.Config.DataPipeline
 #endif
             return new DatabaseStats();
         }
-        
+
         /// <summary>
         /// 获取所有配置类型（兼容两种数据管理器）
         /// </summary>
@@ -329,7 +329,7 @@ namespace NFramework.Module.Config.DataPipeline
             return new List<string>();
         }
     }
-    
+
     /// <summary>
     /// 空数据管理器（当没有SQLite库时使用）
     /// </summary>
@@ -339,12 +339,12 @@ namespace NFramework.Module.Config.DataPipeline
         {
             Debug.LogWarning("使用空数据管理器，数据不会被持久化");
         }
-        
+
         public void StoreFlatBufferData(string configType, string configName, byte[] binaryData)
         {
             Debug.Log($"模拟存储数据: {configType}.{configName} ({binaryData?.Length ?? 0} bytes)");
         }
-        
+
         public void Dispose() { }
     }
 }

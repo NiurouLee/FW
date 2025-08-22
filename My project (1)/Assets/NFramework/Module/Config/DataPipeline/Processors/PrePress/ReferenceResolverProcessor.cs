@@ -2,18 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using NFramework.Module.Config.DataPipeline.Core;
-using UnityEngine;
 
-namespace NFramework.Module.Config.DataPipeline.Processors
+namespace NFramework.Module.Config.DataPipeline
 {
     /// <summary>
-    /// 引用解析处理器 - 处理@Ref标记的字段，生成引用属性
+    /// 引用解析处理器 - 处理配置之间的引用关系
     /// </summary>
     public class ReferenceResolverProcessor : IPreProcessor
     {
-        public string Name => "Reference Resolver Processor";
-        public int Priority => PrePressPriority.ReferenceResolver; // 在Schema生成之后，本地化处理之前
+        public string Name => "Reference Resolver";
+        public int Priority => PrePressPriority.ReferenceResolver;
         public bool IsEnabled { get; set; } = true;
 
         private readonly ReferenceSettings _settings;
@@ -35,8 +33,9 @@ namespace NFramework.Module.Config.DataPipeline.Processors
                     return false;
                 }
 
+                // 获取所有引用字段
                 var referenceFields = context.SchemaDefinition.Fields
-                    .Where(f => f.Attributes.ContainsKey("reference") && (bool)f.Attributes["reference"])
+                    .Where(f => !string.IsNullOrEmpty(f.ReferencedTypeName))
                     .ToList();
 
                 if (referenceFields.Count == 0)
@@ -59,6 +58,12 @@ namespace NFramework.Module.Config.DataPipeline.Processors
                     ValidateReferences(context);
                 }
 
+                // 处理循环引用
+                if (_settings.ResolveCircularReferences)
+                {
+                    DetectCircularReferences(context);
+                }
+
                 context.AddLog("引用字段处理完成");
                 return true;
             }
@@ -69,32 +74,22 @@ namespace NFramework.Module.Config.DataPipeline.Processors
             }
         }
 
-        /// <summary>
-        /// 处理单个引用字段
-        /// </summary>
         private void ProcessReferenceField(FieldDefinition field, PreProcessContext context)
         {
             try
             {
-                // 获取列索引和引用类型
-                var (columnIndex, refType) = FindColumnIndexAndRefType(context.CurrentSheet, field.Name);
-                
-                if (string.IsNullOrEmpty(refType))
+                var columnIndex = FindColumnIndex(context.CurrentSheet, field.Name);
+                if (columnIndex < 0)
                 {
-                    context.AddWarning($"引用字段 {field.Name} 没有指定引用类型 (@ref type)");
+                    context.AddError($"找不到引用字段的列: {field.Name}");
                     return;
                 }
 
-                context.AddLog($"处理引用字段: {field.Name} -> 引用类型: {refType}");
-
-                // 在数据表中添加引用解析逻辑
-                if (context.CurrentSheet != null)
-                {
-                    AddReferenceColumn(context.CurrentSheet, field, refType, context);
-                }
-
                 // 记录引用关系
-                RecordReferenceRelation(field, refType, context);
+                RecordReferenceRelation(field, context);
+
+                // 添加引用解析列
+                AddReferenceColumn(context.CurrentSheet, field, columnIndex, context);
             }
             catch (Exception ex)
             {
@@ -102,30 +97,41 @@ namespace NFramework.Module.Config.DataPipeline.Processors
             }
         }
 
-        /// <summary>
-        /// 在数据表中添加引用列
-        /// </summary>
-        private void AddReferenceColumn(DataTable table, FieldDefinition field, string refType, PreProcessContext context)
+        private int FindColumnIndex(DataTable table, string columnName)
+        {
+            for (int i = 0; i < table.Columns.Count; i++)
+            {
+                if (table.Columns[i].ColumnName.Equals(columnName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        private void AddReferenceColumn(DataTable table, FieldDefinition field, int sourceColumnIndex, PreProcessContext context)
         {
             try
             {
-                var sourceColumnName = field.Attributes["original_name"]?.ToString() ?? field.Name;
-                var (sourceColumnIndex, _) = FindColumnIndexAndRefType(table, sourceColumnName);
-
-                if (sourceColumnIndex < 0)
-                {
-                    context.AddError($"找不到引用字段的源列: {sourceColumnName}");
-                    return;
-                }
-
                 // 添加新的引用列，使用引用类型作为前缀
-                var refColumnName = $"Ref_{refType}_{field.Name}";
+                var refColumnName = $"Ref_{field.ReferencedTypeName}_{field.Name}";
                 if (!table.Columns.Contains(refColumnName))
                 {
-                    table.Columns.Add(refColumnName, typeof(object));
+                    table.Columns.Add(refColumnName, typeof(string));
 
                     // 为新列填充数据
-                    PopulateReferenceColumn(table, sourceColumnIndex, table.Columns.Count - 1, refType, context);
+                    for (int row = 1; row < table.Rows.Count; row++) // 跳过类型行
+                    {
+                        var sourceValue = table.Rows[row][sourceColumnIndex];
+                        if (sourceValue != null && sourceValue != DBNull.Value)
+                        {
+                            var refId = sourceValue.ToString();
+                            if (!string.IsNullOrEmpty(refId))
+                            {
+                                table.Rows[row][refColumnName] = $"{field.ReferencedTypeName}:{refId}";
+                            }
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -134,81 +140,7 @@ namespace NFramework.Module.Config.DataPipeline.Processors
             }
         }
 
-        /// <summary>
-        /// 填充引用列数据
-        /// </summary>
-        private void PopulateReferenceColumn(DataTable table, int sourceColumnIndex, int refColumnIndex,
-            string refType, PreProcessContext context)
-        {
-            try
-            {
-                // 从第5行开始处理数据（跳过前4行的头信息）
-                for (int row = 4; row < table.Rows.Count; row++)
-                {
-                    var sourceValue = table.Rows[row][sourceColumnIndex];
-                    if (sourceValue != null && sourceValue != DBNull.Value)
-                    {
-                        var refId = sourceValue.ToString();
-                        if (!string.IsNullOrEmpty(refId))
-                        {
-                            // 存储引用信息，包含引用类型和ID
-                            // 这里的引用ID将用于在运行时查找对应类型表中的具体行
-                            table.Rows[row][refColumnIndex] = $"{refType}:{refId}";
-                        }
-                    }
-                }
-
-                context.AddLog($"已填充引用列 {refType}，共处理 {table.Rows.Count - 4} 行数据");
-            }
-            catch (Exception ex)
-            {
-                context.AddError($"填充引用列数据失败: {ex.Message}");
-            }
-        }
-
-        /// <summary>
-        /// 查找列索引
-        /// </summary>
-        /// <summary>
-        /// 查找列索引并解析引用类型
-        /// </summary>
-        private (int index, string refType) FindColumnIndexAndRefType(DataTable table, string columnName)
-        {
-            if (table.Rows.Count == 0) return (-1, null);
-
-            var headerRow = table.Rows[0];
-            for (int i = 0; i < headerRow.ItemArray.Length; i++)
-            {
-                var cellValue = headerRow[i]?.ToString()?.Trim();
-                if (!string.IsNullOrEmpty(cellValue))
-                {
-                    // 检查是否包含@ref标记和类型
-                    if (cellValue.Contains("@ref"))
-                    {
-                        var parts = cellValue.Split(new[] { '@', ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                        var cleanName = parts[0].Trim();
-                        if (cleanName.Equals(columnName, StringComparison.OrdinalIgnoreCase))
-                        {
-                            // 获取引用类型（如 "skill"）
-                            var refType = parts.Length > 1 ? parts[1].Trim() : null;
-                            return (i, refType);
-                        }
-                    }
-                    // 处理没有@ref的普通列
-                    else if (cellValue.Equals(columnName, StringComparison.OrdinalIgnoreCase))
-                    {
-                        return (i, null);
-                    }
-                }
-            }
-
-            return (-1, null);
-        }
-
-        /// <summary>
-        /// 记录引用关系
-        /// </summary>
-        private void RecordReferenceRelation(FieldDefinition field, string referenceId, PreProcessContext context)
+        private void RecordReferenceRelation(FieldDefinition field, PreProcessContext context)
         {
             if (!context.Properties.ContainsKey("ReferenceRelations"))
             {
@@ -217,29 +149,24 @@ namespace NFramework.Module.Config.DataPipeline.Processors
 
             var relations = (Dictionary<string, List<ReferenceRelation>>)context.Properties["ReferenceRelations"];
 
-            if (!relations.ContainsKey(referenceId))
+            if (!relations.ContainsKey(field.ReferencedTypeName))
             {
-                relations[referenceId] = new List<ReferenceRelation>();
+                relations[field.ReferencedTypeName] = new List<ReferenceRelation>();
             }
 
-            relations[referenceId].Add(new ReferenceRelation
+            relations[field.ReferencedTypeName].Add(new ReferenceRelation
             {
                 SourceField = field.Name,
                 SourceTable = context.ConfigName,
-                TargetType = referenceId,
+                TargetType = field.ReferencedTypeName,
                 IsRequired = field.IsRequired
             });
         }
 
-        /// <summary>
-        /// 验证引用完整性
-        /// </summary>
         private void ValidateReferences(PreProcessContext context)
         {
             try
             {
-                context.AddLog("开始验证引用完整性");
-
                 if (!context.Properties.ContainsKey("ReferenceRelations"))
                 {
                     return;
@@ -254,36 +181,95 @@ namespace NFramework.Module.Config.DataPipeline.Processors
 
                     context.AddLog($"验证引用类型: {targetType}, 共有 {relationList.Count} 个引用");
 
-                    // 这里可以添加更复杂的引用验证逻辑
-                    // 例如检查目标配置表是否存在、引用ID是否有效等
-
-                    foreach (var relation in relationList)
+                    // 验证目标类型是否存在
+                    if (!context.ValidConfigTypes.Contains(targetType))
                     {
-                        if (relation.IsRequired)
-                        {
-                            // 验证必需引用字段
-                            ValidateRequiredReference(relation, context);
-                        }
+                        context.AddWarning($"引用的目标类型 {targetType} 不在已知的配置类型中");
+                    }
+
+                    // 验证必需引用字段
+                    foreach (var relation in relationList.Where(r => r.IsRequired))
+                    {
+                        ValidateRequiredReference(relation, context);
                     }
                 }
-
-                context.AddLog("引用完整性验证完成");
             }
             catch (Exception ex)
             {
-                context.AddError($"引用完整性验证失败: {ex.Message}");
+                context.AddError($"引用验证失败: {ex.Message}");
             }
         }
 
-        /// <summary>
-        /// 验证必需的引用字段
-        /// </summary>
         private void ValidateRequiredReference(ReferenceRelation relation, PreProcessContext context)
         {
-            // 这里可以实现具体的引用验证逻辑
+            // 这里可以添加更多的验证逻辑
             // 例如：检查引用的ID是否在目标表中存在
-
             context.AddLog($"验证必需引用: {relation.SourceTable}.{relation.SourceField} -> {relation.TargetType}");
+        }
+
+        private void DetectCircularReferences(PreProcessContext context)
+        {
+            try
+            {
+                if (!context.Properties.ContainsKey("ReferenceRelations"))
+                {
+                    return;
+                }
+
+                var relations = (Dictionary<string, List<ReferenceRelation>>)context.Properties["ReferenceRelations"];
+                var visited = new HashSet<string>();
+                var recursionStack = new HashSet<string>();
+
+                foreach (var kvp in relations)
+                {
+                    var sourceType = kvp.Key;
+                    if (!visited.Contains(sourceType))
+                    {
+                        var path = new List<string>();
+                        if (HasCircularReference(sourceType, relations, visited, recursionStack, path))
+                        {
+                            context.AddWarning($"检测到循环引用: {string.Join(" -> ", path)} -> {path[0]}");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                context.AddError($"循环引用检测失败: {ex.Message}");
+            }
+        }
+
+        private bool HasCircularReference(
+            string current,
+            Dictionary<string, List<ReferenceRelation>> relations,
+            HashSet<string> visited,
+            HashSet<string> recursionStack,
+            List<string> path)
+        {
+            visited.Add(current);
+            recursionStack.Add(current);
+            path.Add(current);
+
+            if (relations.TryGetValue(current, out var deps))
+            {
+                foreach (var dep in deps.Select(r => r.TargetType).Distinct())
+                {
+                    if (!visited.Contains(dep))
+                    {
+                        if (HasCircularReference(dep, relations, visited, recursionStack, path))
+                            return true;
+                    }
+                    else if (recursionStack.Contains(dep))
+                    {
+                        path.Add(dep);
+                        return true;
+                    }
+                }
+            }
+
+            recursionStack.Remove(current);
+            path.RemoveAt(path.Count - 1);
+            return false;
         }
     }
 
@@ -297,6 +283,4 @@ namespace NFramework.Module.Config.DataPipeline.Processors
         public string TargetType { get; set; }
         public bool IsRequired { get; set; }
     }
-
-
 }
