@@ -28,7 +28,7 @@ namespace NFramework.Module.Config.DataPipeline
             {
                 var dataSet = new DataSet();
                 var lines = File.ReadAllLines(filePath, Encoding.UTF8);
-                
+
                 if (lines.Length < 4)
                 {
                     throw new InvalidOperationException("CSV文件至少需要4行：字段名、字段类型、字段描述、字段默认值");
@@ -37,39 +37,39 @@ namespace NFramework.Module.Config.DataPipeline
                 // 创建数据表
                 var tableName = Path.GetFileNameWithoutExtension(filePath);
                 var table = new DataTable(tableName);
-                
+
                 // 解析第一行获取列数
                 var firstLine = lines[0];
                 var columns = ParseCSVLine(firstLine);
-                
+
                 // 创建列
                 for (int i = 0; i < columns.Length; i++)
                 {
                     table.Columns.Add($"Column{i}", typeof(object));
                 }
-                
+
                 // 添加所有行数据
                 foreach (var line in lines)
                 {
                     if (string.IsNullOrWhiteSpace(line)) continue;
-                    
+
                     var values = ParseCSVLine(line);
                     var row = table.NewRow();
-                    
+
                     for (int i = 0; i < System.Math.Min(values.Length, table.Columns.Count); i++)
                     {
                         row[i] = values[i];
                     }
-                    
+
                     table.Rows.Add(row);
                 }
-                
+
                 // 验证和处理表格
                 ValidateAndProcessTable(table, filePath);
-                
+
                 dataSet.Tables.Add(table);
                 Debug.Log($"成功加载CSV文件: {filePath}, 共 {table.Rows.Count} 行数据");
-                
+
                 return dataSet;
             }
             catch (Exception ex)
@@ -86,11 +86,11 @@ namespace NFramework.Module.Config.DataPipeline
             var result = new List<string>();
             var current = new StringBuilder();
             bool inQuotes = false;
-            
+
             for (int i = 0; i < line.Length; i++)
             {
                 char c = line[i];
-                
+
                 if (c == '"')
                 {
                     if (inQuotes && i + 1 < line.Length && line[i + 1] == '"')
@@ -116,10 +116,10 @@ namespace NFramework.Module.Config.DataPipeline
                     current.Append(c);
                 }
             }
-            
+
             // 添加最后一个字段
             result.Add(current.ToString());
-            
+
             return result.ToArray();
         }
 
@@ -135,7 +135,7 @@ namespace NFramework.Module.Config.DataPipeline
 
             // 分析表头信息
             var headerInfo = AnalyzeTableHeader(table);
-            
+
             // 记录表头信息到表的扩展属性中
             table.ExtendedProperties["HeaderInfo"] = headerInfo;
             table.ExtendedProperties["OriginalFileName"] = Path.GetFileName(filePath);
@@ -182,7 +182,7 @@ namespace NFramework.Module.Config.DataPipeline
                 ValidateFieldType(columnInfo);
 
                 headerInfo.ValidColumns.Add(columnInfo);
-                
+
                 // 如果标记为@PM，记录但不包含在处理列表中
                 if (columnInfo.GenerationType != FieldGenerationType.None)
                 {
@@ -211,16 +211,16 @@ namespace NFramework.Module.Config.DataPipeline
         private static void ParseFieldTags(ColumnInfo columnInfo)
         {
             var fieldName = columnInfo.FieldName;
-            
+
             if (fieldName.Contains("@"))
             {
                 var parts = fieldName.Split('@');
                 columnInfo.CleanFieldName = parts[0].Trim();
-                
+
                 for (int i = 1; i < parts.Length; i++)
                 {
                     var tag = parts[i].Trim().ToUpper();
-                    
+
                     switch (tag)
                     {
                         case "PM":
@@ -259,7 +259,7 @@ namespace NFramework.Module.Config.DataPipeline
         private static void ValidateFieldType(ColumnInfo columnInfo)
         {
             var fieldType = columnInfo.FieldType;
-            
+
             if (string.IsNullOrWhiteSpace(fieldType))
             {
                 columnInfo.ParsedType = "string";
@@ -284,26 +284,26 @@ namespace NFramework.Module.Config.DataPipeline
         private static string ParseFieldType(string originalType, ColumnInfo columnInfo)
         {
             var type = originalType.Trim().ToLower();
-            
+
             // 处理引用类型
             if (columnInfo.IsReference)
             {
                 columnInfo.ReferenceType = ExtractReferenceType(type);
                 return "int"; // 引用字段存储为ID
             }
-            
+
             // 处理数组类型
             if (type.StartsWith("repeated ") || type.Contains("[]"))
             {
-                var elementType = type.StartsWith("repeated ") 
+                var elementType = type.StartsWith("repeated ")
                     ? type.Substring("repeated ".Length).Trim()
                     : type.Replace("[]", "").Trim();
-                
+
                 columnInfo.IsArray = true;
                 columnInfo.ElementType = ConvertBasicType(elementType);
                 return $"[{columnInfo.ElementType}]";
             }
-            
+
             // 处理Map类型 - 支持分号分隔符（CSV友好）
             if (type.StartsWith("map<") && type.EndsWith(">"))
             {
@@ -317,14 +317,14 @@ namespace NFramework.Module.Config.DataPipeline
                     return $"[{columnInfo.KeyType}_{columnInfo.ValueType}_Pair]";
                 }
             }
-            
+
             // 处理键值对数组
             if (type.Contains("keyvaluepair") || type.Contains("kvp"))
             {
                 columnInfo.IsKeyValuePairArray = true;
                 return "[KeyValuePair]";
             }
-            
+
             return ConvertBasicType(type);
         }
 
@@ -360,7 +360,7 @@ namespace NFramework.Module.Config.DataPipeline
             {
                 return type.Replace("config", "").Replace("table", "").Trim();
             }
-            
+
             return type;
         }
 
@@ -373,7 +373,7 @@ namespace NFramework.Module.Config.DataPipeline
                 return "UnknownField";
 
             var sanitized = System.Text.RegularExpressions.Regex.Replace(fieldName, @"[^a-zA-Z0-9_]", "");
-            
+
             if (char.IsDigit(sanitized[0]))
             {
                 sanitized = "Field_" + sanitized;
@@ -385,23 +385,23 @@ namespace NFramework.Module.Config.DataPipeline
         /// <summary>
         /// 创建标准的PipelineInput（CSV版本）
         /// </summary>
-        public static Core.PipelineInput CreatePipelineInput(string csvFilePath, string configType = null, string configName = null)
+        public static PipelineInput CreatePipelineInput(string csvFilePath, string configType = null, string configName = null)
         {
             var dataSet = LoadCSVData(csvFilePath);
-            
+
             // 如果没有指定配置类型，使用文件名
             if (string.IsNullOrEmpty(configType))
             {
                 configType = Path.GetFileNameWithoutExtension(csvFilePath);
             }
-            
+
             // 如果没有指定配置名，使用第一个表的名字
             if (string.IsNullOrEmpty(configName))
             {
                 configName = dataSet.Tables[0].TableName;
             }
 
-            return new Core.PipelineInput
+            return new PipelineInput
             {
                 ConfigType = configType,
                 ConfigName = configName,
