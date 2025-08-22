@@ -171,61 +171,6 @@ namespace NFramework.Module.Config.DataPipeline
         public Type CustomDeserializer { get; set; }
     }
 
-    /// 验证规则
-    /// </summary>
-    public class ValidationRule
-    {
-        /// <summary>
-        /// 规则名称
-        /// </summary>
-        public string Name { get; set; }
-
-        /// <summary>
-        /// 验证表达式
-        /// </summary>
-        public string Expression { get; set; }
-
-        /// <summary>
-        /// 错误消息
-        /// </summary>
-        public string ErrorMessage { get; set; }
-
-        /// <summary>
-        /// 错误级别
-        /// </summary>
-        public ValidationSeverity Severity { get; set; } = ValidationSeverity.Error;
-
-        /// <summary>
-        /// 自定义验证函数
-        /// </summary>
-        public Func<object, bool> Validator { get; set; }
-
-        /// <summary>
-        /// 验证参数
-        /// </summary>
-        public Dictionary<string, object> Parameters { get; } = new Dictionary<string, object>();
-
-        /// <summary>
-        /// 条件表达式（何时应用此规则）
-        /// </summary>
-        public string Condition { get; set; }
-
-        /// <summary>
-        /// 规则分组
-        /// </summary>
-        public string Group { get; set; }
-
-        /// <summary>
-        /// 规则优先级
-        /// </summary>
-        public int Priority { get; set; }
-
-        /// <summary>
-        /// 是否启用
-        /// </summary>
-        public bool IsEnabled { get; set; } = true;
-    }
-
 
     /// <summary>
     /// 范围约束

@@ -6,6 +6,27 @@ using System.Text.RegularExpressions;
 namespace NFramework.Module.Config.DataPipeline
 {
     /// <summary>
+    /// 验证模式
+    /// </summary>
+    public enum ValidationMode
+    {
+        /// <summary>
+        /// 普通验证模式 - 执行标准验证
+        /// </summary>
+        Normal = 0,
+
+        /// <summary>
+        /// 严格验证模式 - 执行更严格的验证规则
+        /// </summary>
+        Strict = 1,
+
+        /// <summary>
+        /// 宽松验证模式 - 允许更多的值类型和格式
+        /// </summary>
+        Lenient = 2
+    }
+
+    /// <summary>
     /// 验证规则集
     /// </summary>
     public class ValidationRules
@@ -304,32 +325,6 @@ namespace NFramework.Module.Config.DataPipeline
         /// 验证规则
         /// </summary>
         public IValidationRule Rule { get; set; }
-    }
-
-    /// <summary>
-    /// 验证上下文
-    /// </summary>
-    public class ValidationContext
-    {
-        /// <summary>
-        /// 验证路径
-        /// </summary>
-        public string[] ValidationPath { get; set; }
-
-        /// <summary>
-        /// 根对象
-        /// </summary>
-        public object Root { get; set; }
-
-        /// <summary>
-        /// 当前对象
-        /// </summary>
-        public object Current { get; set; }
-
-        /// <summary>
-        /// 上下文数据
-        /// </summary>
-        public Dictionary<string, object> Data { get; } = new Dictionary<string, object>();
     }
 
     /// <summary>

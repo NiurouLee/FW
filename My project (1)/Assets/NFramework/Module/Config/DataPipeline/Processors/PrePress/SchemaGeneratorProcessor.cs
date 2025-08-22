@@ -11,7 +11,220 @@ namespace NFramework.Module.Config.DataPipeline
     /// </summary>
     public class SchemaGeneratorProcessor : IPreProcessor
     {
-        // ... [保持其他代码不变，直到 ParseFieldInfo 方法] ...
+        public string Name => "SchemaGenerator";
+
+        public int Priority => 100;
+
+        public bool IsEnabled => true;
+
+        private readonly Dictionary<string, string> _typeMapping = new Dictionary<string, string>
+        {
+            { "int", "int32" },
+            { "long", "int64" },
+            { "float", "float32" },
+            { "double", "float64" },
+            { "bool", "bool" },
+            { "string", "string" },
+            { "byte", "int8" },
+            { "short", "int16" },
+            { "uint", "uint32" },
+            { "ulong", "uint64" },
+            { "ushort", "uint16" },
+            { "sbyte", "int8" }
+        };
+
+        public bool Process(PreProcessContext context)
+        {
+            try
+            {
+                if (context == null || context.CurrentSheet == null)
+                {
+                    Debug.LogError("SchemaGenerator: Invalid context or data table");
+                    return false;
+                }
+
+                var schema = new SchemaDefinition
+                {
+                    Name = context.ConfigName,
+                    Namespace = "GameConfig",
+                    Description = $"Auto generated schema for {context.ConfigName}"
+                };
+
+                // 分析表头
+                var headerRow = context.CurrentSheet.Rows[0];
+                var typeRow = context.CurrentSheet.Rows[1];
+                var descRow = context.CurrentSheet.Rows[2];
+                var defaultRow = context.CurrentSheet.Rows[3];
+
+                for (int i = 0; i < context.CurrentSheet.Columns.Count; i++)
+                {
+                    var columnName = headerRow[i]?.ToString();
+                    var columnType = typeRow[i]?.ToString();
+                    var columnDesc = descRow[i]?.ToString();
+                    var columnDefault = defaultRow[i]?.ToString();
+
+                    if (string.IsNullOrEmpty(columnName) || string.IsNullOrEmpty(columnType))
+                        continue;
+
+                    var fieldInfo = ParseFieldInfo(columnName, columnType, columnDesc, columnDefault);
+                    ProcessFieldInfo(fieldInfo);
+
+                    if (fieldInfo.GenerationType != FieldGenerationType.None)
+                    {
+                        var field = new FieldDefinition
+                        {
+                            Name = fieldInfo.CleanName,
+                            Type = fieldInfo.FbsType,
+                            Description = fieldInfo.Description,
+                            DefaultValue = fieldInfo.DefaultValue,
+                            IsArray = fieldInfo.IsArray,
+                            IsReference = fieldInfo.IsReference,
+                            ReferencedTypeName = fieldInfo.ReferenceType,
+                            IsLocalized = fieldInfo.IsLocalization,
+                            CustomProperties = new Dictionary<string, object>
+                            {
+                                { "Is2DArray", fieldInfo.Is2DArray },
+                                { "IsMap", fieldInfo.IsMap },
+                                { "ElementType", fieldInfo.ElementType },
+                                { "KeyType", fieldInfo.KeyType },
+                                { "ValueType", fieldInfo.ValueType }
+                            }
+                        };
+
+                        schema.Fields.Add(field);
+                    }
+                }
+
+                context.SchemaDefinition = schema;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"SchemaGenerator: Error processing schema: {ex}");
+                return false;
+            }
+        }
+
+        private void ProcessFieldInfo(SchemaFieldInfo fieldInfo)
+        {
+            // 清理字段名
+            fieldInfo.CleanName = CleanFieldName(fieldInfo.OriginalName);
+
+            // 处理类型标记
+            ProcessTypeMarkers(fieldInfo);
+
+            // 转换为FBS类型
+            fieldInfo.FbsType = ConvertToFbsType(fieldInfo);
+        }
+
+        private string CleanFieldName(string originalName)
+        {
+            // 移除特殊标记
+            var name = originalName.Split(new[] { '@', '#', '$' })[0].Trim();
+
+            // 确保首字母小写
+            if (name.Length > 0)
+            {
+                name = char.ToLowerInvariant(name[0]) + name.Substring(1);
+            }
+
+            return name;
+        }
+
+        private void ProcessTypeMarkers(SchemaFieldInfo fieldInfo)
+        {
+            var tags = fieldInfo.OriginalName.Split(new[] { '@', '#', '$' }, StringSplitOptions.RemoveEmptyEntries);
+            fieldInfo.TagCombination = string.Join(",", tags);
+
+            foreach (var tag in tags)
+            {
+                var cleanTag = tag.Trim().ToLower();
+
+                switch (cleanTag)
+                {
+                    case "pm":
+                        fieldInfo.GenerationType = FieldGenerationType.None;
+                        break;
+                    case "client":
+                        fieldInfo.GenerationType = FieldGenerationType.ClientOnly;
+                        break;
+                    case "server":
+                        fieldInfo.GenerationType = FieldGenerationType.ServerOnly;
+                        break;
+                    case "all":
+                        fieldInfo.GenerationType = FieldGenerationType.All;
+                        break;
+                    case "loc":
+                    case "localization":
+                        fieldInfo.IsLocalization = true;
+                        break;
+                    case "ref":
+                    case "reference":
+                        fieldInfo.IsReference = true;
+                        break;
+                }
+            }
+        }
+
+        private string ConvertToFbsType(SchemaFieldInfo fieldInfo)
+        {
+            var baseType = fieldInfo.OriginalType.ToLower();
+
+            // 检查是否是数组类型
+            if (baseType.EndsWith("[][]"))
+            {
+                fieldInfo.Is2DArray = true;
+                fieldInfo.IsArray = true;
+                baseType = baseType.Replace("[][]", "");
+                fieldInfo.ElementType = GetFbsBaseType(baseType);
+                return $"[{fieldInfo.ElementType}]";
+            }
+            else if (baseType.EndsWith("[]"))
+            {
+                fieldInfo.IsArray = true;
+                baseType = baseType.Replace("[]", "");
+                fieldInfo.ElementType = GetFbsBaseType(baseType);
+                return $"[{fieldInfo.ElementType}]";
+            }
+
+            // 检查是否是Map类型
+            if (baseType.StartsWith("map<") && baseType.EndsWith(">"))
+            {
+                fieldInfo.IsMap = true;
+                var types = baseType.Substring(4, baseType.Length - 5).Split(',');
+                if (types.Length == 2)
+                {
+                    fieldInfo.KeyType = GetFbsBaseType(types[0].Trim());
+                    fieldInfo.ValueType = GetFbsBaseType(types[1].Trim());
+                    return $"map<{fieldInfo.KeyType},{fieldInfo.ValueType}>";
+                }
+            }
+
+            // 检查是否是键值对数组
+            if (baseType.StartsWith("kvp<") && baseType.EndsWith(">"))
+            {
+                fieldInfo.IsKeyValuePairArray = true;
+                var types = baseType.Substring(4, baseType.Length - 5).Split(',');
+                if (types.Length == 2)
+                {
+                    fieldInfo.KeyType = GetFbsBaseType(types[0].Trim());
+                    fieldInfo.ValueType = GetFbsBaseType(types[1].Trim());
+                    return $"[KeyValuePair<{fieldInfo.KeyType},{fieldInfo.ValueType}>]";
+                }
+            }
+
+            return GetFbsBaseType(baseType);
+        }
+
+        private string GetFbsBaseType(string type)
+        {
+            type = type.ToLower().Trim();
+            if (_typeMapping.TryGetValue(type, out var fbsType))
+            {
+                return fbsType;
+            }
+            return type; // 如果找不到映射，返回原始类型
+        }
 
         /// <summary>
         /// 解析字段信息，包括特殊标记
@@ -26,28 +239,9 @@ namespace NFramework.Module.Config.DataPipeline
                 DefaultValue = columnDefault
             };
 
-            // ... [保持方法内部代码不变，只替换 FieldInfo 为 SchemaFieldInfo] ...
-
             return fieldInfo;
         }
 
-        /// <summary>
-        /// 处理标记组合，支持多标记同时存在
-        /// </summary>
-        private void ProcessTagCombination(SchemaFieldInfo fieldInfo, List<string> tags)
-        {
-            // ... [保持方法内部代码不变] ...
-        }
-
-        /// <summary>
-        /// 解析字段类型，支持数组、map等复杂类型
-        /// </summary>
-        private string ParseFieldType(string originalType, SchemaFieldInfo fieldInfo)
-        {
-            // ... [保持方法内部代码不变] ...
-        }
-
-        // ... [保持其他方法不变] ...
     }
 
     /// <summary>
