@@ -5,12 +5,8 @@ using System;
 using System.Collections.Generic;
 using DG.Tweening.Core;
 using UnityEngine;
-#if true // UI_MARKER
 using UnityEngine.UI;
-#endif
-#if true // TEXTMESHPRO_MARKER
 using TMPro;
-#endif
 
 #pragma warning disable 1591
 namespace DG.Tweening

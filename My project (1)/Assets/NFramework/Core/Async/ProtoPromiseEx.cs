@@ -40,6 +40,12 @@ public static class ProtoPromiseEx
         }
     }
 
+    public static void MyPromiseStudy()
+    {
+        var p= DownLoadTexture("https://www.google.com");
+
+    }
+
 
     /// <summary>
     /// 使用 协程加载texture 并制作成Sprite

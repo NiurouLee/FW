@@ -7,7 +7,6 @@ namespace NFramework.Module.ResModule
     {
         public T Load<T>(string inAssetID) where T : UnityEngine.Object;
         public Promise<T> LoadAsync<T>(string inAssetID) where T : UnityEngine.Object;
-        public Promise<T> LoadAsyncAndInstantiate<T>(string inAssetID) where T : UnityEngine.Object;
         public void Free<T>(T inObj) where T : UnityEngine.Object;
     }
 

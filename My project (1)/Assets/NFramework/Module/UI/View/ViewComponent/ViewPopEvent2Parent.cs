@@ -4,10 +4,11 @@ using NFramework.Core.Collections;
 
 namespace NFramework.Module.UIModule
 {
-    public partial class View
+    /// <summary>
+    /// 与父级通信组件
+    /// </summary>
+    public class ViewPopEvent2ParentComponent : ViewComponent
     {
-        protected delegate bool UI2ParentEvent<T>(ref T view2ParentEvent);
-
         private Dictionary<Type, System.Delegate> m_ViewDelegates;
 
         private Dictionary<Type, System.Delegate> Delegates
@@ -23,18 +24,7 @@ namespace NFramework.Module.UIModule
             }
         }
 
-
-        protected bool RegisterSubEvent<T>(UI2ParentEvent<T> inHandle) where T : IView2ParentEvent
-        {
-            return _RegisterSubEvent(inHandle);
-        }
-
-        protected void PopEvent2Parent<T>(ref T inEvent) where T : IView2ParentEvent
-        {
-            _PopEvent2Parent(inEvent);
-        }
-
-        private bool _RegisterSubEvent<T>(UI2ParentEvent<T> inHandle) where T : IView2ParentEvent
+        public bool RegisterSubEvent<T>(UI2ParentEvent<T> inHandle) where T : IView2ParentEvent
         {
             var eventType = typeof(T);
             if (Delegates.TryGetValue(eventType, out var @delegate))
@@ -48,23 +38,25 @@ namespace NFramework.Module.UIModule
             }
         }
 
-        private void _PopEvent2Parent<T>(T inEvent) where T : IView2ParentEvent
+        public void PopEvent2Parent<T>(ref T inEvent) where T : IView2ParentEvent
         {
-            if (Parent == null || Parent == this)
+            var parent = this.View.Parent;
+            while (parent != null && parent != this.View)
             {
-                return;
-            }
-            else
-            {
-                Parent._OnChildPopEvent(inEvent);
+                if (ViewUtils.Check<ViewPopEvent2ParentComponent>(parent, out var component))
+                {
+                    component._OnChildPopEvent(ref inEvent);
+                    return;
+                }
+                parent = parent.Parent;
             }
         }
 
-        private void _OnChildPopEvent<T>(T inEvent) where T : IView2ParentEvent
+        private void _OnChildPopEvent<T>(ref T inEvent) where T : IView2ParentEvent
         {
             if (this.m_ViewDelegates == null)
             {
-                this.Parent._PopEvent2Parent(inEvent);
+                this.PopEvent2Parent(ref inEvent);
             }
             else
             {
@@ -74,13 +66,12 @@ namespace NFramework.Module.UIModule
                 {
                     if (func.Invoke(ref inEvent))
                     {
-                        Parent._PopEvent2Parent(inEvent);
+                        this.PopEvent2Parent(ref inEvent);
                     }
                 }
             }
         }
-
-        private void DestroyPopEvent2Parent()
+        public override void OnDestroy()
         {
             if (m_ViewDelegates != null)
             {
@@ -88,6 +79,20 @@ namespace NFramework.Module.UIModule
                 DictionaryPool.Free(m_ViewDelegates);
                 m_ViewDelegates = null;
             }
+        }
+
+    }
+    public static class ViewPopEvent2ParentComponentExtensions
+    {
+        public static bool RegisterSubEvent<T>(this View inView, UI2ParentEvent<T> inHandle) where T : IView2ParentEvent
+        {
+            var component = ViewUtils.CheckAndAdd<ViewPopEvent2ParentComponent>(inView);
+            return component.RegisterSubEvent(inHandle);
+        }
+        public static void PopEvent2Parent<T>(this View inView, ref T inEvent) where T : IView2ParentEvent
+        {
+            var component = ViewUtils.CheckAndAdd<ViewPopEvent2ParentComponent>(inView);
+            component.PopEvent2Parent(ref inEvent);
         }
     }
 }

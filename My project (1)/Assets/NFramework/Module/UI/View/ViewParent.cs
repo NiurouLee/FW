@@ -4,7 +4,7 @@ namespace NFramework.Module.UIModule
     {
         public View Parent { get; private set; }
 
-        private void SetParent(View inParent)
+        internal void SetParent(View inParent)
         {
             this.Parent = inParent;
         }

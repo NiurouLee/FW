@@ -17,12 +17,12 @@ namespace NFramework.Module.UIModule
 
         public UIFacade Alloc<T>() where T : View
         {
-            return null;
+          return null
         }
 
-        public Promise<UIFacade> AllocAsync<T>() where T : View
+        public Promise<UIFacade>.Deferred AllocAsync<T>() where T : View
         {
-            return Promise<UIFacade>.Resolved(null);
+            return Promise<UIFacade>.NewDeferred();
         }
 
         public UIFacade Alloc(ViewConfig inConfig)

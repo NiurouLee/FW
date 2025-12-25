@@ -17,6 +17,7 @@ namespace Proto.Promises.Examples
         private void Awake()
         {
             image.preserveAspect = true;
+            
         }
 
 #if UNITY_2021_2_OR_NEWER // netstandard2.1 added in 2021.2, so `await using` works.

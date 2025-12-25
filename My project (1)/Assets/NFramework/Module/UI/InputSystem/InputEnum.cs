@@ -6,17 +6,6 @@ namespace NFramework.Module.UIModule
         DoubleClick,
         LongClick,
         Select,
-        PointerEnter,
-        PointerExit,
-        PointerDown,
-        PointerUp,
-        BeginDrag,
-        Drag,
-        EndDrag,
-        Drop,
-        Scroll,
-        Submit,
-        Cancel,
 
     }
 }

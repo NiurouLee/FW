@@ -1,9 +1,11 @@
 using Proto.Promises;
+using UnityEngine;
 
 namespace NFramework.Module.UIModule
 {
-    public partial class View
+    public partial class View : UIObject
     {
+        public RectTransform RectTransform { get; private set; }
         public virtual void Show()
         {
             OnShow();

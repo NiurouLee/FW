@@ -6,6 +6,7 @@ public class DemoWindow : Window, IViewSetData<DemoWindowData>
     public DemoWindow()
     {
 
+this.LoadRes
     }
 
     

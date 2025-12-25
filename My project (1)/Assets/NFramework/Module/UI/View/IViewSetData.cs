@@ -1,6 +1,6 @@
 namespace NFramework.Module.UIModule
 {
-    public interface IViewSetData<T> where T : class
+    public interface IViewSetData<T>
     {
         void SetData(T inData);
     }

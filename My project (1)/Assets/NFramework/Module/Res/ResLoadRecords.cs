@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace NFramework.Module.ResModule
 {
+    /// <summary>
+    /// 资源加载记录,这一层会cache count,引用计数
+    /// </summary>
     public class ResLoadRecords : BaseRecords<ResHandler>, IResLoader
     {
         public void Free<T>(T inObj) where T : Object
@@ -21,9 +24,5 @@ namespace NFramework.Module.ResModule
             throw new System.NotImplementedException();
         }
 
-        public Promise<T> LoadAsyncAndInstantiate<T>(string inAssetID) where T : Object
-        {
-            throw new System.NotImplementedException();
-        }
     }
 }

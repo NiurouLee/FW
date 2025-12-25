@@ -5,10 +5,6 @@ namespace NFramework.Module.UIModule
         public virtual void Destroy()
         {
             OnDestroy();
-            DestroySubView();
-            DestroyEventRecords();
-            DestroyPopEvent2Parent();
-            DestroyPromise();
             DestroyFacade();
             DestroyFacadeProvider();
         }

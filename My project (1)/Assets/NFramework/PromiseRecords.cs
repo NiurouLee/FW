@@ -1,14 +1,12 @@
-using Proto.Promises;
 using NFramework.Core.Collections;
 using NFramework.Core.ObjectPool;
 
 namespace NFramework
 {
-    public class PromiseRecords : BaseRecords<Promise>, IFreeToPool
+    public class PromiseRecords : BaseRecords<Proto.Promises.ICancelable>, IFreeToPool
     {
         public PromiseRecords()
         {
-
         }
 
         public void FreeToPool()
@@ -19,7 +17,7 @@ namespace NFramework
         {
             foreach (var promise in Records)
             {
-
+                promise.Cancel();
             }
         }
     }

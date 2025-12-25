@@ -5,10 +5,14 @@ namespace NFramework.Core.Collections
     [Serializable]
     public struct BitField32 : IEquatable<BitField32>
     {
+        public static int MinBitCount = 0;
+        public static int MidBitCount = 16;
+        public static int MaxBitCount = 32;
+        public static uint HighMask = 0xFFFF0000;
+        public static uint LowMask = 0x0000FFFF;
         private uint _value;
 
         #region 构造函数
-
         public BitField32(uint value = 0)
         {
             _value = value;
@@ -16,7 +20,7 @@ namespace NFramework.Core.Collections
 
         public BitField32(ushort lowSkill, ushort highSkill)
         {
-            _value = ((uint)highSkill << 16) | lowSkill;
+            _value = ((uint)highSkill << MidBitCount) | lowSkill;
         }
 
         #endregion
@@ -28,8 +32,8 @@ namespace NFramework.Core.Collections
         /// </summary>
         public ushort Low
         {
-            get => (ushort)(_value & 0xFFFF);
-            set => _value = (_value & 0xFFFF0000) | value;
+            get => (ushort)(_value & LowMask);
+            set => _value = (_value & HighMask) | value;
         }
 
         /// <summary>
@@ -37,8 +41,8 @@ namespace NFramework.Core.Collections
         /// </summary>
         public ushort High
         {
-            get => (ushort)(_value >> 16);
-            set => _value = (_value & 0xFFFF) | ((uint)value << 16);
+            get => (ushort)(_value >> MidBitCount);
+            set => _value = (_value & LowMask) | ((uint)value << MidBitCount);
         }
 
         /// <summary>
@@ -57,7 +61,7 @@ namespace NFramework.Core.Collections
         /// <returns>技能状态</returns>
         public bool GetBit(int position)
         {
-            if (position < 0 || position >= 32)
+            if (position < MinBitCount || position >= MaxBitCount)
                 throw new ArgumentOutOfRangeException(nameof(position), "Position must be between 0 and 31");
 
             return (_value & (1u << position)) != 0;
@@ -70,7 +74,7 @@ namespace NFramework.Core.Collections
         /// <param name="value">要设置的状态</param>
         public void SetBit(int position, bool value)
         {
-            if (position < 0 || position >= 32)
+            if (position < MinBitCount || position >= MaxBitCount)
                 throw new ArgumentOutOfRangeException(nameof(position), "Position must be between 0 and 31");
 
             if (value)
@@ -80,11 +84,11 @@ namespace NFramework.Core.Collections
         }
 
         /// <summary>
-        /// 判断指定技能是否已学习（检查指定位是否为1）
+        /// 判断
         /// </summary>
         public bool Has(int skillId)
         {
-            if (skillId < 0 || skillId >= 32)
+            if (skillId < MinBitCount || skillId >= MaxBitCount)
                 throw new ArgumentOutOfRangeException(nameof(skillId));
 
             return GetBit(skillId);
@@ -95,7 +99,7 @@ namespace NFramework.Core.Collections
         /// </summary>
         public void Learn(int skillId)
         {
-            if (skillId < 0 || skillId >= 32)
+            if (skillId < MinBitCount || skillId >= MaxBitCount)
                 throw new ArgumentOutOfRangeException(nameof(skillId));
 
             SetBit(skillId, true);
@@ -106,7 +110,7 @@ namespace NFramework.Core.Collections
         /// </summary>
         public void Forget(int skillId)
         {
-            if (skillId < 0 || skillId >= 32)
+            if (skillId < MinBitCount || skillId >= MaxBitCount)
                 throw new ArgumentOutOfRangeException(nameof(skillId));
 
             SetBit(skillId, false);
@@ -117,7 +121,7 @@ namespace NFramework.Core.Collections
         /// </summary>
         public void ClearLowSkills()
         {
-            _value &= 0xFFFF0000;
+            _value &= HighMask;
         }
 
         /// <summary>
@@ -125,7 +129,7 @@ namespace NFramework.Core.Collections
         /// </summary>
         public void ClearHighSkills()
         {
-            _value &= 0xFFFF;
+            _value &= LowMask;
         }
 
         /// <summary>
@@ -141,11 +145,11 @@ namespace NFramework.Core.Collections
         #region 批量操作
 
         /// <summary>
-        /// 获取指定范围的技能状态
+        /// 获取指定范围
         /// </summary>
         public uint GetRange(int startBit, int endBit)
         {
-            if (startBit < 0 || endBit >= 32 || startBit > endBit)
+            if (startBit < MinBitCount || endBit >= MaxBitCount || startBit > endBit)
                 throw new ArgumentException("Invalid range");
 
             int length = endBit - startBit + 1;
@@ -154,11 +158,11 @@ namespace NFramework.Core.Collections
         }
 
         /// <summary>
-        /// 设置一组技能状态
+        /// 设置
         /// </summary>
         public void SetRange(int startBit, int endBit, uint value)
         {
-            if (startBit < 0 || endBit >= 32 || startBit > endBit)
+            if (startBit < MinBitCount || endBit >= MaxBitCount || startBit > endBit)
                 throw new ArgumentException("Invalid range");
 
             int length = endBit - startBit + 1;
@@ -189,6 +193,11 @@ namespace NFramework.Core.Collections
         public bool Equals(BitField32 other)
         {
             return _value == other._value;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is BitField32 other && Equals(other);
         }
 
         #endregion

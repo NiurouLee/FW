@@ -49,12 +49,12 @@ namespace NFramework.Module.Coroutine
         {
             if (Running)
             {
-                Framework.Instance.GetModule<LoggerM>()?.Debug("当前协程未完成");
+                Framework.Instance.GetModule<LoggerM>()?.Log("当前协程未完成");
                 return;
             }
             if (Coroutine == null)
             {
-                Framework.Instance.GetModule<LoggerM>()?.Debug("协程未指定");
+                Framework.Instance.GetModule<LoggerM>()?.Log("协程未指定");
                 return;
             }
             Running = true;
