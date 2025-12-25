@@ -12,14 +12,6 @@ namespace NFramework.Module.ConfigModule
 
         public void Initialize()
         {
-            _dataLoader = ConfigDataLoader.Instance;
-            
-#if WECHAT_MINIGAME
-            _dataProvider = new WeChatConfigDataProvider();
-#else
-            _dataProvider = new SQLiteConfigDataProvider();
-#endif
-            _dataLoader.Initialize(_dataProvider);
         }
 
         public T GetCfg<T>(int id) where T : class, IFlatbufferObject, new()
