@@ -1,26 +1,51 @@
 ﻿using System;
 using NFramework.Core.Collections;
-using Unity.VisualScripting.Antlr3.Runtime;
 
 namespace NFramework.Module.LogModule
 {
-    public class LoggerM : IFrameWorkModule
+
+    public interface ILog
+    {
+    }
+
+    public class Error
     {
 
-        public BitField16 LogLevel = new BitField16(0);
+    }
 
+    public class Warning
+    {
+
+    }
+
+    public class Log
+    {
+        public void E(string inMsg)
+        {
+        }
+
+    }
+
+
+    public class LoggerM : IFrameWorkModule
+    {
+        public Error? Error { get; private set; }
+        public Warning? Warning { get; private set; }
+        public Log? Log { get; private set; }
+
+        public BitField16 LogLevel = new BitField16(0);
         public void ErrStack(string inMsg)
         {
             UnityEngine.Debug.LogError(Environment.StackTrace);
             Err(inMsg);
         }
 
-        public void Log(string inMsg)
+        public void LogMsg(string inMsg)
         {
             UnityEngine.Debug.Log(inMsg);
         }
 
-        public void Warn(string inMsg)
+        public void WarnMsg(string inMsg)
         {
             UnityEngine.Debug.LogWarning(inMsg);
         }
@@ -30,7 +55,7 @@ namespace NFramework.Module.LogModule
         }
 
 
-        public void Exception(System.Exception inMsg)
+        public void ExceptionMsg(System.Exception inMsg)
         {
             UnityEngine.Debug.LogError(Environment.StackTrace);
             throw inMsg;

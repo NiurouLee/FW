@@ -12,6 +12,11 @@ namespace NFramework.Module.UIModule
             { InputEnum.Select, typeof(IUISelectComponent) },
         };
 
-
+        public static Dictionary<System.Type, List<InputEnum>> InputMapComponent = new()
+        {
+            { typeof(IUIClickComponent), new List<InputEnum> { InputEnum.Click }},
+            { typeof(IUISelectComponent), new List<InputEnum> { InputEnum.Select }},
+            { typeof(IUIInputComponent), new List<InputEnum> { InputEnum.Click, InputEnum.DoubleClick, InputEnum.LongClick }},
+        };
     }
 }

@@ -12,10 +12,13 @@ namespace NFramework.Module.UIModule
         ///
         public void SetUIFacade(UIFacade inUIFacade, IUIFacadeProvider inProvider)
         {
-            if (inUIFacade == null|| inProvider == null)
+            if (inUIFacade == null)
             {
-                GetFM<LoggerM>().Error("SetUIFacade: inUIFacade or inProvider is null");
-                return;
+                throw new Exception("SetUIFacade: inUIFacade is null");
+            }
+            if (inProvider == null)
+            {
+                throw new Exception("SetUIFacade: inProvider is null");
             }
             this.Facade = inUIFacade;
             this.RectTransform = inUIFacade.GetComponent<RectTransform>();

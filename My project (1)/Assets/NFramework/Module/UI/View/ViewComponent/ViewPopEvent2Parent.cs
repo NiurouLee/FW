@@ -43,7 +43,7 @@ namespace NFramework.Module.UIModule
             var parent = this.View.Parent;
             while (parent != null && parent != this.View)
             {
-                if (ViewUtils.Check<ViewPopEvent2ParentComponent>(parent, out var component))
+                if (parent.TryGetComponent<ViewPopEvent2ParentComponent>(out var component))
                 {
                     component._OnChildPopEvent(ref inEvent);
                     return;
@@ -86,12 +86,12 @@ namespace NFramework.Module.UIModule
     {
         public static bool RegisterSubEvent<T>(this View inView, UI2ParentEvent<T> inHandle) where T : IView2ParentEvent
         {
-            var component = ViewUtils.CheckAndAdd<ViewPopEvent2ParentComponent>(inView);
+            var component = ViewComponentUtils.CheckAndAdd<ViewPopEvent2ParentComponent>(inView);
             return component.RegisterSubEvent(inHandle);
         }
         public static void PopEvent2Parent<T>(this View inView, ref T inEvent) where T : IView2ParentEvent
         {
-            var component = ViewUtils.CheckAndAdd<ViewPopEvent2ParentComponent>(inView);
+            var component = ViewComponentUtils.CheckAndAdd<ViewPopEvent2ParentComponent>(inView);
             component.PopEvent2Parent(ref inEvent);
         }
     }

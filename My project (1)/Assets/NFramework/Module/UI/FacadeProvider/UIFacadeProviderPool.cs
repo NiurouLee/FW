@@ -31,5 +31,15 @@ namespace NFramework.Module.UIModule
         {
             throw new System.NotImplementedException();
         }
+
+        Promise<UIFacade>.Deferred IUIFacadeProvider.AllocAsync<T>()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        Promise<UIFacade>.Deferred IUIFacadeProvider.AllocAsync(string inViewID)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

@@ -154,21 +154,21 @@ namespace NFramework.Module.IDGeneratorModule
             this.lastInstanceIdTime = TimeSinceThisYear();
             if (this.lastInstanceIdTime <= 0)
             {
-                GetFrameWorkModule<LoggerM>()?.Warn($"lastInstanceIdTime less than 0: {this.lastInstanceIdTime}");
+                GetFrameWorkModule<LoggerM>()?.WarnMsg($"lastInstanceIdTime less than 0: {this.lastInstanceIdTime}");
                 this.lastInstanceIdTime = 1;
             }
 
             this.lastIdTime = TimeSince2020();
             if (this.lastIdTime <= 0)
             {
-                GetFrameWorkModule<LoggerM>()?.Warn($"lastIdTime less than 0: {this.lastIdTime}");
+                GetFrameWorkModule<LoggerM>()?.WarnMsg($"lastIdTime less than 0: {this.lastIdTime}");
                 this.lastIdTime = 1;
             }
 
             this.lastUnitIdTime = TimeSince2020();
             if (this.lastUnitIdTime <= 0)
             {
-                GetFrameWorkModule<LoggerM>()?.Warn($"lastUnitIdTime less than 0: {this.lastUnitIdTime}");
+                GetFrameWorkModule<LoggerM>()?.WarnMsg($"lastUnitIdTime less than 0: {this.lastUnitIdTime}");
                 this.lastUnitIdTime = 1;
             }
         }

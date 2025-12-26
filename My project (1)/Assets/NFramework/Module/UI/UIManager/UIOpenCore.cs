@@ -12,7 +12,7 @@ namespace NFramework.Module.UIModule
             inWindowRequest.SetStage(WindowRequestStage.ConstructWindowDone);
             var windowFacadeProvider = inWindow.GetSelfFacadeProvider();
             inWindowRequest.SetStage(WindowRequestStage.FacadeLoading);
-            var facade = await windowFacadeProvider.AllocAsync(inViewConfig.ID);
+            var facade = await windowFacadeProvider.AllocAsync(inViewConfig.ID).Promise;
             inWindowRequest.CacheFacade(facade);
             inWindowRequest.SetStage(WindowRequestStage.FacadeLoaded);
             inWindow.SetUIFacade(facade, windowFacadeProvider);

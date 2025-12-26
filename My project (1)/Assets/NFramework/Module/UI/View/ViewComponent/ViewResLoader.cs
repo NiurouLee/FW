@@ -14,10 +14,10 @@ namespace NFramework.Module.UIModule
         {
             if (inView is Container container)
             {
-                var loaderComponent = ViewUtils.CheckAndAdd<ViewResLoadComponent>(container);
+                var loaderComponent = ViewComponentUtils.CheckAndAdd<ViewResLoadComponent>(container);
                 return loaderComponent.ResLoadRecords.Load<T>(inAssetID);
             }
-            
+
             var parent = inView.Parent;
             if (parent == null || parent == inView)
             {
@@ -36,12 +36,12 @@ namespace NFramework.Module.UIModule
         }
         public static Promise<T> LoadResAsync<T>(this Container inContainer, string inAssetID) where T : UnityEngine.Object
         {
-            var component = ViewUtils.CheckAndAdd<ViewResLoadComponent>(inContainer);
+            var component = ViewComponentUtils.CheckAndAdd<ViewResLoadComponent>(inContainer);
             return component.ResLoadRecords.LoadAsync<T>(inAssetID);
         }
         public static void FreeRes<T>(this Container inContainer, T inObj) where T : UnityEngine.Object
         {
-            var component = ViewUtils.CheckAndAdd<ViewResLoadComponent>(inContainer);
+            var component = ViewComponentUtils.CheckAndAdd<ViewResLoadComponent>(inContainer);
             component.ResLoadRecords.Free(inObj);
         }
     }

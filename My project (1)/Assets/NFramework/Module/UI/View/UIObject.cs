@@ -9,19 +9,27 @@ namespace NFramework.Module.UIModule
             return Framework.I.G<FM>();
         }
 
-        public void Log(string inMessage)
+        public Log? Log
         {
-            GetFM<LoggerM>().Log(inMessage);
+            get
+            {
+                return GetFM<LoggerM>().Log;
+            }
+        }
+        public Error? Error
+        {
+            get
+            {
+                return GetFM<LoggerM>().Error;
+            }
         }
 
-        public void Error(string inMessage)
+        public Warning? Warning
         {
-            GetFM<LoggerM>().Error(inMessage);
-        }
-
-        public void Warn(string inMessage)
-        {
-            GetFM<LoggerM>().Warn(inMessage);
+            get
+            {
+                return GetFM<LoggerM>().Warning;
+            }
         }
 
     }

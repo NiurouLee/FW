@@ -10,13 +10,13 @@ namespace NFramework.Module.UIModule
     {
         public event Action<IUIClickComponent> OnClick;
         private Button _unityButton;
-        public void Awake()
+        public void UIAwake()
         {
             _unityButton = this.GetComponent<Button>();
             _unityButton.onClick.AddListener(this.OnClickTrigger);
         }
 
-        public void Destroy()
+        public void UIDestroy()
         {
             _unityButton.onClick.RemoveListener(this.OnClickTrigger);
         }

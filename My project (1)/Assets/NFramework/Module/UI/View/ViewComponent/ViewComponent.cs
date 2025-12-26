@@ -1,10 +1,11 @@
 
+using NFramework.Core.ObjectPool;
+
 namespace NFramework.Module.UIModule
 {
-    public class ViewComponent : UIObject
+    public abstract class ViewComponent : UIObject, IFreeToPool
     {
         public View View { get; private set; }
-
         public void Awake(View inView)
         {
             this.View = inView;
@@ -25,5 +26,11 @@ namespace NFramework.Module.UIModule
         public void Check(View inView)
         {
         }
+
+        public void FreeToPool()
+        {
+            this.Destroy();
+        }
+
     }
 }

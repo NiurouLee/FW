@@ -17,7 +17,7 @@ namespace NFramework.Module.UIModule
 
         public UIFacade Alloc<T>() where T : View
         {
-          return null
+            return null;
         }
 
         public Promise<UIFacade>.Deferred AllocAsync<T>() where T : View
@@ -45,6 +45,11 @@ namespace NFramework.Module.UIModule
         }
 
         public void Destroy()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        Promise<UIFacade>.Deferred IUIFacadeProvider.AllocAsync(string inViewID)
         {
             throw new System.NotImplementedException();
         }

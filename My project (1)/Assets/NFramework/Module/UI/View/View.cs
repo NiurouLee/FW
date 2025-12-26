@@ -1,11 +1,25 @@
-using Proto.Promises;
+using NFramework.Core.ILiveing;
 using UnityEngine;
+using NFramework.Core.Collections;
 
 namespace NFramework.Module.UIModule
 {
-    public partial class View : UIObject
+    public partial class View : UIObject, IAwakeSystem, IDestroySystem
     {
         public RectTransform RectTransform { get; private set; }
+        public void Awake()
+        {
+            OnAwake();
+        }
+
+        /// <summary>
+        /// 初始化
+        /// </summary>
+        protected virtual void OnAwake()
+        {
+
+        }
+
         public virtual void Show()
         {
             OnShow();
@@ -64,5 +78,14 @@ namespace NFramework.Module.UIModule
         {
         }
 
+        public virtual void Destroy()
+        {
+            OnDestroy();
+            DestroyFacade();
+        }
+
+        protected virtual void OnDestroy()
+        {
+        }
     }
 }
