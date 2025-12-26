@@ -12,9 +12,10 @@ namespace NFramework.Module.UIModule
     {
 
     }
-    
+
     public interface IUIInputTrigger<T>
     {
         public event Action<T> OnInputTrigger;
+        public void TriggerInput(T inComponent);
     }
 }

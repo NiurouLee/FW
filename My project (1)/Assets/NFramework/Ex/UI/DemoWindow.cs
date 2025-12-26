@@ -3,11 +3,11 @@ using NFramework.Module.UIModule;
 [View("DemoWindow")]
 public class DemoWindow : Window, IViewSetData<DemoWindowData>
 {
-    private IUIClickComponent m_clickComponent; 
+    private NButton m_button;
     protected override void OnBindFacade()
     {
         base.OnBindFacade();
-        this.BindInput<IUIClickComponent>(m_clickComponent, this.OnClick);
+        this.BindInput<IUIClickComponent>(m_button, this.OnClick);
     }
 
     private void OnClick(IUIClickComponent inComponent)

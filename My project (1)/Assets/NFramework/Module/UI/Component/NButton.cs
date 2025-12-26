@@ -6,9 +6,12 @@ using UnityEngine.UI;
 namespace NFramework.Module.UIModule
 {
     [RequireComponent(typeof(Button))]
-    public class NButton : UnityEngine.Component, IUIClickComponent
+    public class NButton : MonoBehaviour, IUIClickComponent
     {
         public event Action<IUIClickComponent> OnClick;
+        public event Action<IUIClickComponent> OnInputTrigger;
+
+
         private Button _unityButton;
         public void UIAwake()
         {
@@ -25,5 +28,11 @@ namespace NFramework.Module.UIModule
         {
             OnClick?.Invoke(this);
         }
+
+        public void TriggerInput(IUIClickComponent inComponent)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

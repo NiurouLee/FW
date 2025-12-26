@@ -5,33 +5,146 @@ using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
 using UnityEditor;
 using UnityEngine;
+using System;
+using System.IO;
+using System.Text;
 
 [CustomEditor(typeof(UIFacade))]
 public class UIFacadeInspector : OdinEditor
 {
+    [System.Serializable]
+    public class EditorData
+    {
+        public string ModuleName = "";
+        public string SubModuleName = "";
+        public string UIName = "";
+        public string ScriptName = "";
+        public string ID = "";
+        public UIComponent[] Components = new UIComponent[0];
+    }
+
     private UIFacade m_UIFacade;
     private ViewConfig m_ViewConfig;
     private bool m_EnableSubModule = false;
+    
+    // 全局折叠状态
+    private bool m_FoldBasicInfo = true;
+    private bool m_FoldComponentsList = true;
+    private bool m_FoldTools = true;
+    private bool m_FoldViewConfig = false; // 默认关闭，因为通常不改
+
+    // 编辑器数据（存储在 Inspector 中，不序列化到 UIFacade）
+    private EditorData m_EditorData = new EditorData();
+    private string m_EditorDataKey;
+
+    public List<UIComponent> m_UIComponents = new List<UIComponent>();
 
     protected override void OnEnable()
     {
         base.OnEnable();
         m_UIFacade = (UIFacade)target;
-
-        // 初始化子模块toggle状态（根据是否有子模块名称来判断）
-        m_EnableSubModule = !string.IsNullOrEmpty(m_UIFacade.SubModuleName);
-
-        // 确保ViewConfig正确初始化
-        m_ViewConfig = UIConfigUtilsEditor.GetViewConfig(m_UIFacade);
         
-        if (m_ViewConfig != null)
+        // 使用实例 ID 作为 EditorPrefs 的 key
+        m_EditorDataKey = $"UIFacadeEditorData_{m_UIFacade.GetInstanceID()}";
+        
+        // 加载折叠状态
+        string foldKey = $"UIFacadeFolds_{m_UIFacade.GetInstanceID()}";
+        m_FoldBasicInfo = EditorPrefs.GetBool(foldKey + "_Basic", true);
+        m_FoldComponentsList = EditorPrefs.GetBool(foldKey + "_Components", true);
+        m_FoldTools = EditorPrefs.GetBool(foldKey + "_Tools", true);
+        m_FoldViewConfig = EditorPrefs.GetBool(foldKey + "_View", false);
+
+        // 从 EditorPrefs 加载编辑器数据
+        LoadEditorData();
+        // ... 后续代码保持不变
+    }
+
+    private void OnDisable()
+    {
+        // 保存折叠状态
+        string foldKey = $"UIFacadeFolds_{m_UIFacade.GetInstanceID()}";
+        EditorPrefs.SetBool(foldKey + "_Basic", m_FoldBasicInfo);
+        EditorPrefs.SetBool(foldKey + "_Components", m_FoldComponentsList);
+        EditorPrefs.SetBool(foldKey + "_Tools", m_FoldTools);
+        EditorPrefs.SetBool(foldKey + "_View", m_FoldViewConfig);
+
+        // 保存编辑器数据到 EditorPrefs
+        SaveEditorData();
+    }
+    
+    private void LoadEditorData()
+    {
+        string json = EditorPrefs.GetString(m_EditorDataKey, "");
+        if (!string.IsNullOrEmpty(json))
         {
-            Debug.Log($"ViewConfig initialized successfully. ID: '{m_ViewConfig.ID}', IsWindow: {m_ViewConfig.IsWindow}");
+            try
+            {
+                m_EditorData = JsonUtility.FromJson<EditorData>(json);
+            }
+            catch
+            {
+                m_EditorData = new EditorData();
+            }
         }
         else
         {
-            Debug.LogError("ViewConfig initialization failed!");
+            m_EditorData = new EditorData();
         }
+    }
+    
+    private void SaveEditorData()
+    {
+        string json = JsonUtility.ToJson(m_EditorData);
+        EditorPrefs.SetString(m_EditorDataKey, json);
+        
+        // 同时同步数据到 UIFacade 实例
+        SyncToFacade();
+    }
+
+    private void SyncToFacade()
+    {
+        if (m_UIFacade == null || m_EditorData == null) return;
+
+        m_UIFacade.ID = m_EditorData.ID;
+
+        // 将编辑器列表中的 Component 引用提取到数组中
+        if (m_EditorData.Components != null)
+        {
+            m_UIFacade.m_RuntimeInputComponents = m_EditorData.Components
+                .Select(c => c != null ? c.Component : null)
+                .ToArray();
+        }
+        else
+        {
+            m_UIFacade.m_RuntimeInputComponents = new Component[0];
+        }
+
+        EditorUtility.SetDirty(m_UIFacade);
+    }
+    
+    /// <summary>
+    /// 获取编辑器数据（供 UIFacade 在运行时使用）
+    /// </summary>
+    public static EditorData GetEditorData(UIFacade facade)
+    {
+        if (facade == null) return null;
+        
+        string key = $"UIFacadeEditorData_{facade.GetInstanceID()}";
+        string json = EditorPrefs.GetString(key, "");
+        
+        if (!string.IsNullOrEmpty(json))
+        {
+            try
+            {
+                return JsonUtility.FromJson<EditorData>(json);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+        
+        return null;
     }
 
     public override void OnInspectorGUI()
@@ -41,10 +154,14 @@ public class UIFacadeInspector : OdinEditor
         // 绘制标题
         SirenixEditorGUI.Title("UI Facade Configuration", "配置UI门面组件", TextAlignment.Center, true);
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space(5);
 
-        // 基本信息组
-        SirenixEditorGUI.BeginBox("基本信息");
+        // 1. 基本信息组
+        SirenixEditorGUI.BeginBox();
+        SirenixEditorGUI.BeginBoxHeader();
+        m_FoldBasicInfo = EditorGUILayout.Foldout(m_FoldBasicInfo, "基本信息", true);
+        SirenixEditorGUI.EndBoxHeader();
+        if (m_FoldBasicInfo)
         {
             EditorGUI.BeginChangeCheck();
 
@@ -57,37 +174,26 @@ public class UIFacadeInspector : OdinEditor
                 bool newEnableSubModule = EditorGUILayout.Toggle(m_EnableSubModule, GUILayout.Width(20));
                 bool subModuleToggleChanged = EditorGUI.EndChangeCheck();
                 
-                // 显示子模块状态
-                if (m_EnableSubModule)
-                {
-                    GUILayout.Label("(已启用)", SirenixGUIStyles.RightAlignedGreyMiniLabel, GUILayout.Width(50));
-                }
-                else
-                {
-                    GUILayout.Label("(已禁用)", SirenixGUIStyles.RightAlignedGreyMiniLabel, GUILayout.Width(50));
-                }
+                if (m_EnableSubModule) GUILayout.Label("(已启用)", SirenixGUIStyles.RightAlignedGreyMiniLabel, GUILayout.Width(50));
+                else GUILayout.Label("(已禁用)", SirenixGUIStyles.RightAlignedGreyMiniLabel, GUILayout.Width(50));
                 
-                GUILayout.Space(20); // 分隔空间
+                GUILayout.Space(10);
                 
                 // 是否Window Toggle
                 EditorGUI.BeginChangeCheck();
                 EditorGUILayout.LabelField("是否Window:", GUILayout.Width(80));
-                bool newIsWindow = false;
-                bool currentIsWindow = false;
-                
                 if (m_ViewConfig != null)
                 {
-                    currentIsWindow = m_ViewConfig.IsWindow;
-                    newIsWindow = EditorGUILayout.Toggle(currentIsWindow, GUILayout.Width(20));
-                    
-                    // 显示窗口模式状态
-                    if (currentIsWindow)
+                    bool currentIsWindow = m_ViewConfig.IsWindow;
+                    bool newIsWindow = EditorGUILayout.Toggle(currentIsWindow, GUILayout.Width(20));
+                    if (currentIsWindow) GUILayout.Label("(窗口)", SirenixGUIStyles.RightAlignedGreyMiniLabel, GUILayout.Width(40));
+                    else GUILayout.Label("(视图)", SirenixGUIStyles.RightAlignedGreyMiniLabel, GUILayout.Width(40));
+
+                    if (EditorGUI.EndChangeCheck() && currentIsWindow != newIsWindow)
                     {
-                        GUILayout.Label("(窗口)", SirenixGUIStyles.RightAlignedGreyMiniLabel, GUILayout.Width(40));
-                    }
-                    else
-                    {
-                        GUILayout.Label("(视图)", SirenixGUIStyles.RightAlignedGreyMiniLabel, GUILayout.Width(40));
+                        m_ViewConfig.SetWindow(newIsWindow);
+                        GenerateScriptNameAndID();
+                        EditorUtility.SetDirty(target);
                     }
                 }
                 else
@@ -96,273 +202,190 @@ public class UIFacadeInspector : OdinEditor
                     EditorGUILayout.Toggle(false, GUILayout.Width(20));
                     GUI.enabled = true;
                     GUILayout.Label("(未初始化)", SirenixGUIStyles.RightAlignedGreyMiniLabel, GUILayout.Width(60));
+                    EditorGUI.EndChangeCheck();
                 }
-                bool windowToggleChanged = EditorGUI.EndChangeCheck();
                 
                 GUILayout.FlexibleSpace();
                 
-                // 处理子模块toggle变化
                 if (subModuleToggleChanged)
                 {
                     m_EnableSubModule = newEnableSubModule;
-                    if (!m_EnableSubModule)
+                    if (!m_EnableSubModule && !string.IsNullOrEmpty(m_EditorData.SubModuleName))
                     {
-                        if (!string.IsNullOrEmpty(m_UIFacade.SubModuleName))
+                        if (EditorUtility.DisplayDialog("确认", "禁用子模块将清空子模块名称，确定继续吗？", "确定", "取消"))
                         {
-                            if (EditorUtility.DisplayDialog("确认", "禁用子模块将清空子模块名称，确定继续吗？", "确定", "取消"))
-                            {
-                                m_UIFacade.SubModuleName = "";
-                                GenerateScriptNameAndID(); // 立即重新生成
-                            }
-                            else
-                            {
-                                m_EnableSubModule = true; // 取消操作，恢复toggle状态
-                            }
+                            m_EditorData.SubModuleName = "";
+                            SaveEditorData();
+                            GenerateScriptNameAndID();
                         }
-                        else
-                        {
-                            GenerateScriptNameAndID(); // 立即重新生成
-                        }
+                        else m_EnableSubModule = true;
                     }
-                    else
-                    {
-                        GenerateScriptNameAndID(); // 启用时也重新生成
-                    }
-                }
-                
-                // 处理窗口模式toggle变化
-                if (windowToggleChanged && m_ViewConfig != null)
-                {
-                    Debug.Log($"窗口模式toggle变化检测: currentIsWindow={currentIsWindow}, newIsWindow={newIsWindow}");
-                    
-                    if (currentIsWindow != newIsWindow)
-                    {
-                        m_ViewConfig.SetWindow(newIsWindow);
-                        GenerateScriptNameAndID(); // 窗口模式变化时重新生成脚本名称
-                        EditorUtility.SetDirty(target);
-                        Debug.Log($"窗口模式已切换为: {(newIsWindow ? "窗口" : "视图")}，验证结果: {m_ViewConfig.IsWindow}");
-                    }
+                    else GenerateScriptNameAndID();
                 }
             }
             SirenixEditorGUI.EndHorizontalToolbar();
             
-            EditorGUILayout.Space(5);
+            EditorGUILayout.Space(3);
 
-            // 模块名称
+            // 模块/子模块/UI名称输入
             EditorGUI.BeginChangeCheck();
-            string oldModuleName = m_UIFacade.ModuleName;
-            m_UIFacade.ModuleName = SirenixEditorFields.TextField("模块名称", m_UIFacade.ModuleName);
-            bool moduleNameChanged = EditorGUI.EndChangeCheck();
-
-            // 子模块名称输入框（仅在启用时显示）
-            bool subModuleNameChanged = false;
-            if (m_EnableSubModule)
-            {
-                EditorGUI.BeginChangeCheck();
-                string oldSubModuleName = m_UIFacade.SubModuleName;
-                m_UIFacade.SubModuleName = SirenixEditorFields.TextField("子模块名称", m_UIFacade.SubModuleName);
-                subModuleNameChanged = EditorGUI.EndChangeCheck();
-            }
-
-            // 其他基本信息
-            EditorGUI.BeginChangeCheck();
-            string oldUIName = m_UIFacade.UIName;
-            m_UIFacade.UIName = SirenixEditorFields.TextField("UI名称", m_UIFacade.UIName);
-            bool uiNameChanged = EditorGUI.EndChangeCheck();
+            m_EditorData.ModuleName = SirenixEditorFields.TextField("模块名称", m_EditorData.ModuleName);
+            if (m_EnableSubModule) m_EditorData.SubModuleName = SirenixEditorFields.TextField("子模块名称", m_EditorData.SubModuleName);
+            m_EditorData.UIName = SirenixEditorFields.TextField("UI名称", m_EditorData.UIName);
             
-            // 检查是否需要重新生成脚本名称和ID
-            if (moduleNameChanged || subModuleNameChanged || uiNameChanged || 
-                string.IsNullOrEmpty(m_UIFacade.ScriptName) || string.IsNullOrEmpty(m_UIFacade.ID))
-            {
-                GenerateScriptNameAndID();
-            }
-            
-            // 脚本名称（只读显示）
-            EditorGUILayout.BeginHorizontal();
-            {
-                EditorGUILayout.LabelField("脚本名称:", GUILayout.Width(80));
-                EditorGUILayout.LabelField(m_UIFacade.ScriptName ?? "未生成", SirenixGUIStyles.RightAlignedGreyMiniLabel);
-                
-                if (GUILayout.Button("重新生成", GUILayout.Width(70)))
-                {
-                    GenerateScriptNameAndID();
-                }
-            }
-            EditorGUILayout.EndHorizontal();
-            
-            // ID（只读显示）
-            EditorGUILayout.BeginHorizontal();
-            {
-                EditorGUILayout.LabelField("ID:", GUILayout.Width(80));
-                EditorGUILayout.LabelField(m_UIFacade.ID ?? "未生成", SirenixGUIStyles.RightAlignedGreyMiniLabel);
-                
-                if (GUILayout.Button("复制ID", GUILayout.Width(70)))
-                {
-                    if (!string.IsNullOrEmpty(m_UIFacade.ID))
-                    {
-                        EditorGUIUtility.systemCopyBuffer = m_UIFacade.ID;
-                        Debug.Log($"已复制ID到剪贴板: {m_UIFacade.ID}");
-                    }
-                }
-            }
-            EditorGUILayout.EndHorizontal();
-            
-            // 显示生成规则说明和示例
-            SirenixEditorGUI.BeginBox("生成规则");
-            {
-                EditorGUILayout.LabelField("脚本名称: 模块名 + 子模块名 + UI名称 + Window/View (PascalCase)", SirenixGUIStyles.LeftAlignedGreyMiniLabel);
-                EditorGUILayout.LabelField("ID格式: module_name.sub_module_name.ui_name (snake_case)", SirenixGUIStyles.LeftAlignedGreyMiniLabel);
-                
-                EditorGUILayout.Space(3);
-                
-                // 显示示例
-                string exampleScript = GenerateExampleScriptName();
-                string exampleID = GenerateExampleID();
-                
-                if (!string.IsNullOrEmpty(exampleScript) || !string.IsNullOrEmpty(exampleID))
-                {
-                    EditorGUILayout.LabelField("当前示例:", EditorStyles.boldLabel);
-                    if (!string.IsNullOrEmpty(exampleScript))
-                    {
-                        EditorGUILayout.LabelField($"  脚本名称: {exampleScript}", SirenixGUIStyles.RightAlignedGreyMiniLabel);
-                    }
-                    if (!string.IsNullOrEmpty(exampleID))
-                    {
-                        EditorGUILayout.LabelField($"  ID: {exampleID}", SirenixGUIStyles.RightAlignedGreyMiniLabel);
-                    }
-                }
-            }
-            SirenixEditorGUI.EndBox();
-
             if (EditorGUI.EndChangeCheck())
             {
-                EditorUtility.SetDirty(m_UIFacade);
+                SaveEditorData();
+                GenerateScriptNameAndID();
             }
+
+            // 脚本名称和 ID (只读)
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("脚本名称:", GUILayout.Width(80));
+            EditorGUILayout.LabelField(m_EditorData.ScriptName ?? "未生成", SirenixGUIStyles.RightAlignedGreyMiniLabel);
+            if (GUILayout.Button("重新生成", GUILayout.Width(70))) GenerateScriptNameAndID();
+            EditorGUILayout.EndHorizontal();
+            
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("ID:", GUILayout.Width(80));
+            EditorGUILayout.LabelField(m_EditorData.ID ?? "未生成", SirenixGUIStyles.RightAlignedGreyMiniLabel);
+            if (GUILayout.Button("复制ID", GUILayout.Width(70)) && !string.IsNullOrEmpty(m_EditorData.ID))
+            {
+                EditorGUIUtility.systemCopyBuffer = m_EditorData.ID;
+                Debug.Log($"已复制ID: {m_EditorData.ID}");
+            }
+            EditorGUILayout.EndHorizontal();
+
+            // 生成规则 Box
+            SirenixEditorGUI.BeginBox("生成规则");
+            EditorGUILayout.LabelField("脚本名称: 模块名 + 子模块名 + UI名称 + Window/View", SirenixGUIStyles.LeftAlignedGreyMiniLabel);
+            EditorGUILayout.LabelField("ID格式: module_name.sub_module_name.ui_name", SirenixGUIStyles.LeftAlignedGreyMiniLabel);
+            SirenixEditorGUI.EndBox();
+
+            if (EditorGUI.EndChangeCheck()) EditorUtility.SetDirty(m_UIFacade);
         }
         SirenixEditorGUI.EndBox();
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space(2);
 
-        // UI元素列表
-        DrawUIElementsList();
+        // 2. UI组件列表
+        SirenixEditorGUI.BeginBox();
+        SirenixEditorGUI.BeginBoxHeader();
+        m_FoldComponentsList = EditorGUILayout.Foldout(m_FoldComponentsList, "UI组件列表", true);
+        SirenixEditorGUI.EndBoxHeader();
+        if (m_FoldComponentsList)
+        {
+            DrawUIComponentsList();
+        }
+        SirenixEditorGUI.EndBox();
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space(2);
 
-        // 工具按钮组
-        DrawToolButtons();
+        // 3. 工具按钮组
+        SirenixEditorGUI.BeginBox();
+        SirenixEditorGUI.BeginBoxHeader();
+        m_FoldTools = EditorGUILayout.Foldout(m_FoldTools, "工具栏", true);
+        SirenixEditorGUI.EndBoxHeader();
+        if (m_FoldTools)
+        {
+            DrawToolButtons();
+        }
+        SirenixEditorGUI.EndBox();
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space(2);
 
-        // ViewConfig配置组
-        DrawViewConfig();
+        // 4. ViewConfig配置组
+        SirenixEditorGUI.BeginBox();
+        SirenixEditorGUI.BeginBoxHeader();
+        m_FoldViewConfig = EditorGUILayout.Foldout(m_FoldViewConfig, "View配置", true);
+        SirenixEditorGUI.EndBoxHeader();
+        if (m_FoldViewConfig)
+        {
+            DrawViewConfig();
+        }
+        SirenixEditorGUI.EndBox();
 
         // 应用修改
-        if (GUI.changed)
+        if (GUI.changed) EditorUtility.SetDirty(m_UIFacade);
+    }
+
+    private void DrawUIComponentsList()
+    {
+        if (m_EditorData.Components == null)
         {
-            EditorUtility.SetDirty(m_UIFacade);
+            m_EditorData.Components = new UIComponent[0];
+        }
+
+        // 列表标题和添加按钮
+        SirenixEditorGUI.BeginHorizontalToolbar();
+        {
+            GUILayout.Label($"组件数量: {m_EditorData.Components.Length}", SirenixGUIStyles.LeftAlignedGreyMiniLabel);
+            GUILayout.FlexibleSpace();
+
+            // 添加按钮 - 使用更明显的样式
+            GUI.backgroundColor = Color.green;
+            if (GUILayout.Button(new GUIContent("+", "添加新UI组件"),
+                GUILayout.Width(25), GUILayout.Height(18)))
+            {
+                AddNewUIComponent();
+            }
+            GUI.backgroundColor = Color.white;
+
+            // 刷新按钮
+            if (GUILayout.Button(new GUIContent("↻", "刷新并清理无效组件"),
+                GUILayout.Width(25), GUILayout.Height(18)))
+            {
+                RefreshUIComponents();
+            }
+        }
+        SirenixEditorGUI.EndHorizontalToolbar();
+
+        EditorGUILayout.Space(3);
+
+        // 如果列表为空，显示提示
+        if (m_EditorData.Components.Length == 0)
+        {
+            SirenixEditorGUI.InfoMessageBox("暂无UI组件，点击上方的 + 按钮添加新组件，或使用下方的\"自动收集子对象\"功能。");
+        }
+        else
+        {
+            // 绘制组件列表
+            for (int i = 0; i < m_EditorData.Components.Length; i++)
+            {
+                DrawUIComponent(i);
+            }
         }
     }
 
-    private void DrawUIElementsList()
+    private void DrawUIComponent(int index)
     {
-        SirenixEditorGUI.BeginBox("UI元素列表");
+        if (m_EditorData.Components == null || index < 0 || index >= m_EditorData.Components.Length)
+            return;
+
+        var component = m_EditorData.Components[index];
+        if (component == null)
         {
-            if (m_UIFacade.Elements == null)
-            {
-                m_UIFacade.Elements = new List<UIElement>();
-            }
-
-            // 列表标题和添加按钮
-            SirenixEditorGUI.BeginHorizontalToolbar();
-            {
-                GUILayout.Label($"元素数量: {m_UIFacade.Elements.Count}", SirenixGUIStyles.LeftAlignedGreyMiniLabel);
-                GUILayout.FlexibleSpace();
-
-                // 添加按钮 - 使用更明显的样式
-                GUI.backgroundColor = Color.green;
-                if (GUILayout.Button(new GUIContent("+", "添加新UI元素"),
-                    GUILayout.Width(30), GUILayout.Height(20)))
-                {
-                    AddNewUIElement();
-                }
-                GUI.backgroundColor = Color.white;
-
-                // 刷新按钮
-                if (GUILayout.Button(new GUIContent("↻", "刷新并清理无效元素"),
-                    GUILayout.Width(30), GUILayout.Height(20)))
-                {
-                    RefreshUIElements();
-                }
-            }
-            SirenixEditorGUI.EndHorizontalToolbar();
-
-            EditorGUILayout.Space(5);
-
-            // 如果列表为空，显示提示
-            if (m_UIFacade.Elements.Count == 0)
-            {
-                SirenixEditorGUI.InfoMessageBox("暂无UI元素，点击上方的 + 按钮添加新元素，或使用下方的\"自动收集子对象\"功能。");
-            }
-            else
-            {
-                // 绘制元素列表
-                for (int i = 0; i < m_UIFacade.Elements.Count; i++)
-                {
-                    DrawUIElement(i);
-                }
-            }
-        }
-        SirenixEditorGUI.EndBox();
-    }
-
-    private void DrawUIElement(int index)
-    {
-        var element = m_UIFacade.Elements[index];
-        if (element == null)
-        {
-            m_UIFacade.Elements[index] = new UIElement();
-            element = m_UIFacade.Elements[index];
+            component = new UIComponent();
+            m_EditorData.Components[index] = component;
         }
 
         SirenixEditorGUI.BeginBox();
         {
-            // 主要信息行
+            // 第一行：标题栏（折叠开关 + 索引 + 名称简预览 + 删除按钮）
             SirenixEditorGUI.BeginHorizontalToolbar();
             {
-                // 索引标签
-                GUILayout.Label($"[{index}]", SirenixGUIStyles.BoldLabel, GUILayout.Width(35));
-
-                // 名称字段
-                EditorGUI.BeginChangeCheck();
-                GUILayout.Label("名称:", GUILayout.Width(35));
-                string newName = EditorGUILayout.TextField(element.Name, GUILayout.MinWidth(80));
-                if (EditorGUI.EndChangeCheck())
-                {
-                    if (ValidateElementName(index, newName))
-                    {
-                        element.Name = newName;
-                        EditorUtility.SetDirty(m_UIFacade);
-                    }
-                    else
-                    {
-                        EditorUtility.DisplayDialog("错误", "元素名称重复或无效！", "确定");
-                    }
-                }
-
-                // 状态下拉
-                GUILayout.Label("状态:", GUILayout.Width(35));
-                element.ActiveDefault = (ElementActiveDefault)EditorGUILayout.EnumPopup(
-                    element.ActiveDefault, GUILayout.Width(70));
+                // 使用 Foldout 控制展开/折叠
+                component.IsExpanded = EditorGUILayout.Foldout(component.IsExpanded, $"[{index}] {component.Name}", true);
 
                 GUILayout.FlexibleSpace();
 
                 // 删除按钮
                 GUI.color = Color.red;
-                if (GUILayout.Button("×", GUILayout.Width(20), GUILayout.Height(18)))
+                if (GUILayout.Button("×", GUILayout.Width(18), GUILayout.Height(16)))
                 {
-                    if (EditorUtility.DisplayDialog("确认删除", $"确定要删除元素 '{element.Name}' 吗？", "确定", "取消"))
+                    if (EditorUtility.DisplayDialog("确认删除", $"确定要删除组件 '{component.Name}' 吗？", "确定", "取消"))
                     {
-                        RemoveUIElement(index);
+                        RemoveUIComponent(index);
                         return;
                     }
                 }
@@ -370,216 +393,367 @@ public class UIFacadeInspector : OdinEditor
             }
             SirenixEditorGUI.EndHorizontalToolbar();
 
-            EditorGUILayout.Space(3);
+            // 如果处于展开状态，显示详细信息
+            if (component.IsExpanded)
+            {
+                EditorGUILayout.Space(2);
 
-                        // GameObject选择字段行
-            GameObject selectedGO = null;
-            EditorGUILayout.BeginHorizontal();
-            {
-                GUILayout.Label("对象:", GUILayout.Width(40));
-                
-                // GameObject选择字段
-                EditorGUI.BeginChangeCheck();
-                GameObject targetGO = null;
-                if (element.Component != null)
+                // 详细信息第一行：名称、状态
+                EditorGUILayout.BeginHorizontal();
                 {
-                    targetGO = element.Component.gameObject;
-                }
-                
-                selectedGO = (GameObject)EditorGUILayout.ObjectField(targetGO, typeof(GameObject), true, GUILayout.MinWidth(80));
-                bool gameObjectChanged = EditorGUI.EndChangeCheck();
-                
-                if (gameObjectChanged && selectedGO != targetGO)
-                {
-                    // GameObject改变时，清空当前组件选择
-                    element.Component = null;
-                    EditorUtility.SetDirty(m_UIFacade);
-                }
-            }
-            EditorGUILayout.EndHorizontal();
-            
-            // 组件选择下拉列表行
-            EditorGUILayout.BeginHorizontal();
-            {
-                GUILayout.Label("组件:", GUILayout.Width(40));
-                
-                GameObject currentGO = selectedGO;
-                
-                if (currentGO != null)
-                {
-                    // 获取GameObject上的所有组件
-                    Component[] allComponents = currentGO.GetComponents<Component>();
-                    Component[] validComponents = allComponents.Where(c => c != null && !(c is Transform)).ToArray();
-                    
-                    if (validComponents.Length > 0)
+                    GUILayout.Space(15); // 缩进
+
+                    // 名称字段
+                    EditorGUI.BeginChangeCheck();
+                    GUILayout.Label("名称:", GUILayout.Width(30));
+                    string newName = EditorGUILayout.TextField(component.Name, GUILayout.MinWidth(80));
+                    if (EditorGUI.EndChangeCheck())
                     {
-                        // 创建组件名称数组
-                        string[] componentNames = validComponents.Select(c => c.GetType().Name).ToArray();
-                        
-                        // 找到当前选中的组件索引
-                        int selectedIndex = -1;
-                        if (element.Component != null)
+                        if (ValidateComponentName(index, newName))
                         {
-                            selectedIndex = System.Array.IndexOf(validComponents, element.Component);
+                            component.Name = newName;
+                            SaveEditorData();
                         }
-                        
-                        // 绘制下拉列表
-                        EditorGUI.BeginChangeCheck();
-                        int newIndex = EditorGUILayout.Popup(selectedIndex, componentNames, GUILayout.MinWidth(120));
-                        
-                        if (EditorGUI.EndChangeCheck() && newIndex >= 0 && newIndex < validComponents.Length)
+                        else
                         {
-                            element.Component = validComponents[newIndex];
-                            if (string.IsNullOrEmpty(element.Name))
+                            EditorUtility.DisplayDialog("错误", "组件名称重复或无效！", "确定");
+                        }
+                    }
+
+                    GUILayout.Space(10);
+
+                    // 状态下拉
+                    GUILayout.Label("状态:", GUILayout.Width(30));
+                    component.ActiveDefault = (ElementActiveDefault)EditorGUILayout.EnumPopup(
+                        component.ActiveDefault, GUILayout.Width(60));
+                }
+                EditorGUILayout.EndHorizontal();
+
+                EditorGUILayout.Space(2);
+
+                // 详细信息第二行：对象、组件
+                EditorGUILayout.BeginHorizontal();
+                {
+                    GUILayout.Space(15); // 缩进
+
+                    // 对象选择字段
+                    GUILayout.Label("对象:", GUILayout.Width(35));
+                    GameObject currentGO = component.Component != null ? component.Component.gameObject : null;
+
+                    EditorGUI.BeginChangeCheck();
+                    float fieldWidth = 100;//(EditorGUIUtility.currentViewWidth - 150) / 2f;
+                    GameObject selectedGO = (GameObject)EditorGUILayout.ObjectField(currentGO, typeof(GameObject), true, GUILayout.Width(fieldWidth));
+                    if (EditorGUI.EndChangeCheck() && selectedGO != currentGO)
+                    {
+                        // ... 对象改变逻辑保持不变 ...
+                        if (selectedGO == null)
+                        {
+                            component.Component = null;
+                            component.SelectedInputTypes.Clear();
+                            SaveEditorData();
+                        }
+                        else
+                        {
+                            Component[] allComponents = selectedGO.GetComponents<Component>();
+                            Component[] validComponents = allComponents.Where(c => c != null && !(c is Transform)).ToArray();
+                            if (validComponents.Length > 0)
                             {
-                                element.Name = element.Component.gameObject.name;
+                                component.Component = validComponents[0];
+                                if (string.IsNullOrEmpty(component.Name)) component.Name = selectedGO.name;
+                                component.SelectedInputTypes.Clear();
+                                SaveEditorData();
                             }
-                            EditorUtility.SetDirty(m_UIFacade);
                         }
-                        
-                        // 显示组件详细信息
-                        if (element.Component != null)
+                    }
+
+                    GUILayout.Label("组件:", GUILayout.Width(35));
+                    GameObject targetGO = selectedGO != null ? selectedGO : currentGO;
+
+                    if (targetGO != null)
+                    {
+                        Component[] allComponents = targetGO.GetComponents<Component>();
+                        Component[] validComponents = allComponents.Where(c => c != null && !(c is Transform)).ToArray();
+
+                        if (validComponents.Length > 0)
                         {
-                            GUILayout.Label($"({element.Component.GetType().Namespace})", SirenixGUIStyles.RightAlignedGreyMiniLabel, GUILayout.MaxWidth(150));
+                            string[] componentNames = validComponents.Select(c => c.GetType().Name).ToArray();
+                            int selectedIndex = System.Array.IndexOf(validComponents, component.Component);
+
+                            EditorGUI.BeginChangeCheck();
+                            int newIndex = EditorGUILayout.Popup(selectedIndex, componentNames, GUILayout.Width(fieldWidth));
+                            if (EditorGUI.EndChangeCheck() && newIndex >= 0)
+                            {
+                                component.Component = validComponents[newIndex];
+                                SaveEditorData();
+                            }
+                        }
+                        else
+                        {
+                            EditorGUILayout.LabelField("无组件", SirenixGUIStyles.RightAlignedGreyMiniLabel, GUILayout.Width(fieldWidth));
                         }
                     }
                     else
                     {
-                        EditorGUILayout.LabelField("该对象没有可用组件", SirenixGUIStyles.RightAlignedGreyMiniLabel);
+                        EditorGUILayout.LabelField("请选择对象", SirenixGUIStyles.RightAlignedGreyMiniLabel, GUILayout.Width(fieldWidth));
                     }
                 }
-                else
-                {
-                    EditorGUILayout.LabelField("请先选择GameObject", SirenixGUIStyles.RightAlignedGreyMiniLabel);
-                }
-            }
-            EditorGUILayout.EndHorizontal();
+                EditorGUILayout.EndHorizontal();
 
-            // 显示组件信息
-            if (element.Component != null)
-            {
-                EditorGUILayout.Space(2);
-                SirenixEditorGUI.BeginIndentedVertical();
+                // 详细信息第三行：Input类型
+                if (component.Component != null && IsUIInputComponent(component.Component))
                 {
-                    EditorGUILayout.LabelField("类型", element.Component.GetType().Name, SirenixGUIStyles.RightAlignedGreyMiniLabel);
-                    EditorGUILayout.LabelField("路径", GetGameObjectPath(element.Component.gameObject), SirenixGUIStyles.RightAlignedGreyMiniLabel);
+                    EditorGUILayout.BeginHorizontal();
+                    GUILayout.Space(15); // 缩进
+                    DrawInputTypesMultiSelect(component);
+                    EditorGUILayout.EndHorizontal();
                 }
-                SirenixEditorGUI.EndIndentedVertical();
-            }
-            else
-            {
-                EditorGUILayout.Space(2);
-                SirenixEditorGUI.WarningMessageBox("请拖拽一个组件到上方的组件字段");
             }
         }
         SirenixEditorGUI.EndBox();
+    }
 
-        EditorGUILayout.Space(3);
+    // 检测组件是否实现了 IUIInputComponent
+    private bool IsUIInputComponent(Component component)
+    {
+        if (component == null) return false;
+
+        Type componentType = component.GetType();
+        return typeof(IUIInputComponent).IsAssignableFrom(componentType);
+    }
+
+    // 获取组件可注册的 Input 类型列表
+    private List<InputEnum> GetAvailableInputTypes(Component component)
+    {
+        if (component == null) return new List<InputEnum>();
+
+        Type componentType = component.GetType();
+        List<InputEnum> availableTypes = new List<InputEnum>();
+
+        // 遍历 InputMapComponent，查找匹配的接口类型
+        foreach (var kvp in InputMap.InputMapComponent)
+        {
+            Type interfaceType = kvp.Key;
+
+            // 检查组件类型是否实现了该接口
+            if (interfaceType.IsAssignableFrom(componentType))
+            {
+                // 添加该接口对应的所有 Input 类型
+                foreach (var inputType in kvp.Value)
+                {
+                    if (!availableTypes.Contains(inputType))
+                    {
+                        availableTypes.Add(inputType);
+                    }
+                }
+            }
+        }
+
+        return availableTypes;
+    }
+
+    // 绘制 Input 类型多选下拉
+    private void DrawInputTypesMultiSelect(UIComponent component)
+    {
+        if (component.Component == null) return;
+
+        List<InputEnum> availableTypes = GetAvailableInputTypes(component.Component);
+
+        if (availableTypes.Count == 0)
+        {
+            EditorGUILayout.LabelField("该组件无可注册的 Input 类型", SirenixGUIStyles.RightAlignedGreyMiniLabel);
+            return;
+        }
+
+        EditorGUILayout.BeginHorizontal();
+        {
+            GUILayout.Label("Input类型:", GUILayout.Width(70));
+
+            // 创建选项数组
+            string[] options = availableTypes.Select(t => t.ToString()).ToArray();
+
+            // 创建选中标记数组（用于多选）
+            bool[] selectedFlags = new bool[availableTypes.Count];
+            for (int i = 0; i < availableTypes.Count; i++)
+            {
+                selectedFlags[i] = component.SelectedInputTypes.Contains(availableTypes[i]);
+            }
+
+            // 使用 MaskField 实现多选
+            EditorGUI.BeginChangeCheck();
+
+            int maskValue = 0;
+            for (int i = 0; i < availableTypes.Count; i++)
+            {
+                if (selectedFlags[i])
+                {
+                    maskValue |= (1 << i);
+                }
+            }
+
+            int newMaskValue = EditorGUILayout.MaskField(maskValue, options, GUILayout.MinWidth(150));
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                component.SelectedInputTypes.Clear();
+                for (int i = 0; i < availableTypes.Count; i++)
+                {
+                    if ((newMaskValue & (1 << i)) != 0)
+                    {
+                        component.SelectedInputTypes.Add(availableTypes[i]);
+                    }
+                }
+                SaveEditorData();
+            }
+
+            // 显示已选中的类型
+            if (component.SelectedInputTypes.Count > 0)
+            {
+                string selectedText = string.Join(", ", component.SelectedInputTypes);
+                GUILayout.Label($"({selectedText})", SirenixGUIStyles.RightAlignedGreyMiniLabel, GUILayout.MaxWidth(200));
+            }
+        }
+        EditorGUILayout.EndHorizontal();
     }
 
     private void DrawToolButtons()
     {
-        SirenixEditorGUI.BeginBox("工具栏");
+        SirenixEditorGUI.InfoMessageBox("使用以下工具来管理UI元素和配置");
+
+        EditorGUILayout.Space(3);
+
+        // 第一行工具按钮
+        EditorGUILayout.BeginHorizontal();
         {
-            SirenixEditorGUI.InfoMessageBox("使用以下工具来管理UI元素和配置");
-
-            EditorGUILayout.Space(5);
-
-            // 第一行工具按钮
-            EditorGUILayout.BeginHorizontal();
+            // 自动收集按钮
+            GUI.backgroundColor = new Color(0.7f, 1f, 0.7f);
+            if (GUILayout.Button(new GUIContent("自动收集子对象", "自动收集GameObject下的所有组件"), GUILayout.Height(22)))
             {
-                // 自动收集按钮
-                GUI.backgroundColor = new Color(0.7f, 1f, 0.7f);
-                if (GUILayout.Button(new GUIContent("自动收集子对象", "自动收集GameObject下的所有组件"), GUILayout.Height(25)))
-                {
-                    AutoCollectChildComponents();
-                }
-
-                // 清空按钮
-                GUI.backgroundColor = new Color(1f, 0.7f, 0.7f);
-                if (GUILayout.Button(new GUIContent("清空列表", "清空所有UI元素"), GUILayout.Height(25)))
-                {
-                    if (EditorUtility.DisplayDialog("确认", "确定要清空所有UI元素吗？", "确定", "取消"))
-                    {
-                        ClearUIElements();
-                    }
-                }
-
-                // 保存按钮
-                GUI.backgroundColor = new Color(0.7f, 0.9f, 1f);
-                if (GUILayout.Button(new GUIContent("保存配置", "保存当前配置到文件"), GUILayout.Height(25)))
-                {
-                    SaveComponent();
-                }
-                GUI.backgroundColor = Color.white;
+                AutoCollectChildComponents();
             }
-            EditorGUILayout.EndHorizontal();
 
-            EditorGUILayout.Space(5);
-
-            // 第二行工具按钮
-            EditorGUILayout.BeginHorizontal();
+            // 清空按钮
+            GUI.backgroundColor = new Color(1f, 0.7f, 0.7f);
+            if (GUILayout.Button(new GUIContent("清空列表", "清空所有UI组件"), GUILayout.Height(22)))
             {
-                // 验证按钮
-                GUI.backgroundColor = new Color(1f, 0.9f, 0.7f);
-                if (GUILayout.Button(new GUIContent("验证配置", "检查配置的完整性和有效性"), GUILayout.Height(25)))
+                if (EditorUtility.DisplayDialog("确认", "确定要清空所有UI组件吗？", "确定", "取消"))
                 {
-                    ValidateConfiguration();
+                    ClearUIComponents();
                 }
-
-                // 生成脚本按钮
-                GUI.backgroundColor = new Color(0.9f, 0.7f, 1f);
-                if (GUILayout.Button(new GUIContent("生成脚本", "根据配置生成相关脚本代码"), GUILayout.Height(25)))
-                {
-                    GenerateScript();
-                }
-                GUI.backgroundColor = Color.white;
             }
-            EditorGUILayout.EndHorizontal();
+
+            // 保存按钮
+            GUI.backgroundColor = new Color(0.7f, 0.9f, 1f);
+            if (GUILayout.Button(new GUIContent("保存配置", "保存当前配置到文件"), GUILayout.Height(22)))
+            {
+                SaveComponent();
+            }
+            GUI.backgroundColor = Color.white;
         }
-        SirenixEditorGUI.EndBox();
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.Space(3);
+
+        // 第二行工具按钮
+        EditorGUILayout.BeginHorizontal();
+        {
+            // 验证按钮
+            GUI.backgroundColor = new Color(1f, 0.9f, 0.7f);
+            if (GUILayout.Button(new GUIContent("验证配置", "检查配置的完整性和有效性"), GUILayout.Height(22)))
+            {
+                ValidateConfiguration();
+            }
+
+            // 生成脚本按钮
+            GUI.backgroundColor = new Color(0.9f, 0.7f, 1f);
+            if (GUILayout.Button(new GUIContent("生成脚本", "根据配置生成相关脚本代码"), GUILayout.Height(22)))
+            {
+                GenerateScript();
+            }
+            GUI.backgroundColor = Color.white;
+        }
+        EditorGUILayout.EndHorizontal();
     }
 
-    private void AddNewUIElement()
+    private void AddNewUIComponent()
     {
-        m_UIFacade.Elements.Add(new UIElement
+        if (m_EditorData.Components == null)
         {
-            Name = $"Element_{m_UIFacade.Elements.Count}",
+            m_EditorData.Components = new UIComponent[0];
+        }
+
+        var newArray = new UIComponent[m_EditorData.Components.Length + 1];
+        System.Array.Copy(m_EditorData.Components, newArray, m_EditorData.Components.Length);
+        newArray[m_EditorData.Components.Length] = new UIComponent
+        {
+            Name = $"Component_{m_EditorData.Components.Length}",
             Component = null,
             ActiveDefault = ElementActiveDefault.Default
-        });
-        EditorUtility.SetDirty(m_UIFacade);
+        };
+        m_EditorData.Components = newArray;
+        SaveEditorData();
     }
 
-    private void RemoveUIElement(int index)
+    private void RemoveUIComponent(int index)
     {
-        if (index >= 0 && index < m_UIFacade.Elements.Count)
+        if (m_EditorData.Components == null || index < 0 || index >= m_EditorData.Components.Length)
+            return;
+
+        var newArray = new UIComponent[m_EditorData.Components.Length - 1];
+        for (int i = 0, j = 0; i < m_EditorData.Components.Length; i++)
         {
-            m_UIFacade.Elements.RemoveAt(index);
-            EditorUtility.SetDirty(m_UIFacade);
+            if (i != index)
+            {
+                newArray[j++] = m_EditorData.Components[i];
+            }
         }
+        m_EditorData.Components = newArray;
+        SaveEditorData();
     }
 
-    private void RefreshUIElements()
+    private void RefreshUIComponents()
     {
-        // 移除空的元素
-        m_UIFacade.Elements.RemoveAll(e => e == null || e.Component == null);
-        EditorUtility.SetDirty(m_UIFacade);
+        if (m_EditorData.Components == null) return;
+
+        // 移除空的组件
+        var validComponents = m_EditorData.Components
+            .Where(c => c != null && c.Component != null)
+            .ToArray();
+
+        m_EditorData.Components = validComponents;
+        SaveEditorData();
     }
 
-    private bool ValidateElementName(int index, string name)
+    private bool ValidateComponentName(int index, string name)
     {
         if (string.IsNullOrEmpty(name)) return false;
-        return UIFacadeUtils.CheckName(m_UIFacade, index, name);
+        if (m_EditorData.Components == null) return true;
+
+        // 检查是否有重复的名称
+        for (int i = 0; i < m_EditorData.Components.Length; i++)
+        {
+            if (i != index && m_EditorData.Components[i] != null && m_EditorData.Components[i].Name == name)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
-        private void AutoCollectChildComponents()
+    private void AutoCollectChildComponents()
     {
+        if (m_EditorData.Components == null)
+        {
+            m_EditorData.Components = new UIComponent[0];
+        }
+
         // 获取所有子GameObject（包括自己）
         var allGameObjects = m_UIFacade.GetComponentsInChildren<Transform>(true)
             .Select(t => t.gameObject)
             .Where(go => go != m_UIFacade.gameObject) // 排除自己
             .ToArray();
+
+        var newComponents = new List<UIComponent>(m_EditorData.Components);
 
         foreach (var go in allGameObjects)
         {
@@ -592,27 +766,28 @@ public class UIFacadeInspector : OdinEditor
             {
                 // 优先选择UI相关的组件
                 Component selectedComponent = SelectBestComponent(components);
-                
-                string elementName = go.name;
-                
-                // 检查是否已存在同名元素
-                if (!m_UIFacade.Elements.Any(e => e.Name == elementName))
+
+                string componentName = go.name;
+
+                // 检查是否已存在同名组件
+                if (!newComponents.Any(c => c != null && c.Name == componentName))
                 {
-                    m_UIFacade.Elements.Add(new UIElement
+                    newComponents.Add(new UIComponent
                     {
-                        Name = elementName,
+                        Name = componentName,
                         Component = selectedComponent,
-                        ActiveDefault = go.activeInHierarchy ? 
+                        ActiveDefault = go.activeInHierarchy ?
                             ElementActiveDefault.Active : ElementActiveDefault.DeActive
                     });
                 }
             }
         }
-        
-        EditorUtility.SetDirty(m_UIFacade);
-        Debug.Log($"自动收集完成，添加了 {m_UIFacade.Elements.Count} 个UI元素");
+
+        m_EditorData.Components = newComponents.ToArray();
+        SaveEditorData();
+        Debug.Log($"自动收集完成，添加了 {m_EditorData.Components.Length} 个UI组件");
     }
-    
+
     private Component SelectBestComponent(Component[] components)
     {
         // 定义组件优先级（从高到低）
@@ -647,36 +822,45 @@ public class UIFacadeInspector : OdinEditor
         return components[0];
     }
 
-    private void ClearUIElements()
+    private void ClearUIComponents()
     {
-        m_UIFacade.Elements.Clear();
-        EditorUtility.SetDirty(m_UIFacade);
+        m_EditorData.Components = new UIComponent[0];
+        SaveEditorData();
     }
 
     private void ValidateConfiguration()
     {
         var issues = new List<string>();
 
-        if (string.IsNullOrEmpty(m_UIFacade.UIName))
+        if (string.IsNullOrEmpty(m_EditorData.UIName))
             issues.Add("UI名称不能为空");
 
-        if (string.IsNullOrEmpty(m_UIFacade.ScriptName))
+        if (string.IsNullOrEmpty(m_EditorData.ScriptName))
             issues.Add("脚本名称不能为空");
 
-        var duplicateNames = m_UIFacade.Elements
-            .GroupBy(e => e.Name)
-            .Where(g => g.Count() > 1)
-            .Select(g => g.Key);
+        if (m_EditorData.Components != null && m_EditorData.Components.Length > 0)
+        {
+            var duplicateNames = m_EditorData.Components
+                .Where(c => c != null)
+                .GroupBy(c => c.Name)
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key);
 
-        if (duplicateNames.Any())
-            issues.Add($"发现重复的元素名称: {string.Join(", ", duplicateNames)}");
+            if (duplicateNames.Any())
+                issues.Add($"发现重复的组件名称: {string.Join(", ", duplicateNames)}");
 
-        var nullComponents = m_UIFacade.Elements
-            .Where((e, i) => e.Component == null)
-            .Select((e, i) => i);
+            var nullComponents = new List<int>();
+            for (int i = 0; i < m_EditorData.Components.Length; i++)
+            {
+                if (m_EditorData.Components[i] == null || m_EditorData.Components[i].Component == null)
+                {
+                    nullComponents.Add(i);
+                }
+            }
 
-        if (nullComponents.Any())
-            issues.Add($"以下索引的组件为空: {string.Join(", ", nullComponents)}");
+            if (nullComponents.Any())
+                issues.Add($"以下索引的组件为空: {string.Join(", ", nullComponents)}");
+        }
 
         if (issues.Any())
         {
@@ -691,8 +875,95 @@ public class UIFacadeInspector : OdinEditor
 
     private void GenerateScript()
     {
-        // TODO: 实现脚本生成功能
-        EditorUtility.DisplayDialog("功能开发中", "脚本生成功能正在开发中...", "确定");
+        if (m_UIFacade == null || m_EditorData == null || string.IsNullOrEmpty(m_EditorData.ScriptName))
+        {
+            EditorUtility.DisplayDialog("错误", "脚本名称不能为空，请先配置基本信息", "确定");
+            return;
+        }
+
+        string scriptName = m_EditorData.ScriptName;
+        
+        // 1. 生成 Generated 文件 (总是覆盖)
+        string generatedFolderPath = "Assets/Generated/UI";
+        if (!Directory.Exists(generatedFolderPath)) Directory.CreateDirectory(generatedFolderPath);
+        
+        string generatedFilePath = Path.Combine(generatedFolderPath, scriptName + ".Generated.cs");
+        WriteGeneratedFile(generatedFilePath, scriptName);
+
+        // 2. 生成 Logic 文件 (如果不存在)
+        string logicFolderPath = "Assets/Scripts/UI"; 
+        if (!Directory.Exists(logicFolderPath)) Directory.CreateDirectory(logicFolderPath);
+        
+        string logicFilePath = Path.Combine(logicFolderPath, scriptName + ".cs");
+        bool logicFileExists = File.Exists(logicFilePath);
+        if (!logicFileExists)
+        {
+            WriteLogicFile(logicFilePath, scriptName);
+        }
+
+        AssetDatabase.Refresh();
+        
+        string msg = $"脚本生成完毕！\n\n生成文件: {generatedFilePath}";
+        if (!logicFileExists) msg += $"\n逻辑文件: {logicFilePath}";
+        else msg += $"\n逻辑文件已存在，未跳过。";
+        
+        EditorUtility.DisplayDialog("成功", msg, "确定");
+    }
+
+    private void WriteGeneratedFile(string filePath, string scriptName)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.AppendLine("using UnityEngine;");
+        sb.AppendLine("using UnityEngine.UI;");
+        sb.AppendLine("using NFramework.Module.UIModule;");
+        sb.AppendLine("using TMPro;");
+        sb.AppendLine("");
+        sb.AppendLine("// 自动生成代码，请勿手动修改");
+        sb.AppendLine("namespace NFramework.Module.UIModule");
+        sb.AppendLine("{");
+        sb.AppendLine($"    public partial class {scriptName}");
+        sb.AppendLine("    {");
+
+        if (m_EditorData.Components != null)
+        {
+            for (int i = 0; i < m_EditorData.Components.Length; i++)
+            {
+                var comp = m_EditorData.Components[i];
+                if (comp != null && comp.Component != null && !string.IsNullOrEmpty(comp.Name))
+                {
+                    string typeName = comp.Component.GetType().FullName;
+                    sb.AppendLine($"        public {typeName} {comp.Name} => Facade.m_RuntimeInputComponents[{i}] as {typeName};");
+                }
+            }
+        }
+
+        sb.AppendLine("    }");
+        sb.AppendLine("}");
+        File.WriteAllText(filePath, sb.ToString());
+    }
+
+    private void WriteLogicFile(string filePath, string scriptName)
+    {
+        bool isWindow = m_ViewConfig != null && m_ViewConfig.IsWindow;
+        string baseClass = isWindow ? "Window" : "View";
+
+        StringBuilder sb = new StringBuilder();
+        sb.AppendLine("using UnityEngine;");
+        sb.AppendLine("using UnityEngine.UI;");
+        sb.AppendLine("using NFramework.Module.UIModule;");
+        sb.AppendLine("using TMPro;");
+        sb.AppendLine("");
+        sb.AppendLine("namespace NFramework.Module.UIModule");
+        sb.AppendLine("{");
+        sb.AppendLine($"    public partial class {scriptName} : {baseClass}");
+        sb.AppendLine("    {");
+        sb.AppendLine("        protected override void OnAwake()");
+        sb.AppendLine("        {");
+        sb.AppendLine("            base.OnAwake();");
+        sb.AppendLine("        }");
+        sb.AppendLine("    }");
+        sb.AppendLine("}");
+        File.WriteAllText(filePath, sb.ToString());
     }
 
     private void SaveComponent()
@@ -704,85 +975,80 @@ public class UIFacadeInspector : OdinEditor
 
     private void DrawViewConfig()
     {
-        SirenixEditorGUI.BeginBox("View配置");
+        if (m_ViewConfig == null)
         {
+            // 尝试重新初始化ViewConfig
+            m_ViewConfig = UIConfigUtilsEditor.GetViewConfig(m_UIFacade);
+            
             if (m_ViewConfig == null)
             {
-                // 尝试重新初始化ViewConfig
-                m_ViewConfig = UIConfigUtilsEditor.GetViewConfig(m_UIFacade);
-                
-                if (m_ViewConfig == null)
-                {
-                    SirenixEditorGUI.ErrorMessageBox("ViewConfig初始化失败！");
-                    SirenixEditorGUI.EndBox();
-                    return;
-                }
+                SirenixEditorGUI.ErrorMessageBox("ViewConfig初始化失败！");
+                return;
             }
-
-            // 配置说明
-            SirenixEditorGUI.InfoMessageBox("配置UI视图的显示层级和窗口属性");
-
-            EditorGUILayout.Space(8);
-
-            EditorGUI.BeginChangeCheck();
-
-            // ID字段（只读显示）
-            EditorGUILayout.BeginHorizontal();
-            {
-                EditorGUILayout.LabelField("配置ID:", GUILayout.Width(80));
-                EditorGUILayout.LabelField(m_ViewConfig.ID ?? "未设置", SirenixGUIStyles.RightAlignedGreyMiniLabel);
-            }
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.Space(3);
-
-            // AssetID字段
-            string newAssetID = SirenixEditorFields.TextField("资源ID", m_ViewConfig.AssetID ?? "");
-            if (m_ViewConfig.AssetID != newAssetID)
-            {
-                m_ViewConfig.AssetID = newAssetID;
-            }
-
-            EditorGUILayout.Space(8);
-
-            // UI层级设置
-            UIlayer currentLayer = m_ViewConfig.Layer;
-            UIlayer newLayer = (UIlayer)SirenixEditorFields.EnumDropdown("UI层级", currentLayer);
-            if (currentLayer != newLayer)
-            {
-                m_ViewConfig.SetLayer(newLayer);
-            }
-
-            // 显示层级数值和说明
-            SirenixEditorGUI.BeginIndentedHorizontal();
-            {
-                EditorGUILayout.LabelField("层级值:", $"{(int)newLayer}", SirenixGUIStyles.RightAlignedGreyMiniLabel);
-                EditorGUILayout.LabelField("说明:", GetLayerDescription(newLayer), SirenixGUIStyles.RightAlignedGreyMiniLabel);
-            }
-            SirenixEditorGUI.EndIndentedHorizontal();
-
-            EditorGUILayout.Space(5);
-
-            // 显示窗口模式说明
-            SirenixEditorGUI.BeginIndentedHorizontal();
-            {
-                bool isWindow = m_ViewConfig != null && m_ViewConfig.IsWindow;
-                string modeText = isWindow ? "窗口模式 - 可独立管理的UI窗口" : "视图模式 - 普通UI视图";
-                EditorGUILayout.LabelField("当前模式:", modeText, SirenixGUIStyles.RightAlignedGreyMiniLabel);
-            }
-            SirenixEditorGUI.EndIndentedHorizontal();
-
-            if (EditorGUI.EndChangeCheck())
-            {
-                EditorUtility.SetDirty(target);
-            }
-
-            EditorGUILayout.Space(10);
-
-            // ViewConfig工具按钮
-            DrawViewConfigTools();
         }
-        SirenixEditorGUI.EndBox();
+
+        // 配置说明
+        SirenixEditorGUI.InfoMessageBox("配置UI视图的显示层级和窗口属性");
+
+        EditorGUILayout.Space(5);
+
+        EditorGUI.BeginChangeCheck();
+
+        // ID字段（只读显示）
+        EditorGUILayout.BeginHorizontal();
+        {
+            EditorGUILayout.LabelField("配置ID:", GUILayout.Width(80));
+            EditorGUILayout.LabelField(m_ViewConfig.ID ?? "未设置", SirenixGUIStyles.RightAlignedGreyMiniLabel);
+        }
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.Space(2);
+
+        // AssetID字段
+        string newAssetID = SirenixEditorFields.TextField("资源ID", m_ViewConfig.AssetID ?? "");
+        if (m_ViewConfig.AssetID != newAssetID)
+        {
+            m_ViewConfig.AssetID = newAssetID;
+        }
+
+        EditorGUILayout.Space(8);
+
+        // UI层级设置
+        UIlayer currentLayer = m_ViewConfig.Layer;
+        UIlayer newLayer = (UIlayer)SirenixEditorFields.EnumDropdown("UI层级", currentLayer);
+        if (currentLayer != newLayer)
+        {
+            m_ViewConfig.SetLayer(newLayer);
+        }
+
+        // 显示层级数值和说明
+        SirenixEditorGUI.BeginIndentedHorizontal();
+        {
+            EditorGUILayout.LabelField("层级值:", $"{(int)newLayer}", SirenixGUIStyles.RightAlignedGreyMiniLabel);
+            EditorGUILayout.LabelField("说明:", GetLayerDescription(newLayer), SirenixGUIStyles.RightAlignedGreyMiniLabel);
+        }
+        SirenixEditorGUI.EndIndentedHorizontal();
+
+        EditorGUILayout.Space(5);
+
+        // 显示窗口模式说明
+        SirenixEditorGUI.BeginIndentedHorizontal();
+        {
+            bool isWindow = m_ViewConfig != null && m_ViewConfig.IsWindow;
+            string modeText = isWindow ? "窗口模式 - 可独立管理的UI窗口" : "视图模式 - 普通UI视图";
+            EditorGUILayout.LabelField("当前模式:", modeText, SirenixGUIStyles.RightAlignedGreyMiniLabel);
+        }
+        SirenixEditorGUI.EndIndentedHorizontal();
+
+        if (EditorGUI.EndChangeCheck())
+        {
+            EditorUtility.SetDirty(target);
+        }
+
+        EditorGUILayout.Space(5);
+
+        // ViewConfig工具按钮
+        DrawViewConfigTools();
     }
 
 
@@ -845,11 +1111,11 @@ public class UIFacadeInspector : OdinEditor
 
     private void SyncIDToViewConfig()
     {
-        if (!string.IsNullOrEmpty(m_UIFacade.ID))
+        if (!string.IsNullOrEmpty(m_EditorData.ID))
         {
-            m_ViewConfig.ID = m_UIFacade.ID;
+            m_ViewConfig.ID = m_EditorData.ID;
             EditorUtility.SetDirty(target);
-            Debug.Log($"已同步ID: {m_UIFacade.ID}");
+            Debug.Log($"已同步ID: {m_EditorData.ID}");
         }
         else
         {
@@ -876,96 +1142,96 @@ public class UIFacadeInspector : OdinEditor
     private void GenerateScriptNameAndID()
     {
         if (m_UIFacade == null) return;
-        
+
         // 获取各个组件
-        string moduleName = CleanName(m_UIFacade.ModuleName);
-        string subModuleName = m_EnableSubModule ? CleanName(m_UIFacade.SubModuleName) : "";
-        string uiName = CleanName(m_UIFacade.UIName);
-        
+        string moduleName = CleanName(m_EditorData.ModuleName);
+        string subModuleName = m_EnableSubModule ? CleanName(m_EditorData.SubModuleName) : "";
+        string uiName = CleanName(m_EditorData.UIName);
+
         // 生成脚本名称 (PascalCase)
         // 规则: ModuleNameSubModuleNameUINameWindow/View
         if (!string.IsNullOrEmpty(uiName))
         {
             string scriptName = "";
-            
+
             // 添加模块名
             if (!string.IsNullOrEmpty(moduleName))
             {
                 scriptName += ToPascalCase(moduleName);
             }
-            
+
             // 添加子模块名（如果启用）
             if (!string.IsNullOrEmpty(subModuleName))
             {
                 scriptName += ToPascalCase(subModuleName);
             }
-            
+
             // 添加UI名称
             scriptName += ToPascalCase(uiName);
-            
+
             // 添加后缀（根据是否为窗口模式）
             bool isWindow = m_ViewConfig != null && m_ViewConfig.IsWindow;
             scriptName += isWindow ? "Window" : "View";
-            
-            m_UIFacade.ScriptName = scriptName;
+
+            m_EditorData.ScriptName = scriptName;
         }
         else
         {
-            m_UIFacade.ScriptName = "";
+            m_EditorData.ScriptName = "";
         }
-        
+
         // 生成ID (snake_case)
         // 规则: module_name.sub_module_name.ui_name
         if (!string.IsNullOrEmpty(uiName))
         {
             List<string> idParts = new List<string>();
-            
+
             // 添加模块名
             if (!string.IsNullOrEmpty(moduleName))
             {
                 idParts.Add(ToSnakeCase(moduleName));
             }
-            
+
             // 添加子模块名（如果启用）
             if (!string.IsNullOrEmpty(subModuleName))
             {
                 idParts.Add(ToSnakeCase(subModuleName));
             }
-            
+
             // 添加UI名称
             idParts.Add(ToSnakeCase(uiName));
-            
-            m_UIFacade.ID = string.Join(".", idParts);
+
+            m_EditorData.ID = string.Join(".", idParts);
         }
         else
         {
-            m_UIFacade.ID = "";
+            m_EditorData.ID = "";
         }
-        
+
         // 更新ViewConfig的ID
-        if (m_ViewConfig != null && !string.IsNullOrEmpty(m_UIFacade.ID))
+        if (m_ViewConfig != null && !string.IsNullOrEmpty(m_EditorData.ID))
         {
-            m_ViewConfig.ID = m_UIFacade.ID;
+            m_ViewConfig.ID = m_EditorData.ID;
         }
-        
-        EditorUtility.SetDirty(m_UIFacade);
+
+        SaveEditorData();
     }
-    
+
     private string CleanName(string name)
     {
         if (string.IsNullOrEmpty(name)) return "";
-        
+
         // 移除特殊字符，只保留字母数字和空格
         return System.Text.RegularExpressions.Regex.Replace(name.Trim(), @"[^a-zA-Z0-9\s]", "");
     }
-    
+
     private string ToPascalCase(string input)
     {
         if (string.IsNullOrEmpty(input)) return "";
-        
+
         // 分割单词（按空格、下划线、连字符）
         string[] words = System.Text.RegularExpressions.Regex.Split(input, @"[\s_-]+");
-        
+
         string result = "";
         foreach (string word in words)
         {
@@ -974,17 +1240,17 @@ public class UIFacadeInspector : OdinEditor
                 result += char.ToUpper(word[0]) + word.Substring(1).ToLower();
             }
         }
-        
+
         return result;
     }
-    
+
     private string ToSnakeCase(string input)
     {
         if (string.IsNullOrEmpty(input)) return "";
-        
+
         // 分割单词（按空格、下划线、连字符、驼峰命名）
         string[] words = System.Text.RegularExpressions.Regex.Split(input, @"[\s_-]+|(?=[A-Z])");
-        
+
         List<string> cleanWords = new List<string>();
         foreach (string word in words)
         {
@@ -993,25 +1259,25 @@ public class UIFacadeInspector : OdinEditor
                 cleanWords.Add(word.ToLower());
             }
         }
-        
+
         return string.Join("_", cleanWords);
     }
-    
+
     private string GenerateExampleScriptName()
     {
         // 使用当前输入生成示例
-        string moduleName = CleanName(m_UIFacade.ModuleName);
-        string subModuleName = m_EnableSubModule ? CleanName(m_UIFacade.SubModuleName) : "";
-        string uiName = CleanName(m_UIFacade.UIName);
-        
+        string moduleName = CleanName(m_EditorData.ModuleName);
+        string subModuleName = m_EnableSubModule ? CleanName(m_EditorData.SubModuleName) : "";
+        string uiName = CleanName(m_EditorData.UIName);
+
         if (string.IsNullOrEmpty(moduleName) && string.IsNullOrEmpty(subModuleName) && string.IsNullOrEmpty(uiName))
         {
             // 显示默认示例
             return "GameUILoginView";
         }
-        
+
         string scriptName = "";
-        
+
         if (!string.IsNullOrEmpty(moduleName))
         {
             scriptName += ToPascalCase(moduleName);
@@ -1020,7 +1286,7 @@ public class UIFacadeInspector : OdinEditor
         {
             scriptName += "Game"; // 默认示例
         }
-        
+
         if (!string.IsNullOrEmpty(subModuleName))
         {
             scriptName += ToPascalCase(subModuleName);
@@ -1029,7 +1295,7 @@ public class UIFacadeInspector : OdinEditor
         {
             scriptName += "UI"; // 默认示例
         }
-        
+
         if (!string.IsNullOrEmpty(uiName))
         {
             scriptName += ToPascalCase(uiName);
@@ -1038,28 +1304,28 @@ public class UIFacadeInspector : OdinEditor
         {
             scriptName += "Login"; // 默认示例
         }
-        
+
         bool isWindow = m_ViewConfig != null && m_ViewConfig.IsWindow;
         scriptName += isWindow ? "Window" : "View";
-        
+
         return scriptName;
     }
-    
+
     private string GenerateExampleID()
     {
         // 使用当前输入生成示例
-        string moduleName = CleanName(m_UIFacade.ModuleName);
-        string subModuleName = m_EnableSubModule ? CleanName(m_UIFacade.SubModuleName) : "";
-        string uiName = CleanName(m_UIFacade.UIName);
-        
+        string moduleName = CleanName(m_EditorData.ModuleName);
+        string subModuleName = m_EnableSubModule ? CleanName(m_EditorData.SubModuleName) : "";
+        string uiName = CleanName(m_EditorData.UIName);
+
         if (string.IsNullOrEmpty(moduleName) && string.IsNullOrEmpty(subModuleName) && string.IsNullOrEmpty(uiName))
         {
             // 显示默认示例
             return "game.ui.login";
         }
-        
+
         List<string> idParts = new List<string>();
-        
+
         if (!string.IsNullOrEmpty(moduleName))
         {
             idParts.Add(ToSnakeCase(moduleName));
@@ -1068,7 +1334,7 @@ public class UIFacadeInspector : OdinEditor
         {
             idParts.Add("game"); // 默认示例
         }
-        
+
         if (!string.IsNullOrEmpty(subModuleName))
         {
             idParts.Add(ToSnakeCase(subModuleName));
@@ -1077,7 +1343,7 @@ public class UIFacadeInspector : OdinEditor
         {
             idParts.Add("ui"); // 默认示例
         }
-        
+
         if (!string.IsNullOrEmpty(uiName))
         {
             idParts.Add(ToSnakeCase(uiName));
@@ -1086,7 +1352,7 @@ public class UIFacadeInspector : OdinEditor
         {
             idParts.Add("login"); // 默认示例
         }
-        
+
         return string.Join(".", idParts);
     }
 

@@ -1,28 +1,33 @@
 using System.Collections.Generic;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace NFramework.Module.UIModule
 {
     public static class UIFacadeUtils
     {
-
+#if UNITY_EDITOR
         public static bool CheckName(UnityEngine.Object target, int index, string name)
         {
             UIFacade _uiFacade = (UIFacade)target;
-            for (int i = 0; i < _uiFacade.Elements.Count; i++)
+            var editorData = UIFacadeInspector.GetEditorData(_uiFacade);
+            if (editorData == null || editorData.Components == null) return true;
+            
+            for (int i = 0; i < editorData.Components.Length; i++)
             {
                 if (i == index)
                 {
                     continue;
                 }
-                UIElement _e = _uiFacade.Elements[i];
-                if (_e.Name == name)
+                UIComponent _c = editorData.Components[i];
+                if (_c != null && _c.Name == name)
                 {
                     return false;
                 }
             }
             return true;
         }
-
-
+#endif
     }
 }
